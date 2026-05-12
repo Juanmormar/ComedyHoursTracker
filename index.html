@@ -456,6 +456,82 @@
       .modal-card  { padding: 36px 28px 32px; }
       .modal-title { font-size: 22px; }
     }
+
+    /* ─── SYNC ERROR STATE ─── */
+
+    .sync-status.error { color: #ff3b30; }
+
+    /* ─── SYNC NOW BUTTON ─── */
+
+    .sync-now-btn {
+      display: block;
+      margin: 24px auto 0;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 980px;
+      padding: 9px 22px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .sync-now-btn:hover  { background: var(--accent-bg); border-color: var(--accent); }
+    .sync-now-btn:active { transform: scale(0.97); }
+    .sync-now-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ─── DEBUG PANEL ─── */
+
+    .debug-panel {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .debug-toggle {
+      font-family: inherit;
+      font-size: 11px;
+      color: var(--text-3);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .debug-toggle:hover { color: var(--text-2); }
+
+    .debug-body {
+      margin-top: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .debug-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      font-size: 11px;
+    }
+
+    .debug-label { color: var(--text-3); flex-shrink: 0; }
+
+    .debug-value {
+      font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+      font-size: 11px;
+      color: var(--text-2);
+      word-break: break-all;
+      text-align: right;
+    }
+
+    .debug-value.ok    { color: #34c759; }
+    .debug-value.error { color: #ff3b30; }
   </style>
 </head>
 <body>
@@ -518,6 +594,34 @@
     Data saved automatically
   </p>
 
+  <!-- ─── SYNC NOW ─── -->
+  <div id="syncActions" style="display:none">
+    <button id="syncNowBtn" class="sync-now-btn">↻ &nbsp;Sync now</button>
+  </div>
+
+  <!-- ─── DEBUG PANEL ─── -->
+  <div id="debugPanel" class="debug-panel" style="display:none">
+    <button id="debugToggle" class="debug-toggle">▸ Debug info</button>
+    <div id="debugBody" class="debug-body" hidden>
+      <div class="debug-row">
+        <span class="debug-label">Username</span>
+        <span class="debug-value" id="dbgUser">—</span>
+      </div>
+      <div class="debug-row">
+        <span class="debug-label">Bin ID</span>
+        <span class="debug-value" id="dbgBin">—</span>
+      </div>
+      <div class="debug-row">
+        <span class="debug-label">Last sync</span>
+        <span class="debug-value" id="dbgTime">—</span>
+      </div>
+      <div class="debug-row">
+        <span class="debug-label">API status</span>
+        <span class="debug-value" id="dbgStatus">—</span>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -549,6 +653,7 @@
   let longPressTimer  = null;
   let longPressFired  = false;
   let saveDebounce    = null;
+  let saveSeq         = 0;
   let statusHideTimer = null;
 
   /* ── Cloud availability ── */
@@ -563,6 +668,7 @@
     const el = document.getElementById('syncStatus');
     if (!el || !cloudOn()) return;
     clearTimeout(statusHideTimer);
+    el.classList.remove('error');
     el.classList.add('visible');
     if (state === 'saving') {
       el.textContent = 'Saving…';
@@ -572,6 +678,10 @@
     } else if (state === 'offline') {
       el.textContent = 'Offline — saved locally';
       statusHideTimer = setTimeout(() => el.classList.remove('visible'), 4000);
+    } else if (state === 'error') {
+      el.classList.add('error');
+      el.textContent = 'Sync error';
+      statusHideTimer = setTimeout(() => el.classList.remove('visible'), 6000);
     } else {
       el.classList.remove('visible');
     }
@@ -660,22 +770,110 @@
     try { localStorage.setItem(localKey(), JSON.stringify(data)); } catch {}
   }
 
+  /* ── Debug panel ── */
+
+  function updateDebug(extra = {}) {
+    if (!cloudOn()) return;
+    document.getElementById('debugPanel')?.removeAttribute('style');
+    document.getElementById('syncActions')?.removeAttribute('style');
+
+    function set(id, text, cls) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = text;
+      el.className = 'debug-value' + (cls ? ' ' + cls : '');
+    }
+
+    set('dbgUser', username || '—');
+    set('dbgBin',  currentBinId || '—', currentBinId ? 'ok' : 'error');
+
+    if (extra.time) {
+      set('dbgTime', extra.time.toLocaleTimeString());
+    }
+    if (extra.status !== undefined) {
+      const ok = extra.status === 200 || extra.status === 'ok';
+      set('dbgStatus', String(extra.status), ok ? 'ok' : 'error');
+    }
+  }
+
+  /* ── ensureBinId: recover bin ID if missing ── */
+
+  async function ensureBinId() {
+    if (currentBinId) return true;
+    const cached = localStorage.getItem(BINID_PFX + username);
+    if (cached) {
+      currentBinId = cached;
+      updateDebug();
+      return true;
+    }
+    try {
+      const reg = await readRegistry();
+      if (reg[username]) {
+        currentBinId = reg[username];
+        localStorage.setItem(BINID_PFX + username, currentBinId);
+        updateDebug();
+        return true;
+      }
+    } catch (err) {
+      console.error('[Comedy Tracker] ensureBinId: registry lookup failed:', err);
+    }
+    return false;
+  }
+
+  /* ── Manual sync ── */
+
+  async function syncNow() {
+    const btn = document.getElementById('syncNowBtn');
+    if (btn) btn.disabled = true;
+    showStatus('saving');
+
+    try {
+      const ok = await ensureBinId();
+      if (!ok) { showStatus('error'); return; }
+
+      const cloud = await readBin(currentBinId);
+      if (cloud !== null && cloud !== undefined && typeof cloud === 'object') {
+        data = cloud;
+        saveLocal();
+        render();
+        showStatus('saved');
+        updateDebug({ status: 200, time: new Date() });
+      } else {
+        showStatus('error');
+      }
+    } catch (err) {
+      console.error('[Comedy Tracker] syncNow failed:', err);
+      showStatus('error');
+      updateDebug({ status: 'error' });
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
   /* ── save: immediate local + debounced cloud ── */
 
   function save() {
     saveLocal();
+    updateDebug();
     if (!currentBinId) return;
+    const seq = ++saveSeq;
     clearTimeout(saveDebounce);
     showStatus('saving');
     saveDebounce = setTimeout(async () => {
       try {
         await writeBin(currentBinId, data);
-        showStatus('saved');
+        if (seq === saveSeq) {
+          showStatus('saved');
+          updateDebug({ status: 200, time: new Date() });
+        }
       } catch (err) {
-        console.error('[Comedy Tracker] Cloud save failed:', err);
-        showStatus('offline');
+        if (seq === saveSeq) {
+          console.error('[Comedy Tracker] Cloud save failed:', err);
+          showStatus('error');
+          updateDebug({ status: 'error' });
+        }
       }
-    }, 800);
+    }, 300);
   }
 
   /* ── User session ── */
@@ -756,13 +954,14 @@
         console.error('[Comedy Tracker] Could not read data bin — falling back to localStorage:', readErr);
       }
 
-      if (cloud && typeof cloud === 'object' && Object.keys(cloud).length > 0) {
-        data = cloud;
-        saveLocal(); // keep local in sync with cloud
+      if (cloud !== null && cloud !== undefined && typeof cloud === 'object') {
+        data = cloud; // cloud is source of truth — accept even empty {}
+        saveLocal();
       } else {
-        loadLocal(); // might have prior local data worth showing
+        loadLocal(); // only used when cloud fetch failed (null)
       }
 
+      updateDebug({ status: 200, time: new Date() });
       showStatus('idle');
     } catch (err) {
       console.error('[Comedy Tracker] initUser failed — running in local-only mode:', err);
@@ -969,6 +1168,16 @@
       if (e.key === 'Enter' && !confirm.disabled) confirmName();
     });
     confirm.addEventListener('click', confirmName);
+
+    document.getElementById('syncNowBtn')?.addEventListener('click', syncNow);
+
+    document.getElementById('debugToggle')?.addEventListener('click', () => {
+      const body   = document.getElementById('debugBody');
+      const toggle = document.getElementById('debugToggle');
+      const isHidden = body.hasAttribute('hidden');
+      body.toggleAttribute('hidden', !isHidden);
+      toggle.textContent = (isHidden ? '▾' : '▸') + ' Debug info';
+    });
 
     // Render an empty calendar so layout is stable before cloud loads
     render();
