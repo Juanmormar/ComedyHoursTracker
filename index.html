@@ -580,15 +580,24 @@
   /* ── JSONBin fetch wrapper ── */
 
   async function apiFetch(path, opts = {}) {
-    const res = await fetch(`${BASE}${path}`, {
-      ...opts,
-      headers: {
-        'X-Master-Key': API_KEY,
-        'Content-Type': 'application/json',
-        ...(opts.headers || {})
-      }
-    });
-    if (!res.ok) throw new Error(`JSONBin ${res.status} on ${path}`);
+    const method = (opts.method || 'GET').toUpperCase();
+
+    // Only send Content-Type on requests that carry a body
+    const headers = { 'X-Master-Key': API_KEY, ...(opts.headers || {}) };
+    if (method === 'POST' || method === 'PUT') {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    const res = await fetch(`${BASE}${path}`, { ...opts, headers });
+
+    if (!res.ok) {
+      let body = '';
+      try { body = await res.text(); } catch {}
+      const msg = `JSONBin ${res.status} ${res.statusText} [${method} ${path}] — ${body}`;
+      console.error('[Comedy Tracker]', msg);
+      throw new Error(msg);
+    }
+
     return res.json();
   }
 
@@ -607,7 +616,14 @@
       headers: { 'X-Bin-Name': name, 'X-Bin-Private': 'true' },
       body: JSON.stringify(payload)
     });
-    return j.metadata.id;
+    const id = j.metadata?.id;
+    if (!id) {
+      const msg = `createBin: no ID in response — ${JSON.stringify(j)}`;
+      console.error('[Comedy Tracker]', msg);
+      throw new Error(msg);
+    }
+    console.log(`[Comedy Tracker] Created bin "${name}": ${id}`);
+    return id;
   }
 
   /* ── Registry: username → data-bin-ID map ── */
@@ -619,9 +635,14 @@
 
   async function addToRegistry(name, binId) {
     let reg = {};
-    try { reg = await readRegistry(); } catch {}
+    try {
+      reg = await readRegistry();
+    } catch (err) {
+      console.error('[Comedy Tracker] addToRegistry: could not read registry (will still try to write):', err);
+    }
     reg[name] = binId;
-    await writeBin(REGISTRY_BIN_ID, reg);
+    await writeBin(REGISTRY_BIN_ID, reg);   // throws if write fails — let caller handle it
+    console.log(`[Comedy Tracker] Registry updated: "${name}" → ${binId}`);
   }
 
   /* ── localStorage ── */
@@ -650,7 +671,8 @@
       try {
         await writeBin(currentBinId, data);
         showStatus('saved');
-      } catch {
+      } catch (err) {
+        console.error('[Comedy Tracker] Cloud save failed:', err);
         showStatus('offline');
       }
     }, 800);
@@ -676,10 +698,11 @@
     el.appendChild(btn);
   }
 
-  async function initUser(name) {
-    username = name;
-    localStorage.setItem(USERNAME_KEY, name);
-    setUserLabel(name);
+  async function initUser(rawName) {
+    // Normalise: lowercase + trim so "Juan" and "juan" resolve to the same bin
+    username = rawName.trim().toLowerCase();
+    localStorage.setItem(USERNAME_KEY, username);
+    setUserLabel(username);
 
     if (!cloudOn()) {
       loadLocal();
@@ -687,41 +710,62 @@
       return;
     }
 
-    showStatus('saving'); // used as "connecting" state
+    showStatus('saving');
+    console.log(`[Comedy Tracker] Initialising user: "${username}"`);
+
     try {
-      // Check local cache first (avoids registry lookup on returning device)
-      let binId = localStorage.getItem(BINID_PFX + name);
+      // Fast path: bin ID cached from a previous session on this device
+      let binId = localStorage.getItem(BINID_PFX + username);
+      console.log(`[Comedy Tracker] Cached bin ID: ${binId || 'none'}`);
 
       if (!binId) {
-        // First time on this device — look up in registry
+        // Slow path: ask the index bin who this username belongs to
+        console.log('[Comedy Tracker] Querying index bin…');
         const reg = await readRegistry();
-        if (reg[name]) {
-          binId = reg[name];
-          localStorage.setItem(BINID_PFX + name, binId);
+        console.log('[Comedy Tracker] Index bin contents:', JSON.stringify(reg));
+
+        if (reg[username]) {
+          binId = reg[username];
+          console.log(`[Comedy Tracker] Found existing bin for "${username}": ${binId}`);
+          localStorage.setItem(BINID_PFX + username, binId);
         } else {
-          // Brand-new user — create their data bin and register it
-          binId = await createBin(`comedy-tracker-${name}`, {});
-          localStorage.setItem(BINID_PFX + name, binId);
-          await addToRegistry(name, binId);
+          // First time this username has ever logged in — mint a new data bin
+          console.log(`[Comedy Tracker] New user "${username}" — creating data bin…`);
+          binId = await createBin(`comedy-tracker-${username}`, {});
+          localStorage.setItem(BINID_PFX + username, binId);
+          // Register so other devices can find it
+          try {
+            await addToRegistry(username, binId);
+          } catch (regErr) {
+            console.error('[Comedy Tracker] Index bin write failed (data bin created, but not registered):', regErr);
+            // Non-fatal: this device works fine; new devices won't find this user until
+            // the registry is writable again and a save goes through.
+          }
         }
       }
 
       currentBinId = binId;
+      console.log(`[Comedy Tracker] Active bin: ${binId}`);
 
-      // Pull cloud data; fall back to local if empty
+      // Load cloud data into the calendar
       let cloud = null;
-      try { cloud = await readBin(binId); } catch {}
+      try {
+        cloud = await readBin(binId);
+        console.log(`[Comedy Tracker] Cloud data: ${Object.keys(cloud || {}).length} date entries`);
+      } catch (readErr) {
+        console.error('[Comedy Tracker] Could not read data bin — falling back to localStorage:', readErr);
+      }
 
       if (cloud && typeof cloud === 'object' && Object.keys(cloud).length > 0) {
         data = cloud;
-        saveLocal();
+        saveLocal(); // keep local in sync with cloud
       } else {
-        loadLocal();
+        loadLocal(); // might have prior local data worth showing
       }
 
       showStatus('idle');
     } catch (err) {
-      console.warn('[Comedy Tracker] Cloud error:', err);
+      console.error('[Comedy Tracker] initUser failed — running in local-only mode:', err);
       loadLocal();
       showStatus('offline');
     }
@@ -748,7 +792,7 @@
     const name = document.getElementById('nameInput').value.trim();
     if (!name) return;
     hideModal();
-    initUser(name);
+    initUser(name); // initUser normalises to lowercase internally
   }
 
   /* ── Calendar helpers ── */
