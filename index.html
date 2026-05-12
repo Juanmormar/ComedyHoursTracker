@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comedy Hours Tracker</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #f5f5f7;
+      --surface:    #ffffff;
+      --text:       #1d1d1f;
+      --text-2:     #6e6e73;
+      --text-3:     #aeaeb2;
+      --border:     #d2d2d7;
+      --accent:     #0071e3;
+      --accent-bg:  rgba(0, 113, 227, 0.08);
+      --hover-bg:   #f0f0f5;
+      --radius:     12px;
+    }
+
+    body {
+      background-color: var(--bg);
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      color: var(--text);
+      padding: 64px 40px 100px;
+    }
+
+    .page {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* ─── MASTHEAD ─── */
+
+    .masthead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding-bottom: 36px;
+    }
+
+    .title-block h1 {
+      font-size: clamp(22px, 3vw, 30px);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      color: var(--text);
+    }
+
+    .title-block .byline {
+      font-size: 14px;
+      font-weight: 400;
+      font-style: normal;
+      font-family: inherit;
+      color: var(--text-2);
+      margin-top: 5px;
+      letter-spacing: 0;
+    }
+
+    .monthly-badge {
+      flex-shrink: 0;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--text-2);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 28px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .monthly-badge .big-num {
+      display: block;
+      font-size: 40px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--accent);
+      line-height: 1.05;
+      font-family: inherit;
+    }
+
+    /* ─── NAV ROW ─── */
+
+    .nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding-bottom: 24px;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      -webkit-appearance: none;
+      font-family: inherit;
+      font-size: 26px;
+      font-weight: 300;
+      line-height: 1;
+      cursor: pointer;
+      padding: 6px 12px;
+      color: var(--text);
+      border-radius: 8px;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .nav-btn:hover {
+      background: rgba(0, 0, 0, 0.06);
+      transform: scale(1.12);
+    }
+
+    .month-label {
+      font-size: 32px;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      min-width: 280px;
+      text-align: center;
+      color: var(--text);
+    }
+
+    /* ─── CALENDAR SHELL ─── */
+
+    .calendar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.04),
+        0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    /* ─── COLUMN HEADERS ─── */
+
+    .col-headers {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr) 72px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .col-header {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-align: center;
+      padding: 14px 4px;
+      text-transform: uppercase;
+      color: var(--text-2);
+      border-right: none;
+      font-family: inherit;
+      font-style: normal;
+    }
+
+    .col-header:nth-child(6),
+    .col-header:nth-child(7) {
+      color: var(--text-3);
+    }
+
+    .col-header:last-child {
+      border-left: none;
+      font-size: 0;        /* hide "// wk" text visually */
+      color: transparent;
+    }
+
+    /* ─── WEEK ROWS ─── */
+
+    .week-row {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr) 72px;
+      border-bottom: 1px solid var(--border);
+      min-height: 104px;
+    }
+
+    .week-row:last-child {
+      border-bottom: none;
+    }
+
+    /* ─── DAY CELLS ─── */
+
+    .day-cell {
+      border-right: none;
+      padding: 10px;
+      cursor: pointer;
+      position: relative;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: manipulation;
+      overflow: hidden;
+      border-radius: 10px;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+
+    .day-cell.empty {
+      cursor: default;
+      background: none;
+      border-radius: 0;
+    }
+
+    .day-cell.today {
+      background-color: var(--accent-bg);
+    }
+
+    .day-cell:not(.empty):hover {
+      background-color: var(--hover-bg);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .day-cell.today:not(.empty):hover {
+      background-color: rgba(0, 113, 227, 0.13);
+    }
+
+    /* ─── DAY NUMBER ─── */
+
+    .day-num {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      line-height: 1;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    .day-cell.today .day-num {
+      background: var(--accent);
+      color: #ffffff;
+      border-radius: 50%;
+      font-weight: 600;
+      font-size: 12px;
+      text-decoration: none;
+    }
+
+    /* ─── DOTS (hour indicators) ─── */
+
+    .x-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding: 36px 32px 8px 10px;
+      align-content: flex-start;
+    }
+
+    .x-mark {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      display: inline-block;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .x-mark.stamp-in {
+      animation: xIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes xIn {
+      0%   { transform: scale(0); opacity: 0; }
+      60%  { transform: scale(1.25); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ─── WEEK ANNOTATION ─── */
+
+    .week-annot {
+      border-left: none;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding: 0 14px 14px 4px;
+      gap: 3px;
+    }
+
+    .annot-slash {
+      display: none;
+    }
+
+    .annot-num {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-2);
+      line-height: 1;
+      font-family: inherit;
+    }
+
+    .annot-unit {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-2);
+      letter-spacing: 0;
+      text-transform: lowercase;
+      font-family: inherit;
+    }
+
+    /* ─── FOOTER ─── */
+
+    .footer {
+      margin-top: 20px;
+      font-size: 12px;
+      font-weight: 400;
+      font-style: normal;
+      font-family: inherit;
+      color: var(--text-3);
+      letter-spacing: 0;
+      text-align: center;
+    }
+
+    /* ─── MOBILE (≤ 767px) ─── */
+
+    @media (max-width: 767px) {
+      body {
+        padding: 28px 12px 60px;
+      }
+
+      .masthead {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        padding-bottom: 24px;
+      }
+
+      .title-block h1 {
+        font-size: 22px;
+      }
+
+      .title-block .byline {
+        font-size: 13px;
+      }
+
+      .monthly-badge {
+        padding: 12px 20px;
+        text-align: center;
+      }
+
+      .monthly-badge .big-num {
+        font-size: 28px;
+      }
+
+      .nav-row {
+        justify-content: space-between;
+        padding-bottom: 20px;
+        gap: 0;
+      }
+
+      .nav-btn {
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 30px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .month-label {
+        font-size: 22px;
+        min-width: 0;
+        flex: 1;
+        letter-spacing: -0.01em;
+      }
+
+      /* Drop the annotation column entirely on mobile */
+      .col-headers {
+        grid-template-columns: repeat(7, 1fr);
+      }
+
+      .col-header {
+        font-size: 9px;
+        padding: 10px 2px;
+        letter-spacing: 0.04em;
+      }
+
+      .col-header:last-child {
+        display: none;
+      }
+
+      .week-row {
+        grid-template-columns: repeat(7, 1fr);
+        min-height: 60px;
+      }
+
+      .week-annot {
+        display: none;
+      }
+
+      /* Compact cells — still large enough to tap */
+      .day-cell {
+        padding: 4px;
+        border-radius: 6px;
+      }
+
+      .day-num {
+        font-size: 10px;
+        width: 18px;
+        height: 18px;
+        top: 3px;
+        right: 3px;
+      }
+
+      .day-cell.today .day-num {
+        font-size: 9px;
+      }
+
+      .x-wrap {
+        padding: 22px 4px 3px 3px;
+        gap: 2px 3px;
+      }
+
+      .x-mark {
+        font-size: 11px;
+      }
+
+      .footer {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="masthead">
+    <div class="title-block">
+      <h1>Comedy Hours Tracker</h1>
+      <p class="byline">Track the hours you spend writing comedy — one ✕ per hour.</p>
+    </div>
+    <div class="monthly-badge">
+      This month<br>
+      <span class="big-num" id="totalNum">0</span>
+      hrs written
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" id="prevBtn">&#8249;</button>
+    <span class="month-label" id="monthLabel"></span>
+    <button class="nav-btn" id="nextBtn">&#8250;</button>
+  </div>
+
+  <div class="calendar" id="calendar">
+    <div class="col-headers">
+      <div class="col-header">Mon</div>
+      <div class="col-header">Tue</div>
+      <div class="col-header">Wed</div>
+      <div class="col-header">Thu</div>
+      <div class="col-header">Fri</div>
+      <div class="col-header">Sat</div>
+      <div class="col-header">Sun</div>
+      <div class="col-header">// wk</div>
+    </div>
+    <div id="calBody"></div>
+  </div>
+
+  <p class="footer">
+    Click to add &nbsp;&middot;&nbsp;
+    Right-click or long-press to remove &nbsp;&middot;&nbsp;
+    Data saved automatically
+  </p>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'comedy-tracker-data';
+  let data = {};
+  let yr, mo;
+  let longPressTimer = null;
+  let longPressFired = false;
+
+  /* ── persistence ── */
+
+  function load() {
+    try { data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+    catch { data = {}; }
+  }
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    catch { /* storage full / unavailable */ }
+  }
+
+  /* ── helpers ── */
+
+  function dateKey(y, m, d) {
+    return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  }
+
+  function hrs(dk) { return data[dk] || 0; }
+
+  // Deterministic rotation per (date, index) so marks look stable across re-renders
+  function rot(dk, i) {
+    let h = 0;
+    const s = dk + '|' + i;
+    for (let j = 0; j < s.length; j++) {
+      h = Math.imul(31, h) + s.charCodeAt(j) | 0;
+    }
+    return (Math.abs(h) % 9) - 4; // -4..+4 degrees
+  }
+
+  function buildXMarks(dk, animateLast = false) {
+    const n = hrs(dk);
+    let out = '';
+    for (let i = 0; i < n; i++) {
+      const anim = animateLast && i === n - 1 ? ' stamp-in' : '';
+      out += `<span class="x-mark${anim}">✕</span>`;
+    }
+    return out;
+  }
+
+  /* ── cell event binding (desktop + mobile) ── */
+
+  function bindCell(cell) {
+    cell.addEventListener('click', function(e) {
+      if (longPressFired) { longPressFired = false; return; }
+      onAdd.call(this, e);
+    });
+
+    cell.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      if (longPressFired) return; // already handled by touch long-press
+      onRemove.call(this, e);
+    });
+
+    // Long-press (500 ms) = remove one hour on touch devices
+    cell.addEventListener('touchstart', function() {
+      const self = this;
+      longPressFired = false;
+      clearTimeout(longPressTimer);
+      longPressTimer = setTimeout(function() {
+        longPressFired = true;
+        onRemove.call(self, { preventDefault: function() {} });
+      }, 500);
+    }, { passive: true });
+
+    cell.addEventListener('touchend',  function() { clearTimeout(longPressTimer); });
+    cell.addEventListener('touchmove', function() { clearTimeout(longPressTimer); });
+  }
+
+  /* ── render ── */
+
+  function render() {
+    const MONTHS = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December'];
+
+    document.getElementById('monthLabel').textContent = `${MONTHS[mo]} ${yr}`;
+
+    const today    = new Date();
+    const todayKey = dateKey(today.getFullYear(), today.getMonth(), today.getDate());
+
+    const firstDay     = new Date(yr, mo, 1);
+    const daysInMonth  = new Date(yr, mo + 1, 0).getDate();
+
+    // Monday-based offset: Mon=0 … Sun=6
+    let offset = firstDay.getDay() - 1;
+    if (offset < 0) offset = 6;
+
+    const numWeeks = Math.ceil((offset + daysInMonth) / 7);
+    let monthTotal = 0;
+    let html = '';
+
+    for (let w = 0; w < numWeeks; w++) {
+      let weekTotal = 0;
+      let cells = '';
+
+      for (let dow = 0; dow < 7; dow++) {
+        const idx = w * 7 + dow;
+        const day = idx - offset + 1;
+
+        if (day < 1 || day > daysInMonth) {
+          cells += `<div class="day-cell empty"></div>`;
+        } else {
+          const dk      = dateKey(yr, mo, day);
+          const h       = hrs(dk);
+          const isToday = dk === todayKey;
+          weekTotal  += h;
+          monthTotal += h;
+
+          cells += `
+            <div class="day-cell${isToday ? ' today' : ''}" data-dk="${dk}">
+              <span class="day-num">${day}</span>
+              <div class="x-wrap">${buildXMarks(dk)}</div>
+            </div>`;
+        }
+      }
+
+      cells += `
+        <div class="week-annot">
+          <span class="annot-slash">//</span>
+          <span class="annot-num" id="wt${w}">${weekTotal}</span>
+          <span class="annot-unit">hrs</span>
+        </div>`;
+
+      html += `<div class="week-row">${cells}</div>`;
+    }
+
+    document.getElementById('calBody').innerHTML  = html;
+    document.getElementById('totalNum').textContent = monthTotal;
+
+    document.querySelectorAll('.day-cell:not(.empty)').forEach(bindCell);
+  }
+
+  /* ── interactions ── */
+
+  function onAdd() {
+    const dk = this.dataset.dk;
+    data[dk] = (data[dk] || 0) + 1;
+    save();
+    this.querySelector('.x-wrap').innerHTML = buildXMarks(dk, true);
+    refreshTotals();
+  }
+
+  function onRemove(e) {
+    e.preventDefault();
+    const dk = this.dataset.dk;
+    if (hrs(dk) > 0) {
+      data[dk]--;
+      if (!data[dk]) delete data[dk];
+      save();
+      this.querySelector('.x-wrap').innerHTML = buildXMarks(dk, false);
+      refreshTotals();
+    }
+  }
+
+  function refreshTotals() {
+    let monthTotal = 0;
+    document.querySelectorAll('.week-row').forEach((row, wi) => {
+      let wt = 0;
+      row.querySelectorAll('.day-cell:not(.empty)').forEach(cell => {
+        wt += hrs(cell.dataset.dk);
+      });
+      const el = document.getElementById(`wt${wi}`);
+      if (el) el.textContent = wt;
+      monthTotal += wt;
+    });
+    document.getElementById('totalNum').textContent = monthTotal;
+  }
+
+  /* ── boot ── */
+
+  function init() {
+    load();
+    const now = new Date();
+    yr = now.getFullYear();
+    mo = now.getMonth();
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      if (--mo < 0) { mo = 11; yr--; }
+      render();
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if (++mo > 11) { mo = 0; yr++; }
+      render();
+    });
+
+    render();
+  }
+
+  init();
+</script>
+</body>
+</html>
