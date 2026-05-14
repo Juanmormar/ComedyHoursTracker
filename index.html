@@ -532,6 +532,91 @@
 
     .debug-value.ok    { color: #34c759; }
     .debug-value.error { color: #ff3b30; }
+
+    /* ─── NOTE TRIGGER (in-cell preview) ─── */
+
+    .note-trigger {
+      font-size: 10px;
+      color: var(--text-3);
+      padding: 0 8px 6px;
+      cursor: text;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      border-radius: 4px;
+      outline: none;
+      transition: color 0.15s;
+      line-height: 1.4;
+    }
+
+    .note-trigger:empty::before {
+      content: '+ note';
+      font-style: italic;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .day-cell:not(.empty):hover .note-trigger:empty::before {
+      opacity: 1;
+    }
+
+    .note-trigger:not(:empty) { color: var(--text-2); }
+    .note-trigger:hover        { color: var(--text); }
+
+    /* ─── NOTE PANEL (floating) ─── */
+
+    .note-panel {
+      position: fixed;
+      z-index: 500;
+      width: 220px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.13), 0 1px 4px rgba(0,0,0,.06);
+      padding: 10px 12px;
+    }
+
+    .note-panel-textarea {
+      display: block;
+      width: 100%;
+      max-height: 140px;
+      min-height: 80px;
+      font-family: inherit;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text);
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      overflow-y: auto;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .note-panel-textarea::placeholder { color: var(--text-3); }
+
+    @media (max-width: 767px) {
+      .note-trigger { font-size: 9px; padding: 0 3px 2px; }
+      .note-trigger:empty::before { display: none; }
+
+      .note-panel {
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        top: auto !important;
+        width: 100% !important;
+        border-radius: 16px 16px 0 0;
+        box-shadow: 0 -4px 24px rgba(0,0,0,.15);
+        max-height: 45vh;
+        padding: 16px;
+      }
+
+      .note-panel-textarea {
+        max-height: calc(45vh - 40px);
+        min-height: 100px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -624,6 +709,13 @@
 
 </div>
 
+<!-- ─── NOTE PANEL ─── -->
+<div id="notePanel" class="note-panel" hidden>
+  <textarea id="notePanelText" class="note-panel-textarea"
+    placeholder="Write a note for this day…"
+    rows="4"></textarea>
+</div>
+
 <script>
   // ─────────────────────────────────────────────────────────────────────────────
   //  CLOUD SYNC SETUP  (JSONBin.io — free tier, ~10 k requests/month)
@@ -654,7 +746,9 @@
   let longPressFired  = false;
   let saveDebounce    = null;
   let saveSeq         = 0;
-  let statusHideTimer = null;
+  let statusHideTimer     = null;
+  let activeDk            = null;
+  let notePanelCloseTimer = null;
 
   /* ── Cloud availability ── */
 
@@ -1000,7 +1094,26 @@
     return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
   }
 
-  function hrs(dk) { return data[dk] || 0; }
+  function hrs(dk) {
+    const v = data[dk];
+    if (!v) return 0;
+    return typeof v === 'number' ? v : (v.hours || 0);
+  }
+
+  function note(dk) {
+    const v = data[dk];
+    if (!v || typeof v === 'number') return '';
+    return v.note || '';
+  }
+
+  function noteFirstLine(dk) {
+    const n = note(dk);
+    return n ? n.split('\n')[0] : '';
+  }
+
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
 
   function rot(dk, i) {
     let h = 0;
@@ -1017,6 +1130,47 @@
       out += `<span class="x-mark${anim}">✕</span>`;
     }
     return out;
+  }
+
+  /* ── Note panel ── */
+
+  function openNotePanel(cellEl, dk) {
+    const panel = document.getElementById('notePanel');
+    const ta    = document.getElementById('notePanelText');
+
+    clearTimeout(notePanelCloseTimer);
+    activeDk = dk;
+    ta.value = note(dk);
+
+    const isMobile = window.innerWidth <= 767;
+    if (!isMobile) {
+      const rect   = cellEl.getBoundingClientRect();
+      const panelW = 220;
+      const vw     = window.innerWidth;
+      let left = rect.right + 8;
+      if (left + panelW > vw - 8) left = rect.left - panelW - 8;
+      if (left < 8) left = 8;
+      let top = rect.top;
+      const estH = 180;
+      if (top + estH > window.innerHeight - 8) top = window.innerHeight - estH - 8;
+      if (top < 8) top = 8;
+      panel.style.left   = left + 'px';
+      panel.style.top    = top  + 'px';
+      panel.style.bottom = '';
+      panel.style.width  = panelW + 'px';
+    }
+
+    panel.removeAttribute('hidden');
+    requestAnimationFrame(() => {
+      ta.focus();
+      ta.setSelectionRange(ta.value.length, ta.value.length);
+    });
+  }
+
+  function closeNotePanel() {
+    const panel = document.getElementById('notePanel');
+    if (panel && !panel.hasAttribute('hidden')) panel.setAttribute('hidden', '');
+    activeDk = null;
   }
 
   /* ── Cell event binding ── */
@@ -1045,6 +1199,32 @@
 
     cell.addEventListener('touchend',  function() { clearTimeout(longPressTimer); });
     cell.addEventListener('touchmove', function() { clearTimeout(longPressTimer); });
+
+    const noteTrigger = cell.querySelector('.note-trigger');
+    if (noteTrigger) {
+      noteTrigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        clearTimeout(notePanelCloseTimer);
+        openNotePanel(cell, cell.dataset.dk);
+      });
+      noteTrigger.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          e.stopPropagation();
+          clearTimeout(notePanelCloseTimer);
+          openNotePanel(cell, cell.dataset.dk);
+        }
+      });
+      noteTrigger.addEventListener('touchstart', function(e) {
+        e.stopPropagation();
+        clearTimeout(longPressTimer);
+      }, { passive: true });
+      noteTrigger.addEventListener('touchend', function(e) {
+        e.stopPropagation();
+        clearTimeout(longPressTimer);
+        openNotePanel(cell, cell.dataset.dk);
+      });
+    }
   }
 
   /* ── Render ── */
@@ -1087,6 +1267,7 @@
             <div class="day-cell${isToday ? ' today' : ''}" data-dk="${dk}">
               <span class="day-num">${day}</span>
               <div class="x-wrap">${buildXMarks(dk)}</div>
+              <div class="note-trigger" tabindex="0" data-dk="${dk}">${esc(noteFirstLine(dk))}</div>
             </div>`;
         }
       }
@@ -1110,7 +1291,7 @@
 
   function onAdd() {
     const dk = this.dataset.dk;
-    data[dk] = (data[dk] || 0) + 1;
+    data[dk] = { hours: hrs(dk) + 1, note: note(dk) };
     save();
     this.querySelector('.x-wrap').innerHTML = buildXMarks(dk, true);
     refreshTotals();
@@ -1119,9 +1300,12 @@
   function onRemove(e) {
     e.preventDefault();
     const dk = this.dataset.dk;
-    if (hrs(dk) > 0) {
-      data[dk]--;
-      if (!data[dk]) delete data[dk];
+    const h  = hrs(dk);
+    if (h > 0) {
+      const newH = h - 1;
+      const n    = note(dk);
+      if (newH === 0 && !n) { delete data[dk]; }
+      else { data[dk] = { hours: newH, note: n }; }
       save();
       this.querySelector('.x-wrap').innerHTML = buildXMarks(dk, false);
       refreshTotals();
@@ -1177,6 +1361,37 @@
       const isHidden = body.hasAttribute('hidden');
       body.toggleAttribute('hidden', !isHidden);
       toggle.textContent = (isHidden ? '▾' : '▸') + ' Debug info';
+    });
+
+    const notePanelTextarea = document.getElementById('notePanelText');
+    if (notePanelTextarea) {
+      notePanelTextarea.addEventListener('input', function() {
+        if (!activeDk) return;
+        const text = this.value;
+        const h    = hrs(activeDk);
+        if (h === 0 && !text) { delete data[activeDk]; }
+        else { data[activeDk] = { hours: h, note: text }; }
+        const trigger = document.querySelector(`.note-trigger[data-dk="${activeDk}"]`);
+        if (trigger) trigger.textContent = text.split('\n')[0];
+        save();
+      });
+      notePanelTextarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeNotePanel();
+      });
+      notePanelTextarea.addEventListener('blur', () => {
+        notePanelCloseTimer = setTimeout(closeNotePanel, 200);
+      });
+      notePanelTextarea.addEventListener('focus', () => {
+        clearTimeout(notePanelCloseTimer);
+      });
+    }
+
+    document.addEventListener('mousedown', (e) => {
+      const panel = document.getElementById('notePanel');
+      if (!panel || panel.hasAttribute('hidden')) return;
+      if (!panel.contains(e.target) && !e.target.closest('.note-trigger')) {
+        closeNotePanel();
+      }
     });
 
     // Render an empty calendar so layout is stable before cloud loads
