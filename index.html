@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comedy Hours Tracker - Don't Break the Chain</title>
+  <title>Comedy Hours Tracker</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -642,7 +642,7 @@
 
   <div class="masthead">
     <div class="title-block">
-      <h1>Comedy Hours Tracker - Don't Break the Chain</h1>
+      <h1>Comedy Hours  - Don't break the chain</h1>
       <p class="byline">Track the hours you spend writing comedy — one ✕ per hour.</p>
       <p class="user-label" id="userLabel"></p>
     </div>
@@ -693,7 +693,7 @@
         <span class="debug-value" id="dbgUser">—</span>
       </div>
       <div class="debug-row">
-        <span class="debug-label">Bin ID</span>
+        <span class="debug-label">Project</span>
         <span class="debug-value" id="dbgBin">—</span>
       </div>
       <div class="debug-row">
@@ -718,30 +718,36 @@
 
 <script>
   // ─────────────────────────────────────────────────────────────────────────────
-  //  CLOUD SYNC SETUP  (JSONBin.io — free tier, ~10 k requests/month)
+  //  CLOUD SYNC SETUP  (Supabase — free tier, perfect for personal use)
   //
-  //  1. Create a free account at https://jsonbin.io
-  //  2. Go to  Account → Master Key  and copy your  $2b$…  key
-  //  3. Click  Bins → Create Bin → enter content {}  → Create
-  //     Copy the bin ID that appears (e.g. 6831abc…).
-  //     This "registry" bin maps each username to their own data bin.
-  //  4. Paste both values into the two constants below and save.
+  //  1. Create a free account at https://supabase.com and create a project.
+  //  2. In the SQL Editor run this once to create the table:
+  //
+  //       CREATE TABLE calendar_data (
+  //         username   TEXT PRIMARY KEY,
+  //         data       JSONB NOT NULL DEFAULT '{}'::jsonb,
+  //         updated_at TIMESTAMPTZ DEFAULT now()
+  //       );
+  //       ALTER TABLE calendar_data ENABLE ROW LEVEL SECURITY;
+  //       CREATE POLICY "public rw" ON calendar_data
+  //         FOR ALL USING (true) WITH CHECK (true);
+  //
+  //  3. Go to Project Settings → API.
+  //     Copy "Project URL" and the "anon / public" key.
+  //  4. Paste both into the two constants below and save.
   //
   //  Leave both empty ('') to run in local-only mode (no cross-device sync).
   // ─────────────────────────────────────────────────────────────────────────────
-  const API_KEY         = '';   // e.g. '$2b$10$xyz...'
-  const REGISTRY_BIN_ID = '';   // e.g. '6831abc123...'
+  const SUPABASE_URL = 'https://prbjwcbssdagdritweyf.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_U9UsAevtdOvy-Nwffklkiw_m5eC_seF';
   // ─────────────────────────────────────────────────────────────────────────────
 
-  const BASE         = 'https://api.jsonbin.io/v3';
   const STORAGE_KEY  = 'comedy-tracker-data';
   const USERNAME_KEY = 'comedy-tracker-username';
-  const BINID_PFX    = 'comedy-tracker-binid-';
 
   let data            = {};
   let yr, mo;
   let username        = null;
-  let currentBinId    = null;
   let longPressTimer  = null;
   let longPressFired  = false;
   let saveDebounce    = null;
@@ -753,7 +759,7 @@
   /* ── Cloud availability ── */
 
   function cloudOn() {
-    return API_KEY !== '' && REGISTRY_BIN_ID !== '';
+    return SUPABASE_URL !== '' && SUPABASE_KEY !== '';
   }
 
   /* ── Sync status ── */
@@ -781,72 +787,40 @@
     }
   }
 
-  /* ── JSONBin fetch wrapper ── */
+  /* ── Supabase API ── */
 
-  async function apiFetch(path, opts = {}) {
-    const method = (opts.method || 'GET').toUpperCase();
-
-    // Only send Content-Type on requests that carry a body
-    const headers = { 'X-Master-Key': API_KEY, ...(opts.headers || {}) };
-    if (method === 'POST' || method === 'PUT') {
-      headers['Content-Type'] = 'application/json';
-    }
-
-    const res = await fetch(`${BASE}${path}`, { ...opts, headers });
-
+  async function cloudLoad(uname) {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/calendar_data?username=eq.${encodeURIComponent(uname)}&select=data`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    );
     if (!res.ok) {
-      let body = '';
-      try { body = await res.text(); } catch {}
-      const msg = `JSONBin ${res.status} ${res.statusText} [${method} ${path}] — ${body}`;
-      console.error('[Comedy Tracker]', msg);
-      throw new Error(msg);
+      const body = await res.text();
+      throw new Error(`Supabase load ${res.status} — ${body}`);
     }
-
-    return res.json();
+    const rows = await res.json();
+    console.log(`[Comedy Tracker] Loaded ${rows.length} row(s) for "${uname}"`);
+    return rows.length > 0 ? rows[0].data : null;
   }
 
-  async function readBin(id) {
-    const j = await apiFetch(`/b/${id}/latest`);
-    return j.record;
-  }
-
-  async function writeBin(id, payload) {
-    await apiFetch(`/b/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
-  }
-
-  async function createBin(name, payload) {
-    const j = await apiFetch('/b', {
-      method: 'POST',
-      headers: { 'X-Bin-Name': name, 'X-Bin-Private': 'true' },
-      body: JSON.stringify(payload)
-    });
-    const id = j.metadata?.id;
-    if (!id) {
-      const msg = `createBin: no ID in response — ${JSON.stringify(j)}`;
-      console.error('[Comedy Tracker]', msg);
-      throw new Error(msg);
+  async function cloudSave(uname, payload) {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/calendar_data`,
+      {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          Prefer: 'resolution=merge-duplicates,return=minimal'
+        },
+        body: JSON.stringify({ username: uname, data: payload, updated_at: new Date().toISOString() })
+      }
+    );
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`Supabase save ${res.status} — ${body}`);
     }
-    console.log(`[Comedy Tracker] Created bin "${name}": ${id}`);
-    return id;
-  }
-
-  /* ── Registry: username → data-bin-ID map ── */
-
-  async function readRegistry() {
-    const raw = await readBin(REGISTRY_BIN_ID);
-    return (raw && typeof raw === 'object') ? raw : {};
-  }
-
-  async function addToRegistry(name, binId) {
-    let reg = {};
-    try {
-      reg = await readRegistry();
-    } catch (err) {
-      console.error('[Comedy Tracker] addToRegistry: could not read registry (will still try to write):', err);
-    }
-    reg[name] = binId;
-    await writeBin(REGISTRY_BIN_ID, reg);   // throws if write fails — let caller handle it
-    console.log(`[Comedy Tracker] Registry updated: "${name}" → ${binId}`);
   }
 
   /* ── localStorage ── */
@@ -879,7 +853,8 @@
     }
 
     set('dbgUser', username || '—');
-    set('dbgBin',  currentBinId || '—', currentBinId ? 'ok' : 'error');
+    const proj = SUPABASE_URL ? SUPABASE_URL.replace('https://', '').split('.')[0] : '—';
+    set('dbgBin', proj, proj !== '—' ? 'ok' : '');
 
     if (extra.time) {
       set('dbgTime', extra.time.toLocaleTimeString());
@@ -890,30 +865,6 @@
     }
   }
 
-  /* ── ensureBinId: recover bin ID if missing ── */
-
-  async function ensureBinId() {
-    if (currentBinId) return true;
-    const cached = localStorage.getItem(BINID_PFX + username);
-    if (cached) {
-      currentBinId = cached;
-      updateDebug();
-      return true;
-    }
-    try {
-      const reg = await readRegistry();
-      if (reg[username]) {
-        currentBinId = reg[username];
-        localStorage.setItem(BINID_PFX + username, currentBinId);
-        updateDebug();
-        return true;
-      }
-    } catch (err) {
-      console.error('[Comedy Tracker] ensureBinId: registry lookup failed:', err);
-    }
-    return false;
-  }
-
   /* ── Manual sync ── */
 
   async function syncNow() {
@@ -922,10 +873,7 @@
     showStatus('saving');
 
     try {
-      const ok = await ensureBinId();
-      if (!ok) { showStatus('error'); return; }
-
-      const cloud = await readBin(currentBinId);
+      const cloud = await cloudLoad(username);
       if (cloud !== null && cloud !== undefined && typeof cloud === 'object') {
         data = cloud;
         saveLocal();
@@ -949,13 +897,13 @@
   function save() {
     saveLocal();
     updateDebug();
-    if (!currentBinId) return;
+    if (!cloudOn() || !username) return;
     const seq = ++saveSeq;
     clearTimeout(saveDebounce);
     showStatus('saving');
     saveDebounce = setTimeout(async () => {
       try {
-        await writeBin(currentBinId, data);
+        await cloudSave(username, data);
         if (seq === saveSeq) {
           showStatus('saved');
           updateDebug({ status: 200, time: new Date() });
@@ -982,7 +930,6 @@
     btn.addEventListener('click', () => {
       localStorage.removeItem(USERNAME_KEY);
       username = null;
-      currentBinId = null;
       data = {};
       render();
       showModal();
@@ -991,7 +938,6 @@
   }
 
   async function initUser(rawName) {
-    // Normalise: lowercase + trim so "Juan" and "juan" resolve to the same bin
     username = rawName.trim().toLowerCase();
     localStorage.setItem(USERNAME_KEY, username);
     setUserLabel(username);
@@ -1006,53 +952,13 @@
     console.log(`[Comedy Tracker] Initialising user: "${username}"`);
 
     try {
-      // Fast path: bin ID cached from a previous session on this device
-      let binId = localStorage.getItem(BINID_PFX + username);
-      console.log(`[Comedy Tracker] Cached bin ID: ${binId || 'none'}`);
-
-      if (!binId) {
-        // Slow path: ask the index bin who this username belongs to
-        console.log('[Comedy Tracker] Querying index bin…');
-        const reg = await readRegistry();
-        console.log('[Comedy Tracker] Index bin contents:', JSON.stringify(reg));
-
-        if (reg[username]) {
-          binId = reg[username];
-          console.log(`[Comedy Tracker] Found existing bin for "${username}": ${binId}`);
-          localStorage.setItem(BINID_PFX + username, binId);
-        } else {
-          // First time this username has ever logged in — mint a new data bin
-          console.log(`[Comedy Tracker] New user "${username}" — creating data bin…`);
-          binId = await createBin(`comedy-tracker-${username}`, {});
-          localStorage.setItem(BINID_PFX + username, binId);
-          // Register so other devices can find it
-          try {
-            await addToRegistry(username, binId);
-          } catch (regErr) {
-            console.error('[Comedy Tracker] Index bin write failed (data bin created, but not registered):', regErr);
-            // Non-fatal: this device works fine; new devices won't find this user until
-            // the registry is writable again and a save goes through.
-          }
-        }
-      }
-
-      currentBinId = binId;
-      console.log(`[Comedy Tracker] Active bin: ${binId}`);
-
-      // Load cloud data into the calendar
-      let cloud = null;
-      try {
-        cloud = await readBin(binId);
-        console.log(`[Comedy Tracker] Cloud data: ${Object.keys(cloud || {}).length} date entries`);
-      } catch (readErr) {
-        console.error('[Comedy Tracker] Could not read data bin — falling back to localStorage:', readErr);
-      }
+      const cloud = await cloudLoad(username);
 
       if (cloud !== null && cloud !== undefined && typeof cloud === 'object') {
-        data = cloud; // cloud is source of truth — accept even empty {}
+        data = cloud;
         saveLocal();
       } else {
-        loadLocal(); // only used when cloud fetch failed (null)
+        loadLocal();
       }
 
       updateDebug({ status: 200, time: new Date() });
