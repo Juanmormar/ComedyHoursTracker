@@ -42,7 +42,7 @@
 
     /* ─── UPLOAD PLAN ─── */
 
-    .plan {
+    :root {
       --st-gray:   #aeaeb2;
       --st-green:  #34c759;
       --st-purple: #af52de;
@@ -153,6 +153,7 @@
     }
 
     .plan-dot:hover { transform: scale(1.2); }
+    .plan-dot:disabled { cursor: not-allowed; opacity: 0.5; transform: none; }
     .plan-dot.green  { background: var(--st-green); }
     .plan-dot.purple { background: var(--st-purple); }
     .plan-dot.red    { background: var(--st-red); }
@@ -222,9 +223,187 @@
 
     .plan-add:hover { color: var(--accent); }
 
+    .combo { flex: 1; min-width: 0; }
+
+    .combo-input {
+      width: 100%;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 4px 6px;
+      outline: none;
+      text-overflow: ellipsis;
+    }
+
+    .combo-input::placeholder { color: var(--text-3); }
+    .combo-input:hover { border-color: var(--border); }
+    .combo-input:focus { border-color: var(--accent); background: var(--surface); }
+
+    .combo-list {
+      position: fixed;
+      z-index: 600;
+      max-height: 260px;
+      overflow-y: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.14);
+      padding: 4px;
+    }
+
+    .combo-list[hidden] { display: none; }
+
+    .combo-opt {
+      font-size: 13px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .combo-opt.active { background: var(--accent-bg); color: var(--accent); }
+    .combo-opt.create { color: var(--accent); font-weight: 500; }
+    .combo-empty { font-size: 12px; color: var(--text-3); padding: 8px 10px; }
+
+    .plan-icon-btn:disabled { visibility: hidden; }
+
     @media (max-width: 1100px) {
       .layout { grid-template-columns: minmax(0, 1fr); }
     }
+
+    /* ─── TABS ─── */
+
+    .tabs {
+      display: inline-flex;
+      gap: 2px;
+      padding: 3px;
+      margin-bottom: 28px;
+      background: rgba(0,0,0,.06);
+      border-radius: 10px;
+    }
+
+    .tab-btn, .subtab-btn {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+      background: none;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 20px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .tab-btn.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    }
+
+    [role="tabpanel"][hidden], .vpanel[hidden] { display: none; }
+
+    /* ─── VIDEOS TAB ─── */
+
+    #tab-videos { max-width: 760px; }
+
+    .vstats {
+      font-size: 17px;
+      line-height: 1.5;
+      color: var(--text-2);
+      margin-bottom: 24px;
+    }
+
+    .vstats b { color: var(--text); font-weight: 600; }
+
+    .subtabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .subtab-btn {
+      border-radius: 0;
+      padding: 10px 14px;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+
+    .subtab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+
+    .subtab-count {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-left: 4px;
+    }
+
+    .vadd { display: flex; gap: 8px; margin-bottom: 12px; }
+
+    .vadd-input {
+      flex: 1;
+      min-width: 0;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      outline: none;
+    }
+
+    .vadd-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,113,227,.15); }
+
+    .vadd-btn {
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      padding: 0 20px;
+      cursor: pointer;
+    }
+
+    .vadd-btn:hover { opacity: 0.88; }
+
+    .vlist {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px;
+      display: grid;
+      gap: 2px;
+      min-height: 52px;
+    }
+
+    .vlist .plan-row { padding: 6px 4px; }
+    .vlist .plan-input { font-size: 14px; }
+
+    .vslot {
+      flex-shrink: 0;
+      font-size: 11px;
+      color: var(--text-3);
+      white-space: nowrap;
+    }
+
+    .vslot.scheduled {
+      color: var(--accent);
+      background: var(--accent-bg);
+      border-radius: 6px;
+      padding: 2px 7px;
+    }
+
+    .vempty { font-size: 13px; color: var(--text-3); padding: 12px; }
+
+    .vlegend { margin-bottom: 10px; justify-content: flex-end; }
 
     /* ─── MASTHEAD ─── */
 
@@ -919,6 +1098,12 @@
     </div>
   </div>
 
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="calendar" role="tab">Calendar</button>
+    <button class="tab-btn" data-tab="videos" role="tab">Videos</button>
+  </div>
+
+  <div id="tab-calendar" role="tabpanel">
   <div class="layout">
   <div class="cal-col">
 
@@ -964,6 +1149,35 @@
     </div>
     <div class="plan-body" id="planBody"></div>
   </aside>
+  </div>
+  </div>
+
+  <!-- ─── VIDEOS TAB ─── -->
+  <div id="tab-videos" role="tabpanel" hidden>
+    <p class="vstats" id="vStats"></p>
+
+    <div class="subtabs">
+      <button class="subtab-btn active" data-sub="backlog">Backlog <span class="subtab-count" id="cntBacklog">0</span></button>
+      <button class="subtab-btn" data-sub="published">Published <span class="subtab-count" id="cntPublished">0</span></button>
+    </div>
+
+    <div id="sub-backlog" class="vpanel">
+      <form class="vadd" id="vAddForm">
+        <input id="vAddInput" class="vadd-input" placeholder="New video title… (paste a list to add several at once)" autocomplete="off">
+        <button class="vadd-btn" type="submit">Add</button>
+      </form>
+      <div class="vlist" id="backlogList"></div>
+    </div>
+
+    <div id="sub-published" class="vpanel" hidden>
+      <div class="plan-legend vlegend">
+        <span><i class="plan-dot"></i>Pending</span>
+        <span><i class="plan-dot green"></i>Worked</span>
+        <span><i class="plan-dot purple"></i>So-so</span>
+        <span><i class="plan-dot red"></i>Flopped</span>
+      </div>
+      <div class="vlist" id="publishedList"></div>
+    </div>
   </div>
 
   <!-- ─── SYNC NOW ─── -->
@@ -1030,6 +1244,8 @@
   // ─────────────────────────────────────────────────────────────────────────────
 
   const STORAGE_KEY  = 'comedy-tracker-data';
+  const TAB_KEY      = 'comedy-tracker-tab';
+  const SUBTAB_KEY   = 'comedy-tracker-subtab';
   const USERNAME_KEY = 'comedy-tracker-username';
 
   let data            = {};
@@ -1387,17 +1603,64 @@
     refreshVideoStats();
   }
 
-  /* ── Upload plan ── */
+  /* ── Video library ── */
 
   const STATUSES = ['gray', 'green', 'purple', 'red'];
   const STATUS_LABEL = {
     gray: 'Not uploaded yet', green: 'Uploaded — worked',
     purple: 'Worked more or less', red: "Didn't work"
   };
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-  // Stored inside `data` so it syncs with everything else.
-  function planKey() {
-    return `plan-${yr}-${String(mo + 1).padStart(2, '0')}`;
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  }
+
+  // Every video, in backlog order. Status and comment live on the video itself;
+  // plan entries only point at a video by id. Stored inside `data` so it syncs.
+  function videos() {
+    return Array.isArray(data.videos) ? data.videos : [];
+  }
+
+  function setVideos(list) {
+    if (list.length) data.videos = list;
+    else delete data.videos;
+  }
+
+  function video(id) {
+    return videos().find(v => v.id === id);
+  }
+
+  function updateVideo(id, patch) {
+    setVideos(videos().map(v => v.id === id ? { ...v, ...patch } : v));
+    save();
+  }
+
+  function addVideo(title) {
+    const v = { id: uid(), title, status: 'gray', comment: '' };
+    setVideos([...videos(), v]);
+    save();
+    return v;
+  }
+
+  function deleteVideo(id) {
+    setVideos(videos().filter(v => v.id !== id));
+    for (const key of planKeys()) {
+      const left = data[key].filter(it => it.vid !== id);
+      if (left.length) data[key] = left;
+      else delete data[key];
+    }
+    save();
+  }
+
+  /* ── Upload plan ── */
+
+  function planKey(y = yr, m = mo) {
+    return `plan-${y}-${String(m + 1).padStart(2, '0')}`;
+  }
+
+  function planKeys() {
+    return Object.keys(data).filter(k => /^plan-\d{4}-\d{2}$/.test(k) && Array.isArray(data[k]));
   }
 
   function planItems() {
@@ -1409,58 +1672,8 @@
     else delete data[planKey()];
   }
 
-  function planItem(id) {
+  function planEntry(id) {
     return planItems().find(it => it.id === id);
-  }
-
-  function renderPlan() {
-    const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const daysInMonth = new Date(yr, mo + 1, 0).getDate();
-    let offset = new Date(yr, mo, 1).getDay() - 1;
-    if (offset < 0) offset = 6;
-    const numWeeks = Math.ceil((offset + daysInMonth) / 7);
-    const items = planItems();
-
-    let html = '';
-    for (let w = 0; w < numWeeks; w++) {
-      const first = Math.max(1, w * 7 - offset + 1);
-      const last  = Math.min(daysInMonth, w * 7 - offset + 7);
-      const range = first === last ? `${MON[mo]} ${first}` : `${MON[mo]} ${first}–${last}`;
-      html += `
-        <div class="plan-week">
-          <div class="plan-week-label"><span>Week ${w + 1} · ${range}</span><span class="hint" id="ph${w}"></span></div>
-          <div class="plan-list" data-w="${w}">
-            ${items.filter(it => (it.w || 0) === w).map(planItemHtml).join('')}
-          </div>
-          <button class="plan-add" data-w="${w}">+ Add video</button>
-        </div>`;
-    }
-
-    // Items from weeks that no longer exist (shouldn't happen) land in the last week.
-    const orphans = items.filter(it => (it.w || 0) >= numWeeks);
-    const body = document.getElementById('planBody');
-    body.innerHTML = html;
-    if (orphans.length) {
-      const lastList = body.querySelector(`.plan-list[data-w="${numWeeks - 1}"]`);
-      lastList.insertAdjacentHTML('beforeend', orphans.map(planItemHtml).join(''));
-    }
-    body.querySelectorAll('.plan-item').forEach(bindPlanItem);
-  }
-
-  function planItemHtml(it) {
-    const st = it.status || 'gray';
-    const c  = it.comment || '';
-    return `
-      <div class="plan-item" data-id="${it.id}">
-        <div class="plan-row">
-          <span class="plan-handle" title="Drag to move">⋮⋮</span>
-          <button class="plan-dot ${st}" title="${STATUS_LABEL[st]} — click to change"></button>
-          <input class="plan-input" value="${esc(it.title || '').replace(/"/g, '&quot;')}" placeholder="Video title…">
-          <button class="plan-icon-btn${c ? ' has-comment' : ''}" data-act="comment" title="Comments">💬</button>
-          <button class="plan-icon-btn" data-act="delete" title="Delete">✕</button>
-        </div>
-        <textarea class="plan-comment" placeholder="Comments…" ${c ? '' : 'hidden'}>${esc(c)}</textarea>
-      </div>`;
   }
 
   function updatePlanItem(id, patch) {
@@ -1468,50 +1681,248 @@
     save();
   }
 
+  function monthOffset(y, m) {
+    const o = new Date(y, m, 1).getDay() - 1;
+    return o < 0 ? 6 : o;
+  }
+
+  // A week is in the future while its first day in that month is after today.
+  function isFutureWeek(w, y = yr, m = mo) {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return new Date(y, m, Math.max(1, w * 7 - monthOffset(y, m) + 1)) > todayStart;
+  }
+
+  // Where every scheduled video sits: vid → { y, m, w, future }.
+  function schedule() {
+    const out = {};
+    for (const key of planKeys()) {
+      const y = +key.slice(5, 9), m = +key.slice(10, 12) - 1;
+      for (const it of data[key]) {
+        if (it.vid) out[it.vid] = { y, m, w: it.w || 0, future: isFutureWeek(it.w || 0, y, m) };
+      }
+    }
+    return out;
+  }
+
+  function slotLabel(s) {
+    return `${MON[s.m]} ${s.y} · Week ${s.w + 1}`;
+  }
+
+  // Older plan entries carried their own title/status/comment; move them into the library.
+  function migratePlans() {
+    let changed = false;
+    for (const key of planKeys()) {
+      data[key] = data[key].map(it => {
+        if (!('title' in it)) return it;
+        changed = true;
+        if (!it.title && !it.comment) return { id: it.id, w: it.w || 0, vid: null };
+        const v = { id: uid(), title: it.title || '', status: it.status || 'gray', comment: it.comment || '' };
+        setVideos([...videos(), v]);
+        return { id: it.id, w: it.w || 0, vid: v.id };
+      });
+    }
+    if (changed) save();
+  }
+
+  function renderPlan() {
+    const daysInMonth = new Date(yr, mo + 1, 0).getDate();
+    const offset = monthOffset(yr, mo);
+    const numWeeks = Math.ceil((offset + daysInMonth) / 7);
+    const items = planItems();
+    const sched = schedule();
+
+    let html = '';
+    for (let w = 0; w < numWeeks; w++) {
+      const first = Math.max(1, w * 7 - offset + 1);
+      const last  = Math.min(daysInMonth, w * 7 - offset + 7);
+      const range = first === last ? `${MON[mo]} ${first}` : `${MON[mo]} ${first}–${last}`;
+      const future = isFutureWeek(w);
+      // Entries from weeks that no longer exist (shouldn't happen) land in the last week.
+      const mine = items.filter(it => Math.min(it.w || 0, numWeeks - 1) === w);
+      html += `
+        <div class="plan-week">
+          <div class="plan-week-label"><span>Week ${w + 1} · ${range}</span><span class="hint" id="ph${w}"></span></div>
+          <div class="plan-list" data-w="${w}"${future ? ' data-future' : ''}>
+            ${mine.map(it => planItemHtml(it, future, sched)).join('')}
+          </div>
+          <button class="plan-add" data-w="${w}">+ Add video</button>
+        </div>`;
+    }
+
+    const body = document.getElementById('planBody');
+    body.innerHTML = html;
+    body.querySelectorAll('.plan-item').forEach(bindPlanItem);
+    refreshVideoStats();
+  }
+
+  function norm(s) {
+    return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  }
+
+  // Typeable combobox. Offers videos not scheduled anywhere yet (plus this
+  // entry's own), filtered by what's typed, and a "create" option for new titles.
+  // The list is position:fixed so the plan panel's overflow doesn't clip it.
+  function bindCombo(root, vid, onPick) {
+    const input = root.querySelector('.combo-input');
+    const list  = root.querySelector('.combo-list');
+    let opts = [], active = 0;
+
+    const currentTitle = () => (vid() && video(vid())?.title) || '';
+
+    function open() {
+      const typed = input.value.trim();
+      const q = input.value === currentTitle() ? '' : norm(typed);
+      const sched = schedule();
+      opts = videos()
+        .filter(v => (v.id === vid() || !sched[v.id]) && norm(v.title).includes(q))
+        .map(v => ({ id: v.id, label: v.title || 'Untitled' }));
+      if (typed && !videos().some(v => norm(v.title) === norm(typed))) {
+        opts.push({ id: '__new', label: `＋ Create “${typed}”`, title: typed });
+      }
+      active = Math.max(0, Math.min(active, opts.length - 1));
+
+      list.innerHTML = opts.length
+        ? opts.map((o, i) => `<div class="combo-opt${i === active ? ' active' : ''}${o.id === '__new' ? ' create' : ''}" data-i="${i}">${esc(o.label)}</div>`).join('')
+        : '<div class="combo-empty">No videos left in the backlog — type a title to create one</div>';
+      const r = input.getBoundingClientRect();
+      list.style.left  = r.left + 'px';
+      list.style.top   = (r.bottom + 4) + 'px';
+      list.style.width = Math.max(r.width, 240) + 'px';
+      list.hidden = false;
+      list.querySelector('.active')?.scrollIntoView({ block: 'nearest' });
+    }
+
+    function pick(o) {
+      list.hidden = true;
+      if (!o) return;
+      onPick(o.id === '__new' ? addVideo(o.title).id : o.id);
+    }
+
+    input.addEventListener('focus', () => { active = 0; input.select(); open(); });
+    input.addEventListener('input', () => { active = 0; open(); });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown')    { e.preventDefault(); active = Math.min(active + 1, opts.length - 1); open(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); open(); }
+      else if (e.key === 'Enter')   { e.preventDefault(); pick(opts[active]); input.blur(); }
+      else if (e.key === 'Escape')  { input.value = currentTitle(); list.hidden = true; input.blur(); }
+    });
+    input.addEventListener('blur', () => setTimeout(() => {
+      list.hidden = true;
+      input.value = currentTitle();
+    }, 150));
+    // mousedown + preventDefault keeps focus in the input while choosing.
+    list.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      const opt = e.target.closest('.combo-opt');
+      if (opt) { pick(opts[+opt.dataset.i]); input.blur(); }
+    });
+  }
+
+  function planItemHtml(it, locked, sched) {
+    const v   = it.vid ? video(it.vid) : null;
+    const st  = locked || !v ? 'gray' : (v.status || 'gray');
+    const c   = v?.comment || '';
+    const tip = locked ? 'Not uploaded yet — this week hasn\'t started'
+              : !v ? 'Choose a video first'
+              : `${STATUS_LABEL[st]} — click to change`;
+    return `
+      <div class="plan-item" data-id="${it.id}">
+        <div class="plan-row">
+          <span class="plan-handle" title="Drag to move">⋮⋮</span>
+          <button class="plan-dot ${st}" title="${tip}"${locked || !v ? ' disabled' : ''}></button>
+          <div class="combo">
+            <input class="combo-input" value="${esc(v?.title || '').replace(/"/g, '&quot;')}" placeholder="Type or choose a video…" autocomplete="off" spellcheck="false">
+            <div class="combo-list" hidden></div>
+          </div>
+          <button class="plan-icon-btn${c ? ' has-comment' : ''}" data-act="comment" title="Comments"${v ? '' : ' disabled'}>💬</button>
+          <button class="plan-icon-btn" data-act="delete" title="Remove from this week">✕</button>
+        </div>
+        <textarea class="plan-comment" placeholder="Comments…" ${c ? '' : 'hidden'}>${esc(c)}</textarea>
+      </div>`;
+  }
+
   function bindPlanItem(el) {
-    const id = el.dataset.id;
-    const dot = el.querySelector('.plan-dot');
+    const id  = el.dataset.id;
+    const vid = () => planEntry(id)?.vid;
     const commentBtn = el.querySelector('[data-act="comment"]');
     const ta = el.querySelector('.plan-comment');
 
+    bindStatusDot(el.querySelector('.plan-dot'), vid, renderVideos);
+
+    bindCombo(el.querySelector('.combo'), vid, (val) => {
+      updatePlanItem(id, { vid: val || null });
+      if (val && el.closest('.plan-list').hasAttribute('data-future')) updateVideo(val, { status: 'gray' });
+      renderPlan();
+      renderVideos();
+    });
+
+    bindComment(commentBtn, ta, vid, renderVideos);
+
+    el.querySelector('[data-act="delete"]').addEventListener('click', () => {
+      setPlanItems(planItems().filter(x => x.id !== id));
+      save();
+      renderPlan();
+      renderVideos();
+    });
+
+    makeDraggable(el, '#planBody .plan-list', onPlanDrop);
+  }
+
+  // Shared by plan rows and video-tab rows: cycle the video's result colour.
+  function bindStatusDot(dot, vid, after) {
+    if (!dot) return;
     dot.addEventListener('click', () => {
-      const cur  = planItem(id)?.status || 'gray';
-      const next = STATUSES[(STATUSES.indexOf(cur) + 1) % STATUSES.length];
+      const v = vid() && video(vid());
+      if (!v || dot.disabled) return;
+      const next = STATUSES[(STATUSES.indexOf(v.status || 'gray') + 1) % STATUSES.length];
       dot.className = `plan-dot ${next}`;
       dot.title = `${STATUS_LABEL[next]} — click to change`;
-      updatePlanItem(id, { status: next });
+      updateVideo(v.id, { status: next });
+      after();
     });
+  }
 
-    el.querySelector('.plan-input').addEventListener('input', function() {
-      updatePlanItem(id, { title: this.value });
-    });
-
-    commentBtn.addEventListener('click', () => {
+  function bindComment(btn, ta, vid, after) {
+    btn.addEventListener('click', () => {
       const show = ta.hasAttribute('hidden');
       ta.toggleAttribute('hidden', !show);
       if (show) ta.focus();
     });
-
     ta.addEventListener('input', function() {
-      commentBtn.classList.toggle('has-comment', this.value !== '');
-      updatePlanItem(id, { comment: this.value });
+      if (!vid()) return;
+      btn.classList.toggle('has-comment', this.value !== '');
+      updateVideo(vid(), { comment: this.value });
+      after();
     });
+  }
 
-    el.querySelector('[data-act="delete"]').addEventListener('click', () => {
-      const it = planItem(id);
-      if ((it?.title || it?.comment) && !confirm(`Delete "${it.title || 'this video'}"?`)) return;
-      setPlanItems(planItems().filter(x => x.id !== id));
-      save();
-      el.remove();
+  function onPlanDrop() {
+    const byId = Object.fromEntries(planItems().map(it => [it.id, it]));
+    const reordered = [];
+    const toGray = new Set();
+    document.querySelectorAll('#planBody .plan-list').forEach(l => {
+      const w = Number(l.dataset.w);
+      const future = l.hasAttribute('data-future');
+      l.querySelectorAll('.plan-item').forEach(node => {
+        const it = byId[node.dataset.id];
+        if (!it) return;
+        reordered.push({ ...it, w });
+        if (future && it.vid) toGray.add(it.vid);
+      });
     });
-
-    bindPlanDrag(el);
+    setPlanItems(reordered);
+    if (toGray.size) setVideos(videos().map(v => toGray.has(v.id) ? { ...v, status: 'gray' } : v));
+    save();
+    renderPlan();
+    renderVideos();
   }
 
   // Pointer-based drag so it works with mouse and touch alike. The item is moved
-  // live in the DOM; on drop the stored order is rebuilt from the DOM.
-  function bindPlanDrag(el) {
+  // live in the DOM; onDrop then rebuilds the stored order from the DOM.
+  function makeDraggable(el, listSelector, onDrop) {
     const handle = el.querySelector('.plan-handle');
+    if (!handle) return;
 
     handle.addEventListener('pointerdown', (e) => {
       e.preventDefault();
@@ -1519,10 +1930,10 @@
       el.classList.add('dragging');
 
       const onMove = (ev) => {
-        const lists = [...document.querySelectorAll('#planBody .plan-list')];
+        const lists = [...document.querySelectorAll(listSelector)];
         let target = lists[0], best = Infinity;
         for (const l of lists) {
-          const r = l.closest('.plan-week').getBoundingClientRect();
+          const r = (l.closest('.plan-week') || l).getBoundingClientRect();
           const dist = ev.clientY < r.top ? r.top - ev.clientY
                      : ev.clientY > r.bottom ? ev.clientY - r.bottom : 0;
           if (dist < best) { best = dist; target = l; }
@@ -1541,18 +1952,7 @@
         handle.removeEventListener('pointerup', onUp);
         handle.removeEventListener('pointercancel', onUp);
         el.classList.remove('dragging');
-
-        const byId = Object.fromEntries(planItems().map(it => [it.id, it]));
-        const reordered = [];
-        document.querySelectorAll('#planBody .plan-list').forEach(l => {
-          const w = Number(l.dataset.w);
-          l.querySelectorAll('.plan-item').forEach(node => {
-            const it = byId[node.dataset.id];
-            if (it) reordered.push({ ...it, w });
-          });
-        });
-        setPlanItems(reordered);
-        save();
+        onDrop();
       };
 
       handle.addEventListener('pointermove', onMove);
@@ -1562,14 +1962,109 @@
   }
 
   function addPlanItem(w) {
-    const it = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), w, title: '', status: 'gray', comment: '' };
+    const it = { id: uid(), w, vid: null };
     setPlanItems([...planItems(), it]);
     save();
     const list = document.querySelector(`#planBody .plan-list[data-w="${w}"]`);
-    list.insertAdjacentHTML('beforeend', planItemHtml(it));
+    list.insertAdjacentHTML('beforeend', planItemHtml(it, list.hasAttribute('data-future'), schedule()));
     const el = list.lastElementChild;
     bindPlanItem(el);
-    el.querySelector('.plan-input').focus();
+    el.querySelector('.combo-input').focus();
+  }
+
+  /* ── Videos tab ── */
+
+  function renderVideos() {
+    const sched = schedule();
+    const slotSort = s => s.y * 1000 + s.m * 10 + s.w;
+    const backlog   = videos().filter(v => !sched[v.id] || sched[v.id].future);
+    const published = videos().filter(v => sched[v.id] && !sched[v.id].future)
+      .sort((a, b) => slotSort(sched[b.id]) - slotSort(sched[a.id]));
+
+    const n = backlog.length;
+    const weeks = k => {
+      const x = Math.round(n / k * 10) / 10;
+      return `${x} week${x === 1 ? '' : 's'}`;
+    };
+    document.getElementById('vStats').innerHTML = n
+      ? `You have <b>${n}</b> video${n === 1 ? '' : 's'} in the backlog — that's <b>${weeks(2)}</b> at 2 per week, or <b>${weeks(3)}</b> at 3 per week.`
+      : 'Your backlog is empty — add the videos you have ready below.';
+    document.getElementById('cntBacklog').textContent   = n;
+    document.getElementById('cntPublished').textContent = published.length;
+
+    const backlogEl   = document.getElementById('backlogList');
+    const publishedEl = document.getElementById('publishedList');
+    backlogEl.innerHTML = n
+      ? backlog.map(v => videoRowHtml(v, sched[v.id], false)).join('')
+      : '<p class="vempty">No videos in the backlog.</p>';
+    publishedEl.innerHTML = published.length
+      ? published.map(v => videoRowHtml(v, sched[v.id], true)).join('')
+      : '<p class="vempty">Nothing published yet. Videos show up here once their week in the calendar starts.</p>';
+
+    backlogEl.querySelectorAll('.plan-item').forEach(el => {
+      bindVideoRow(el);
+      makeDraggable(el, '#backlogList', onBacklogDrop);
+    });
+    publishedEl.querySelectorAll('.plan-item').forEach(bindVideoRow);
+  }
+
+  function videoRowHtml(v, slot, published) {
+    const st = v.status || 'gray';
+    const c  = v.comment || '';
+    return `
+      <div class="plan-item" data-vid="${v.id}">
+        <div class="plan-row">
+          ${published
+            ? `<button class="plan-dot ${st}" title="${STATUS_LABEL[st]} — click to change"></button>`
+            : `<span class="plan-handle" title="Drag to reorder">⋮⋮</span>`}
+          <input class="plan-input" value="${esc(v.title || '').replace(/"/g, '&quot;')}" placeholder="Video title…">
+          ${slot ? `<span class="vslot${published ? '' : ' scheduled'}">${slotLabel(slot)}</span>` : ''}
+          <button class="plan-icon-btn${c ? ' has-comment' : ''}" data-act="comment" title="Comments">💬</button>
+          <button class="plan-icon-btn" data-act="delete" title="Delete video">✕</button>
+        </div>
+        <textarea class="plan-comment" placeholder="Comments…" ${c ? '' : 'hidden'}>${esc(c)}</textarea>
+      </div>`;
+  }
+
+  function bindVideoRow(el) {
+    const id = el.dataset.vid;
+    bindStatusDot(el.querySelector('.plan-dot'), () => id, renderPlan);
+    bindComment(el.querySelector('[data-act="comment"]'), el.querySelector('.plan-comment'), () => id, renderPlan);
+
+    el.querySelector('.plan-input').addEventListener('input', function() {
+      updateVideo(id, { title: this.value });
+      renderPlan();
+    });
+
+    el.querySelector('[data-act="delete"]').addEventListener('click', () => {
+      const v = video(id);
+      if (!confirm(`Delete "${v?.title || 'this video'}"? It will also be removed from the calendar.`)) return;
+      deleteVideo(id);
+      renderVideos();
+      renderPlan();
+    });
+  }
+
+  function onBacklogDrop() {
+    const order = [...document.querySelectorAll('#backlogList .plan-item')].map(n => n.dataset.vid);
+    const inList = new Set(order);
+    setVideos([...order.map(video).filter(Boolean), ...videos().filter(v => !inList.has(v.id))]);
+    save();
+    renderPlan();
+  }
+
+  function showTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+    document.getElementById('tab-calendar').hidden = name !== 'calendar';
+    document.getElementById('tab-videos').hidden   = name !== 'videos';
+    try { localStorage.setItem(TAB_KEY, name); } catch {}
+  }
+
+  function showSubTab(name) {
+    document.querySelectorAll('.subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.sub === name));
+    document.getElementById('sub-backlog').hidden   = name !== 'backlog';
+    document.getElementById('sub-published').hidden = name !== 'published';
+    try { localStorage.setItem(SUBTAB_KEY, name); } catch {}
   }
 
   function noteFirstLine(dk) {
@@ -1726,6 +2221,7 @@
     const MONTHS = ['January','February','March','April','May','June',
                     'July','August','September','October','November','December'];
 
+    migratePlans();
     document.getElementById('monthLabel').textContent = `${MONTHS[mo]} ${yr}`;
 
     const today    = new Date();
@@ -1788,7 +2284,7 @@
     document.getElementById('totalNum').textContent = monthTotal;
     document.querySelectorAll('.day-cell:not(.empty)').forEach(bindCell);
     renderPlan();
-    refreshVideoStats();
+    renderVideos();
   }
 
   /* ── Interactions ── */
@@ -1855,6 +2351,47 @@
     confirm.addEventListener('click', confirmName);
 
     document.getElementById('syncNowBtn')?.addEventListener('click', syncNow);
+
+    document.querySelectorAll('.tab-btn').forEach(b =>
+      b.addEventListener('click', () => showTab(b.dataset.tab)));
+    document.querySelectorAll('.subtab-btn').forEach(b =>
+      b.addEventListener('click', () => showSubTab(b.dataset.sub)));
+    let savedTab = 'calendar', savedSub = 'backlog';
+    try {
+      savedTab = localStorage.getItem(TAB_KEY) || savedTab;
+      savedSub = localStorage.getItem(SUBTAB_KEY) || savedSub;
+    } catch {}
+    showTab(savedTab);
+    showSubTab(savedSub);
+
+    // Combo lists are position:fixed, so close them when the page scrolls.
+    window.addEventListener('scroll', (e) => {
+      if (e.target.closest?.('.combo-list')) return;
+      document.querySelectorAll('.combo-list').forEach(l => { l.hidden = true; });
+    }, true);
+
+    // Pasting several lines adds one video per line.
+    document.getElementById('vAddInput').addEventListener('paste', (e) => {
+      const lines = (e.clipboardData?.getData('text') || '')
+        .split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      if (lines.length < 2) return;
+      e.preventDefault();
+      lines.forEach(addVideo);
+      renderVideos();
+      renderPlan();
+    });
+
+    document.getElementById('vAddForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('vAddInput');
+      const title = input.value.trim();
+      if (!title) return;
+      addVideo(title);
+      input.value = '';
+      renderVideos();
+      renderPlan();
+      input.focus();
+    });
 
     document.getElementById('planBody').addEventListener('click', (e) => {
       const add = e.target.closest('.plan-add');
