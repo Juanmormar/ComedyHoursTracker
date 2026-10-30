@@ -18,6 +18,8 @@
       --accent-bg:  rgba(0, 113, 227, 0.08);
       --hover-bg:   #f0f0f5;
       --radius:     12px;
+      --video:      #af52de;
+      --video-bg:   rgba(175, 82, 222, 0.12);
     }
 
     body {
@@ -29,7 +31,200 @@
       padding: 64px 40px 100px;
     }
 
-    .page { max-width: 1000px; margin: 0 auto; }
+    .page { max-width: 1380px; margin: 0 auto; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 28px;
+      align-items: start;
+    }
+
+    /* ─── UPLOAD PLAN ─── */
+
+    .plan {
+      --st-gray:   #aeaeb2;
+      --st-green:  #34c759;
+      --st-purple: #af52de;
+      --st-red:    #ff3b30;
+    }
+
+    .plan-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      min-height: 56px;
+      padding-bottom: 24px;
+      padding-top: 6px;
+    }
+
+    .plan-title {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .plan-legend {
+      display: flex;
+      gap: 10px;
+      font-size: 10px;
+      color: var(--text-2);
+    }
+
+    .plan-legend span { display: flex; align-items: center; gap: 4px; }
+
+    .plan-body {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.05);
+      overflow: hidden;
+    }
+
+    .plan-week { border-bottom: 1px solid var(--border); padding: 12px 12px 8px; }
+    .plan-week:last-child { border-bottom: none; }
+
+    .plan-week-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .plan-week-label .hint {
+      text-transform: none;
+      letter-spacing: 0;
+      font-weight: 600;
+      color: var(--video);
+    }
+
+    .plan-list { min-height: 8px; display: grid; gap: 4px; }
+
+    .plan-item {
+      background: var(--surface);
+      border: 1px solid transparent;
+      border-radius: 8px;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+
+    .plan-item:hover { background: var(--hover-bg); }
+
+    .plan-item.dragging {
+      background: var(--surface);
+      border-color: var(--accent);
+      box-shadow: 0 6px 20px rgba(0,0,0,.14);
+      position: relative;
+      z-index: 5;
+    }
+
+    .plan-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 4px 4px 2px;
+    }
+
+    .plan-handle {
+      cursor: grab;
+      color: var(--text-3);
+      font-size: 13px;
+      line-height: 1;
+      padding: 4px 2px;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .plan-item.dragging .plan-handle { cursor: grabbing; }
+
+    .plan-dot {
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      background: var(--st-gray);
+      transition: transform 0.1s;
+    }
+
+    .plan-dot:hover { transform: scale(1.2); }
+    .plan-dot.green  { background: var(--st-green); }
+    .plan-dot.purple { background: var(--st-purple); }
+    .plan-dot.red    { background: var(--st-red); }
+
+    .plan-legend .plan-dot { width: 8px; height: 8px; cursor: default; }
+    .plan-legend .plan-dot:hover { transform: none; }
+
+    .plan-input {
+      flex: 1;
+      min-width: 0;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 4px 2px;
+    }
+
+    .plan-input::placeholder { color: var(--text-3); }
+
+    .plan-icon-btn {
+      flex-shrink: 0;
+      font-family: inherit;
+      font-size: 12px;
+      color: var(--text-3);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      opacity: 0.6;
+    }
+
+    .plan-icon-btn:hover { color: var(--text); opacity: 1; }
+    .plan-icon-btn.has-comment { opacity: 1; color: var(--accent); }
+
+    .plan-comment {
+      display: block;
+      width: calc(100% - 28px);
+      margin: 0 6px 6px 22px;
+      font-family: inherit;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text-2);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 8px;
+      outline: none;
+      resize: vertical;
+      min-height: 48px;
+    }
+
+    .plan-comment:focus { border-color: var(--accent); }
+    .plan-comment[hidden] { display: none; }
+
+    .plan-add {
+      font-family: inherit;
+      font-size: 12px;
+      color: var(--text-3);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px 4px 2px;
+    }
+
+    .plan-add:hover { color: var(--accent); }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: minmax(0, 1fr); }
+    }
 
     /* ─── MASTHEAD ─── */
 
@@ -99,6 +294,17 @@
       line-height: 1.05;
     }
 
+    .badges { display: flex; gap: 12px; flex-shrink: 0; }
+
+    .monthly-badge.videos .big-num { color: var(--video); }
+
+    .badge-sub {
+      display: block;
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+
     /* ─── NAV ROW ─── */
 
     .nav-row {
@@ -150,7 +356,7 @@
 
     .col-headers {
       display: grid;
-      grid-template-columns: repeat(7, 1fr) 72px;
+      grid-template-columns: repeat(7, 1fr) 96px;
       border-bottom: 1px solid var(--border);
     }
 
@@ -172,7 +378,7 @@
 
     .week-row {
       display: grid;
-      grid-template-columns: repeat(7, 1fr) 72px;
+      grid-template-columns: repeat(7, 1fr) 96px;
       border-bottom: 1px solid var(--border);
       min-height: 104px;
     }
@@ -260,11 +466,60 @@
 
     .week-annot {
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
       align-items: flex-end;
       justify-content: flex-end;
       padding: 0 14px 14px 4px;
-      gap: 3px;
+      gap: 6px;
+    }
+
+    .annot-line { display: flex; align-items: baseline; gap: 3px; }
+
+    .annot-line.vid .annot-num,
+    .annot-line.vid .annot-unit { color: var(--video); }
+
+    .annot-next {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--video);
+      background: var(--video-bg);
+      border-radius: 6px;
+      padding: 3px 6px;
+      text-align: right;
+      line-height: 1.3;
+    }
+
+    .annot-next:empty { display: none; }
+
+    /* ─── VIDEO COUNTER (per day) ─── */
+
+    .vid-btn {
+      position: absolute;
+      top: 11px;
+      right: 38px;
+      height: 22px;
+      min-width: 22px;
+      padding: 0 5px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 20px;
+      color: var(--text-3);
+      background: none;
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s, background 0.15s;
+    }
+
+    .day-cell:not(.empty):hover .vid-btn,
+    .vid-btn.on { opacity: 1; }
+
+    .vid-btn.on {
+      color: var(--video);
+      background: var(--video-bg);
+      border: 1px solid transparent;
     }
 
     .annot-slash { display: none; }
@@ -420,7 +675,10 @@
       .title-block h1 { font-size: 22px; }
       .title-block .byline { font-size: 13px; }
 
+      .badges { flex-direction: row; }
+      .badges .monthly-badge { flex: 1; }
       .monthly-badge { padding: 12px 20px; text-align: center; }
+      .vid-btn { top: 4px; right: auto; left: 3px; height: 16px; min-width: 16px; padding: 0 3px; font-size: 9px; line-height: 14px; opacity: 1; }
       .monthly-badge .big-num { font-size: 28px; }
 
       .nav-row { justify-content: space-between; padding-bottom: 20px; gap: 0; }
@@ -646,12 +904,23 @@
       <p class="byline">Track the hours you spend writing comedy — one ✕ per hour.</p>
       <p class="user-label" id="userLabel"></p>
     </div>
-    <div class="monthly-badge">
-      This month<br>
-      <span class="big-num" id="totalNum">0</span>
-      hrs written
+    <div class="badges">
+      <div class="monthly-badge">
+        This month<br>
+        <span class="big-num" id="totalNum">0</span>
+        hrs written
+      </div>
+      <div class="monthly-badge videos">
+        This month<br>
+        <span class="big-num" id="vidTotalNum">0</span>
+        videos edited
+        <span class="badge-sub" id="vidAvg"></span>
+      </div>
     </div>
   </div>
+
+  <div class="layout">
+  <div class="cal-col">
 
   <div class="nav-row">
     <button class="nav-btn" id="prevBtn">&#8249;</button>
@@ -676,8 +945,26 @@
   <p class="footer">
     Click to add &nbsp;&middot;&nbsp;
     Right-click or long-press to remove &nbsp;&middot;&nbsp;
+    🎬 next to the day = videos edited &nbsp;&middot;&nbsp;
     Data saved automatically
   </p>
+
+  </div>
+
+  <!-- ─── UPLOAD PLAN ─── -->
+  <aside class="plan">
+    <div class="plan-head">
+      <span class="plan-title">Upload plan</span>
+      <div class="plan-legend">
+        <span><i class="plan-dot"></i>Pending</span>
+        <span><i class="plan-dot green"></i>Worked</span>
+        <span><i class="plan-dot purple"></i>So-so</span>
+        <span><i class="plan-dot red"></i>Flopped</span>
+      </div>
+    </div>
+    <div class="plan-body" id="planBody"></div>
+  </aside>
+  </div>
 
   <!-- ─── SYNC NOW ─── -->
   <div id="syncActions" style="display:none">
@@ -1012,6 +1299,279 @@
     return v.note || '';
   }
 
+  function vids(dk) {
+    const v = data[dk];
+    if (!v || typeof v === 'number') return 0;
+    return v.videos || 0;
+  }
+
+  // Writes a day entry, dropping it entirely when it holds nothing.
+  function setDay(dk, h, n, v) {
+    if (!h && !n && !v) { delete data[dk]; }
+    else { data[dk] = { hours: h, note: n, videos: v }; }
+  }
+
+  function vidLabel(dk) {
+    const v = vids(dk);
+    return v > 0 ? `🎬 ${v}` : '🎬';
+  }
+
+  // Monday of week row w in the current month view.
+  function weekStart(w, offset) {
+    return new Date(yr, mo, 1 - offset + w * 7);
+  }
+
+  // Videos across the full Mon–Sun week, including days from adjacent months.
+  function weekVids(monday) {
+    let t = 0;
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+      t += vids(dateKey(d.getFullYear(), d.getMonth(), d.getDate()));
+    }
+    return t;
+  }
+
+  function nextWeekText(wv) {
+    return wv > 0 ? `next wk: upload ${wv - 1}` : '';
+  }
+
+  // Monthly video total, plus the average per completed week. A week belongs to
+  // the month its Sunday falls in, and counts once that Sunday has passed.
+  function refreshVideoStats() {
+    const daysInMonth = new Date(yr, mo + 1, 0).getDate();
+    let offset = new Date(yr, mo, 1).getDay() - 1;
+    if (offset < 0) offset = 6;
+    const numWeeks = Math.ceil((offset + daysInMonth) / 7);
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    let total = 0;
+    for (let d = 1; d <= daysInMonth; d++) total += vids(dateKey(yr, mo, d));
+
+    let doneWeeks = 0, doneVids = 0;
+    for (let w = 0; w < numWeeks; w++) {
+      const monday = weekStart(w, offset);
+      const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6);
+      const wv = weekVids(monday);
+
+      const numEl  = document.getElementById(`wv${w}`);
+      const nextEl = document.getElementById(`wn${w}`);
+      if (numEl)  numEl.textContent  = wv;
+      if (nextEl) nextEl.textContent = nextWeekText(wv);
+
+      // Plan allowance for this week comes from the videos edited the week before.
+      const allowed = Math.max(0, weekVids(weekStart(w - 1, offset)) - 1);
+      const hintEl  = document.getElementById(`ph${w}`);
+      if (hintEl) hintEl.textContent = allowed > 0 ? `can upload ${allowed}` : '';
+
+      if (sunday.getMonth() === mo && sunday < todayStart) {
+        doneWeeks++;
+        doneVids += wv;
+      }
+    }
+
+    document.getElementById('vidTotalNum').textContent = total;
+    document.getElementById('vidAvg').textContent = doneWeeks > 0
+      ? `≈ ${Math.round(doneVids / doneWeeks * 10) / 10}/wk over ${doneWeeks} full wk${doneWeeks > 1 ? 's' : ''}`
+      : 'no full weeks yet';
+  }
+
+  function changeVids(btn, delta) {
+    const dk = btn.dataset.dk;
+    const v  = Math.max(0, vids(dk) + delta);
+    if (v === vids(dk)) return;
+    setDay(dk, hrs(dk), note(dk), v);
+    save();
+    btn.textContent = vidLabel(dk);
+    btn.classList.toggle('on', v > 0);
+    refreshVideoStats();
+  }
+
+  /* ── Upload plan ── */
+
+  const STATUSES = ['gray', 'green', 'purple', 'red'];
+  const STATUS_LABEL = {
+    gray: 'Not uploaded yet', green: 'Uploaded — worked',
+    purple: 'Worked more or less', red: "Didn't work"
+  };
+
+  // Stored inside `data` so it syncs with everything else.
+  function planKey() {
+    return `plan-${yr}-${String(mo + 1).padStart(2, '0')}`;
+  }
+
+  function planItems() {
+    return Array.isArray(data[planKey()]) ? data[planKey()] : [];
+  }
+
+  function setPlanItems(items) {
+    if (items.length) data[planKey()] = items;
+    else delete data[planKey()];
+  }
+
+  function planItem(id) {
+    return planItems().find(it => it.id === id);
+  }
+
+  function renderPlan() {
+    const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const daysInMonth = new Date(yr, mo + 1, 0).getDate();
+    let offset = new Date(yr, mo, 1).getDay() - 1;
+    if (offset < 0) offset = 6;
+    const numWeeks = Math.ceil((offset + daysInMonth) / 7);
+    const items = planItems();
+
+    let html = '';
+    for (let w = 0; w < numWeeks; w++) {
+      const first = Math.max(1, w * 7 - offset + 1);
+      const last  = Math.min(daysInMonth, w * 7 - offset + 7);
+      const range = first === last ? `${MON[mo]} ${first}` : `${MON[mo]} ${first}–${last}`;
+      html += `
+        <div class="plan-week">
+          <div class="plan-week-label"><span>Week ${w + 1} · ${range}</span><span class="hint" id="ph${w}"></span></div>
+          <div class="plan-list" data-w="${w}">
+            ${items.filter(it => (it.w || 0) === w).map(planItemHtml).join('')}
+          </div>
+          <button class="plan-add" data-w="${w}">+ Add video</button>
+        </div>`;
+    }
+
+    // Items from weeks that no longer exist (shouldn't happen) land in the last week.
+    const orphans = items.filter(it => (it.w || 0) >= numWeeks);
+    const body = document.getElementById('planBody');
+    body.innerHTML = html;
+    if (orphans.length) {
+      const lastList = body.querySelector(`.plan-list[data-w="${numWeeks - 1}"]`);
+      lastList.insertAdjacentHTML('beforeend', orphans.map(planItemHtml).join(''));
+    }
+    body.querySelectorAll('.plan-item').forEach(bindPlanItem);
+  }
+
+  function planItemHtml(it) {
+    const st = it.status || 'gray';
+    const c  = it.comment || '';
+    return `
+      <div class="plan-item" data-id="${it.id}">
+        <div class="plan-row">
+          <span class="plan-handle" title="Drag to move">⋮⋮</span>
+          <button class="plan-dot ${st}" title="${STATUS_LABEL[st]} — click to change"></button>
+          <input class="plan-input" value="${esc(it.title || '').replace(/"/g, '&quot;')}" placeholder="Video title…">
+          <button class="plan-icon-btn${c ? ' has-comment' : ''}" data-act="comment" title="Comments">💬</button>
+          <button class="plan-icon-btn" data-act="delete" title="Delete">✕</button>
+        </div>
+        <textarea class="plan-comment" placeholder="Comments…" ${c ? '' : 'hidden'}>${esc(c)}</textarea>
+      </div>`;
+  }
+
+  function updatePlanItem(id, patch) {
+    setPlanItems(planItems().map(it => it.id === id ? { ...it, ...patch } : it));
+    save();
+  }
+
+  function bindPlanItem(el) {
+    const id = el.dataset.id;
+    const dot = el.querySelector('.plan-dot');
+    const commentBtn = el.querySelector('[data-act="comment"]');
+    const ta = el.querySelector('.plan-comment');
+
+    dot.addEventListener('click', () => {
+      const cur  = planItem(id)?.status || 'gray';
+      const next = STATUSES[(STATUSES.indexOf(cur) + 1) % STATUSES.length];
+      dot.className = `plan-dot ${next}`;
+      dot.title = `${STATUS_LABEL[next]} — click to change`;
+      updatePlanItem(id, { status: next });
+    });
+
+    el.querySelector('.plan-input').addEventListener('input', function() {
+      updatePlanItem(id, { title: this.value });
+    });
+
+    commentBtn.addEventListener('click', () => {
+      const show = ta.hasAttribute('hidden');
+      ta.toggleAttribute('hidden', !show);
+      if (show) ta.focus();
+    });
+
+    ta.addEventListener('input', function() {
+      commentBtn.classList.toggle('has-comment', this.value !== '');
+      updatePlanItem(id, { comment: this.value });
+    });
+
+    el.querySelector('[data-act="delete"]').addEventListener('click', () => {
+      const it = planItem(id);
+      if ((it?.title || it?.comment) && !confirm(`Delete "${it.title || 'this video'}"?`)) return;
+      setPlanItems(planItems().filter(x => x.id !== id));
+      save();
+      el.remove();
+    });
+
+    bindPlanDrag(el);
+  }
+
+  // Pointer-based drag so it works with mouse and touch alike. The item is moved
+  // live in the DOM; on drop the stored order is rebuilt from the DOM.
+  function bindPlanDrag(el) {
+    const handle = el.querySelector('.plan-handle');
+
+    handle.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      handle.setPointerCapture(e.pointerId);
+      el.classList.add('dragging');
+
+      const onMove = (ev) => {
+        const lists = [...document.querySelectorAll('#planBody .plan-list')];
+        let target = lists[0], best = Infinity;
+        for (const l of lists) {
+          const r = l.closest('.plan-week').getBoundingClientRect();
+          const dist = ev.clientY < r.top ? r.top - ev.clientY
+                     : ev.clientY > r.bottom ? ev.clientY - r.bottom : 0;
+          if (dist < best) { best = dist; target = l; }
+        }
+        const after = [...target.querySelectorAll('.plan-item:not(.dragging)')]
+          .find(it => {
+            const r = it.getBoundingClientRect();
+            return ev.clientY < r.top + r.height / 2;
+          });
+        if (after) { if (after.previousElementSibling !== el) target.insertBefore(el, after); }
+        else if (target.lastElementChild !== el) target.appendChild(el);
+      };
+
+      const onUp = () => {
+        handle.removeEventListener('pointermove', onMove);
+        handle.removeEventListener('pointerup', onUp);
+        handle.removeEventListener('pointercancel', onUp);
+        el.classList.remove('dragging');
+
+        const byId = Object.fromEntries(planItems().map(it => [it.id, it]));
+        const reordered = [];
+        document.querySelectorAll('#planBody .plan-list').forEach(l => {
+          const w = Number(l.dataset.w);
+          l.querySelectorAll('.plan-item').forEach(node => {
+            const it = byId[node.dataset.id];
+            if (it) reordered.push({ ...it, w });
+          });
+        });
+        setPlanItems(reordered);
+        save();
+      };
+
+      handle.addEventListener('pointermove', onMove);
+      handle.addEventListener('pointerup', onUp);
+      handle.addEventListener('pointercancel', onUp);
+    });
+  }
+
+  function addPlanItem(w) {
+    const it = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), w, title: '', status: 'gray', comment: '' };
+    setPlanItems([...planItems(), it]);
+    save();
+    const list = document.querySelector(`#planBody .plan-list[data-w="${w}"]`);
+    list.insertAdjacentHTML('beforeend', planItemHtml(it));
+    const el = list.lastElementChild;
+    bindPlanItem(el);
+    el.querySelector('.plan-input').focus();
+  }
+
   function noteFirstLine(dk) {
     const n = note(dk);
     return n ? n.split('\n')[0] : '';
@@ -1106,6 +1666,33 @@
     cell.addEventListener('touchend',  function() { clearTimeout(longPressTimer); });
     cell.addEventListener('touchmove', function() { clearTimeout(longPressTimer); });
 
+    const vidBtn = cell.querySelector('.vid-btn');
+    if (vidBtn) {
+      let vidTimer = null, vidLongFired = false;
+      vidBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        changeVids(this, +1);
+      });
+      vidBtn.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!vidLongFired) changeVids(this, -1);
+      });
+      vidBtn.addEventListener('touchstart', function(e) {
+        e.stopPropagation();
+        clearTimeout(longPressTimer);
+        vidLongFired = false;
+        vidTimer = setTimeout(() => { vidLongFired = true; changeVids(vidBtn, -1); }, 500);
+      }, { passive: true });
+      vidBtn.addEventListener('touchmove', function() { clearTimeout(vidTimer); });
+      vidBtn.addEventListener('touchend', function(e) {
+        e.stopPropagation();
+        e.preventDefault(); // suppress the synthetic click
+        clearTimeout(vidTimer);
+        if (!vidLongFired) changeVids(this, +1);
+      });
+    }
+
     const noteTrigger = cell.querySelector('.note-trigger');
     if (noteTrigger) {
       noteTrigger.addEventListener('click', function(e) {
@@ -1172,17 +1759,26 @@
           cells += `
             <div class="day-cell${isToday ? ' today' : ''}" data-dk="${dk}">
               <span class="day-num">${day}</span>
+              <button class="vid-btn${vids(dk) > 0 ? ' on' : ''}" data-dk="${dk}" title="Videos edited — click +1, right-click −1">${vidLabel(dk)}</button>
               <div class="x-wrap">${buildXMarks(dk)}</div>
               <div class="note-trigger" tabindex="0" data-dk="${dk}">${esc(noteFirstLine(dk))}</div>
             </div>`;
         }
       }
 
+      const wv = weekVids(weekStart(w, offset));
       cells += `
         <div class="week-annot">
-          <span class="annot-slash">//</span>
-          <span class="annot-num" id="wt${w}">${weekTotal}</span>
-          <span class="annot-unit">hrs</span>
+          <div class="annot-next" id="wn${w}">${nextWeekText(wv)}</div>
+          <div class="annot-line vid">
+            <span class="annot-num" id="wv${w}">${wv}</span>
+            <span class="annot-unit">vids</span>
+          </div>
+          <div class="annot-line">
+            <span class="annot-slash">//</span>
+            <span class="annot-num" id="wt${w}">${weekTotal}</span>
+            <span class="annot-unit">hrs</span>
+          </div>
         </div>`;
 
       html += `<div class="week-row">${cells}</div>`;
@@ -1191,13 +1787,15 @@
     document.getElementById('calBody').innerHTML = html;
     document.getElementById('totalNum').textContent = monthTotal;
     document.querySelectorAll('.day-cell:not(.empty)').forEach(bindCell);
+    renderPlan();
+    refreshVideoStats();
   }
 
   /* ── Interactions ── */
 
   function onAdd() {
     const dk = this.dataset.dk;
-    data[dk] = { hours: hrs(dk) + 1, note: note(dk) };
+    setDay(dk, hrs(dk) + 1, note(dk), vids(dk));
     save();
     this.querySelector('.x-wrap').innerHTML = buildXMarks(dk, true);
     refreshTotals();
@@ -1208,10 +1806,7 @@
     const dk = this.dataset.dk;
     const h  = hrs(dk);
     if (h > 0) {
-      const newH = h - 1;
-      const n    = note(dk);
-      if (newH === 0 && !n) { delete data[dk]; }
-      else { data[dk] = { hours: newH, note: n }; }
+      setDay(dk, h - 1, note(dk), vids(dk));
       save();
       this.querySelector('.x-wrap').innerHTML = buildXMarks(dk, false);
       refreshTotals();
@@ -1261,6 +1856,11 @@
 
     document.getElementById('syncNowBtn')?.addEventListener('click', syncNow);
 
+    document.getElementById('planBody').addEventListener('click', (e) => {
+      const add = e.target.closest('.plan-add');
+      if (add) addPlanItem(Number(add.dataset.w));
+    });
+
     document.getElementById('debugToggle')?.addEventListener('click', () => {
       const body   = document.getElementById('debugBody');
       const toggle = document.getElementById('debugToggle');
@@ -1274,9 +1874,7 @@
       notePanelTextarea.addEventListener('input', function() {
         if (!activeDk) return;
         const text = this.value;
-        const h    = hrs(activeDk);
-        if (h === 0 && !text) { delete data[activeDk]; }
-        else { data[activeDk] = { hours: h, note: text }; }
+        setDay(activeDk, hrs(activeDk), text, vids(activeDk));
         const trigger = document.querySelector(`.note-trigger[data-dk="${activeDk}"]`);
         if (trigger) trigger.textContent = text.split('\n')[0];
         save();
