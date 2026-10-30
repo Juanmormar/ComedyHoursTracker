@@ -403,6 +403,11 @@
 
     .vempty { font-size: 13px; color: var(--text-3); padding: 12px; }
 
+    .vstats-sub { display: block; font-size: 13px; color: var(--accent); margin-top: 4px; }
+
+    .vlist .plan-item.is-selected { background: var(--accent-bg); }
+    .vlist .plan-item.is-selected .plan-input { color: var(--text-2); }
+
     .vlegend { margin-bottom: 10px; justify-content: flex-end; }
 
     /* ─── MASTHEAD ─── */
@@ -1977,17 +1982,22 @@
   function renderVideos() {
     const sched = schedule();
     const slotSort = s => s.y * 1000 + s.m * 10 + s.w;
-    const backlog   = videos().filter(v => !sched[v.id] || sched[v.id].future);
-    const published = videos().filter(v => sched[v.id] && !sched[v.id].future)
+    // Published = its week has started and it already has a result colour.
+    // Everything else (unscheduled, future week, or still grey) stays in the backlog.
+    const isPublished = v => sched[v.id] && !sched[v.id].future && (v.status || 'gray') !== 'gray';
+    const backlog   = videos().filter(v => !isPublished(v));
+    const published = videos().filter(isPublished)
       .sort((a, b) => slotSort(sched[b.id]) - slotSort(sched[a.id]));
 
     const n = backlog.length;
+    const selected = backlog.filter(v => sched[v.id]).length;
     const weeks = k => {
       const x = Math.round(n / k * 10) / 10;
       return `${x} week${x === 1 ? '' : 's'}`;
     };
     document.getElementById('vStats').innerHTML = n
-      ? `You have <b>${n}</b> video${n === 1 ? '' : 's'} in the backlog — that's <b>${weeks(2)}</b> at 2 per week, or <b>${weeks(3)}</b> at 3 per week.`
+      ? `You have <b>${n}</b> video${n === 1 ? '' : 's'} in the backlog — that's <b>${weeks(2)}</b> at 2 per week, or <b>${weeks(3)}</b> at 3 per week.` +
+        (selected ? ` <span class="vstats-sub">${selected} already selected in the calendar.</span>` : '')
       : 'Your backlog is empty — add the videos you have ready below.';
     document.getElementById('cntBacklog').textContent   = n;
     document.getElementById('cntPublished').textContent = published.length;
@@ -2011,14 +2021,23 @@
   function videoRowHtml(v, slot, published) {
     const st = v.status || 'gray';
     const c  = v.comment || '';
+    // Backlog rows selected in a week that has started get a live dot, so giving
+    // them a colour here moves them to Published. Future weeks stay locked grey.
+    let dot = '';
+    if (published) {
+      dot = `<button class="plan-dot ${st}" title="${STATUS_LABEL[st]} — click to change"></button>`;
+    } else if (slot) {
+      dot = slot.future
+        ? `<button class="plan-dot gray" title="Not uploaded yet — this week hasn't started" disabled></button>`
+        : `<button class="plan-dot gray" title="Not uploaded yet — click to set the result"></button>`;
+    }
     return `
-      <div class="plan-item" data-vid="${v.id}">
+      <div class="plan-item${!published && slot ? ' is-selected' : ''}" data-vid="${v.id}">
         <div class="plan-row">
-          ${published
-            ? `<button class="plan-dot ${st}" title="${STATUS_LABEL[st]} — click to change"></button>`
-            : `<span class="plan-handle" title="Drag to reorder">⋮⋮</span>`}
+          ${published ? '' : `<span class="plan-handle" title="Drag to reorder">⋮⋮</span>`}
+          ${dot}
           <input class="plan-input" value="${esc(v.title || '').replace(/"/g, '&quot;')}" placeholder="Video title…">
-          ${slot ? `<span class="vslot${published ? '' : ' scheduled'}">${slotLabel(slot)}</span>` : ''}
+          ${slot ? `<span class="vslot${published ? '' : ' scheduled'}">${published ? '' : '✓ Selected · '}${slotLabel(slot)}</span>` : ''}
           <button class="plan-icon-btn${c ? ' has-comment' : ''}" data-act="comment" title="Comments">💬</button>
           <button class="plan-icon-btn" data-act="delete" title="Delete video">✕</button>
         </div>
@@ -2028,7 +2047,8 @@
 
   function bindVideoRow(el) {
     const id = el.dataset.vid;
-    bindStatusDot(el.querySelector('.plan-dot'), () => id, renderPlan);
+    // Re-render this tab too: a colour moves it to Published, grey moves it back.
+    bindStatusDot(el.querySelector('.plan-dot'), () => id, () => { renderPlan(); renderVideos(); });
     bindComment(el.querySelector('[data-act="comment"]'), el.querySelector('.plan-comment'), () => id, renderPlan);
 
     el.querySelector('.plan-input').addEventListener('input', function() {
