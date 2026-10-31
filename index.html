@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Comedy Hours Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -312,6 +315,28 @@
 
     #tab-videos { max-width: 760px; }
 
+    .notes-text {
+      display: block;
+      width: 100%;
+      min-height: 65vh;
+      font-family: inherit;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.8);
+      -webkit-backdrop-filter: blur(12px) saturate(1.2);
+              backdrop-filter: blur(12px) saturate(1.2);
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 40px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.2);
+      padding: 22px 26px;
+      outline: none;
+      resize: vertical;
+    }
+
+    .notes-text:focus { border-color: rgba(255,255,255,.9); }
+    .notes-text::placeholder { color: var(--text-3); }
+
     .vstats {
       font-size: 17px;
       line-height: 1.5;
@@ -403,6 +428,28 @@
 
     .vempty { font-size: 13px; color: var(--text-3); padding: 12px; }
 
+    .vstats[hidden] { display: none; }
+
+    .trial-check {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      margin: 0 2px;
+      accent-color: var(--st-green);
+      cursor: pointer;
+    }
+
+    .vlist .trial-item.done { background: rgba(52, 199, 89, 0.12); }
+    .vlist .trial-item.done .plan-input { color: var(--text-2); }
+
+    .trial-summary {
+      font-size: 12px;
+      color: var(--text-3);
+      text-align: right;
+      margin: -4px 2px 8px;
+      min-height: 14px;
+    }
+
     .vstats-sub { display: block; font-size: 13px; color: var(--accent); margin-top: 4px; }
 
     .vlist .plan-item.is-selected { background: var(--accent-bg); }
@@ -436,25 +483,6 @@
       color: var(--text-2);
       margin-top: 5px;
     }
-
-    .user-label {
-      font-size: 11px;
-      color: var(--text-3);
-      margin-top: 5px;
-      min-height: 14px;
-    }
-
-    .switch-btn {
-      color: var(--accent);
-      cursor: pointer;
-      background: none;
-      border: none;
-      font: inherit;
-      font-size: 11px;
-      padding: 0;
-    }
-
-    .switch-btn:hover { text-decoration: underline; }
 
     .monthly-badge {
       flex-shrink: 0;
@@ -1038,6 +1066,128 @@
 
     .note-panel-textarea::placeholder { color: var(--text-3); }
 
+    /* ─── STAGE THEME ─── */
+    /* A fixed backdrop layer (not background-attachment: fixed, which iOS ignores):
+       photo collage tinted into a red velvet curtain, with folds and a spotlight. */
+
+    body { background: #3a040b; }
+
+    .stage {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      background: #7d0c18;
+    }
+
+    .stage-photos {
+      position: absolute;
+      inset: -2%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      opacity: 0.32;
+      mix-blend-mode: luminosity;
+      filter: contrast(1.15) grayscale(1);
+    }
+
+    .stage-photos img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      /* Each photo is enlarged past its cell and fades to fully transparent
+         before its edge, so neighbours overlap and cross-fade with no seams. */
+      transform: scale(1.35);
+      -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 30%, rgba(0,0,0,.5) 60%, transparent 100%);
+              mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 30%, rgba(0,0,0,.5) 60%, transparent 100%);
+    }
+
+    .stage-folds {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(20,0,4,.55) 0%, rgba(20,0,4,0) 18%, rgba(20,0,4,0) 65%, rgba(20,0,4,.7) 100%),
+        repeating-linear-gradient(90deg,
+          rgba(40,0,6,.55) 0px,  rgba(150,16,32,.10) 26px, rgba(255,90,100,.16) 48px,
+          rgba(150,16,32,.10) 70px, rgba(40,0,6,.55) 96px);
+    }
+
+    .stage-light {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 55% 45% at 50% 0%, rgba(255,214,160,.28), rgba(255,214,160,0) 70%);
+    }
+
+    /* Text that sits directly on the curtain */
+    .title-block h1 {
+      font-family: 'Bebas Neue', -apple-system, sans-serif;
+      font-weight: 400;
+      font-size: clamp(30px, 4.4vw, 48px);
+      letter-spacing: 0.02em;
+      color: #fff;
+      text-shadow: 0 2px 18px rgba(0,0,0,.45);
+    }
+
+    .title-block .byline     { color: rgba(255,255,255,.82); }
+
+    .monthly-badge { box-shadow: 0 8px 30px rgba(0,0,0,.3); border-color: transparent; }
+
+    .tabs { background: rgba(0,0,0,.32); }
+    .tab-btn { color: rgba(255,255,255,.78); }
+    .tab-btn:hover:not(.active) { color: #fff; }
+
+    .nav-btn, .month-label { color: #fff; }
+    .month-label { text-shadow: 0 2px 14px rgba(0,0,0,.4); }
+    .nav-btn:hover { background: rgba(255,255,255,.12); }
+
+    .calendar, .plan-body, .vlist {
+      border-color: transparent;
+      box-shadow: 0 10px 40px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.2);
+    }
+
+    /* Frosted cards: let the curtain show through a little. Pop-ups (modal,
+       note panel, combo list) stay solid for readability. */
+    .calendar, .plan-body, .vlist, .monthly-badge, .vadd-input {
+      background: rgba(255, 255, 255, 0.8);
+      -webkit-backdrop-filter: blur(12px) saturate(1.2);
+              backdrop-filter: blur(12px) saturate(1.2);
+    }
+
+    .plan-item { background: transparent; }
+    .plan-item:hover { background: rgba(255, 255, 255, 0.55); }
+    .plan-item.dragging { background: var(--surface); }
+    .day-cell:not(.empty):hover { background-color: rgba(255, 255, 255, 0.6); }
+
+    .plan-title { color: #fff; }
+    .plan-legend { color: rgba(255,255,255,.8); }
+
+    .footer, .trial-summary { color: rgba(255,255,255,.6); }
+
+    .vstats { color: rgba(255,255,255,.82); }
+    .vstats b { color: #fff; }
+    .vstats-sub { color: #ffd27a; }
+
+    .subtabs { border-bottom-color: rgba(255,255,255,.25); }
+    .subtab-btn { color: rgba(255,255,255,.7); }
+    .subtab-btn:hover { color: #fff; }
+    .subtab-btn.active { color: #fff; border-bottom-color: #ffd27a; }
+    .subtab-count { color: rgba(255,255,255,.5); }
+
+    .vadd-input { border-color: transparent; }
+
+    .sync-status { color: rgba(255,255,255,.75); }
+    .sync-now-btn { color: #fff; border-color: rgba(255,255,255,.35); }
+    .sync-now-btn:hover { background: rgba(255,255,255,.1); border-color: #fff; }
+    .debug-panel { border-top-color: rgba(255,255,255,.2); }
+    .debug-toggle { color: rgba(255,255,255,.5); }
+    .debug-toggle:hover { color: #fff; }
+
+    @media (max-width: 767px) {
+      .stage-photos { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(6, 1fr); }
+      .title-block h1 { font-size: 30px; }
+    }
+
     @media (max-width: 767px) {
       .note-trigger { font-size: 9px; padding: 0 3px 2px; }
       .note-trigger:empty::before { display: none; }
@@ -1063,6 +1213,17 @@
 </head>
 <body>
 
+<!-- ─── STAGE BACKDROP (curtain + comedian photos) ─── -->
+<div class="stage" aria-hidden="true">
+  <div class="stage-photos">
+    <img src="bg/comic-05.jpg" alt=""><img src="bg/comic-02.jpg" alt=""><img src="bg/comic-11.jpg" alt=""><img src="bg/comic-04.jpg" alt="">
+    <img src="bg/comic-07.jpg" alt=""><img src="bg/comic-10.jpg" alt=""><img src="bg/comic-01.jpg" alt=""><img src="bg/comic-08.jpg" alt="">
+    <img src="bg/comic-03.jpg" alt=""><img src="bg/comic-09.jpg" alt=""><img src="bg/comic-06.jpg" alt=""><img src="bg/comic-02.jpg" alt="">
+  </div>
+  <div class="stage-folds"></div>
+  <div class="stage-light"></div>
+</div>
+
 <!-- ─── USERNAME MODAL ─── -->
 <div id="modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal-card">
@@ -1086,7 +1247,6 @@
     <div class="title-block">
       <h1>Comedy Hours  - Don't break the chain</h1>
       <p class="byline">Track the hours you spend writing comedy — one ✕ per hour.</p>
-      <p class="user-label" id="userLabel"></p>
     </div>
     <div class="badges">
       <div class="monthly-badge">
@@ -1106,6 +1266,7 @@
   <div class="tabs" role="tablist">
     <button class="tab-btn active" data-tab="calendar" role="tab">Calendar</button>
     <button class="tab-btn" data-tab="videos" role="tab">Videos</button>
+    <button class="tab-btn" data-tab="notes" role="tab">Notes</button>
   </div>
 
   <div id="tab-calendar" role="tabpanel">
@@ -1157,6 +1318,11 @@
   </div>
   </div>
 
+  <!-- ─── NOTES TAB ─── -->
+  <div id="tab-notes" role="tabpanel" hidden>
+    <textarea id="notesText" class="notes-text" placeholder="Write anything down — ideas, bits, premises, reminders…" spellcheck="true"></textarea>
+  </div>
+
   <!-- ─── VIDEOS TAB ─── -->
   <div id="tab-videos" role="tabpanel" hidden>
     <p class="vstats" id="vStats"></p>
@@ -1164,6 +1330,16 @@
     <div class="subtabs">
       <button class="subtab-btn active" data-sub="backlog">Backlog <span class="subtab-count" id="cntBacklog">0</span></button>
       <button class="subtab-btn" data-sub="published">Published <span class="subtab-count" id="cntPublished">0</span></button>
+      <button class="subtab-btn" data-sub="trial">Viral Videos on Trial <span class="subtab-count" id="cntTrial">0</span></button>
+    </div>
+
+    <div id="sub-trial" class="vpanel" hidden>
+      <form class="vadd" id="trialAddForm">
+        <input id="trialAddInput" class="vadd-input" placeholder="Add a video… (paste a list to add several at once)" autocomplete="off">
+        <button class="vadd-btn" type="submit">Add</button>
+      </form>
+      <p class="trial-summary" id="trialSummary"></p>
+      <div class="vlist" id="trialList"></div>
     </div>
 
     <div id="sub-backlog" class="vpanel">
@@ -1428,27 +1604,9 @@
 
   /* ── User session ── */
 
-  function setUserLabel(name) {
-    const el = document.getElementById('userLabel');
-    if (!el) return;
-    el.textContent = `Signed in as ${name} · `;
-    const btn = document.createElement('button');
-    btn.className = 'switch-btn';
-    btn.textContent = 'Switch';
-    btn.addEventListener('click', () => {
-      localStorage.removeItem(USERNAME_KEY);
-      username = null;
-      data = {};
-      render();
-      showModal();
-    });
-    el.appendChild(btn);
-  }
-
   async function initUser(rawName) {
     username = rawName.trim().toLowerCase();
     localStorage.setItem(USERNAME_KEY, username);
-    setUserLabel(username);
 
     if (!cloudOn()) {
       loadLocal();
@@ -1925,44 +2083,64 @@
 
   // Pointer-based drag so it works with mouse and touch alike. The item is moved
   // live in the DOM; onDrop then rebuilds the stored order from the DOM.
+  // Listeners sit on window (not pointer capture on the handle): moving the
+  // element in the DOM drops pointer capture, which used to end the drag after
+  // a single step.
   function makeDraggable(el, listSelector, onDrop) {
     const handle = el.querySelector('.plan-handle');
     if (!handle) return;
 
     handle.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
       e.preventDefault();
-      handle.setPointerCapture(e.pointerId);
       el.classList.add('dragging');
+      let lastY = e.clientY, scrollRaf = null;
 
-      const onMove = (ev) => {
+      const place = (y) => {
         const lists = [...document.querySelectorAll(listSelector)];
         let target = lists[0], best = Infinity;
         for (const l of lists) {
           const r = (l.closest('.plan-week') || l).getBoundingClientRect();
-          const dist = ev.clientY < r.top ? r.top - ev.clientY
-                     : ev.clientY > r.bottom ? ev.clientY - r.bottom : 0;
+          const dist = y < r.top ? r.top - y : y > r.bottom ? y - r.bottom : 0;
           if (dist < best) { best = dist; target = l; }
         }
         const after = [...target.querySelectorAll('.plan-item:not(.dragging)')]
           .find(it => {
             const r = it.getBoundingClientRect();
-            return ev.clientY < r.top + r.height / 2;
+            return y < r.top + r.height / 2;
           });
         if (after) { if (after.previousElementSibling !== el) target.insertBefore(el, after); }
         else if (target.lastElementChild !== el) target.appendChild(el);
       };
 
+      // Scroll the page while the pointer is near the top or bottom edge.
+      const autoScroll = () => {
+        const edge = 70;
+        const dy = lastY < edge ? -(edge - lastY) / 4
+                 : lastY > innerHeight - edge ? (lastY - (innerHeight - edge)) / 4 : 0;
+        if (dy) { window.scrollBy(0, dy); place(lastY); }
+        scrollRaf = requestAnimationFrame(autoScroll);
+      };
+      scrollRaf = requestAnimationFrame(autoScroll);
+
+      const onMove = (ev) => {
+        ev.preventDefault();
+        lastY = ev.clientY;
+        place(lastY);
+      };
+
       const onUp = () => {
-        handle.removeEventListener('pointermove', onMove);
-        handle.removeEventListener('pointerup', onUp);
-        handle.removeEventListener('pointercancel', onUp);
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        window.removeEventListener('pointercancel', onUp);
+        cancelAnimationFrame(scrollRaf);
         el.classList.remove('dragging');
         onDrop();
       };
 
-      handle.addEventListener('pointermove', onMove);
-      handle.addEventListener('pointerup', onUp);
-      handle.addEventListener('pointercancel', onUp);
+      window.addEventListener('pointermove', onMove, { passive: false });
+      window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onUp);
     });
   }
 
@@ -2077,13 +2255,102 @@
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
     document.getElementById('tab-calendar').hidden = name !== 'calendar';
     document.getElementById('tab-videos').hidden   = name !== 'videos';
+    document.getElementById('tab-notes').hidden    = name !== 'notes';
     try { localStorage.setItem(TAB_KEY, name); } catch {}
+  }
+
+  // Add box for a list: Enter adds one title; pasting several lines adds one per line.
+  function bindAddForm(formId, inputId, add, after) {
+    const input = document.getElementById(inputId);
+    input.addEventListener('paste', (e) => {
+      const lines = (e.clipboardData?.getData('text') || '')
+        .split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      if (lines.length < 2) return;
+      e.preventDefault();
+      lines.forEach(l => add(l));
+      after();
+    });
+    document.getElementById(formId).addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = input.value.trim();
+      if (!title) return;
+      add(title);
+      input.value = '';
+      after();
+      input.focus();
+    });
+  }
+
+  /* ── Viral Videos on Trial (independent list) ── */
+
+  function trials() {
+    return Array.isArray(data.trial) ? data.trial : [];
+  }
+
+  function setTrials(list) {
+    if (list.length) data.trial = list;
+    else delete data.trial;
+  }
+
+  function addTrial(title) {
+    setTrials([...trials(), { id: uid(), title, done: false }]);
+    save();
+  }
+
+  function updateTrial(id, patch) {
+    setTrials(trials().map(t => t.id === id ? { ...t, ...patch } : t));
+    save();
+  }
+
+  function renderTrial() {
+    const list = trials();
+    const done = list.filter(t => t.done).length;
+    document.getElementById('cntTrial').textContent = list.length;
+    const el = document.getElementById('trialList');
+    el.innerHTML = list.length
+      ? list.map(t => `
+          <div class="plan-item trial-item${t.done ? ' done' : ''}" data-tid="${t.id}">
+            <div class="plan-row">
+              <span class="plan-handle" title="Drag to reorder">⋮⋮</span>
+              <input type="checkbox" class="trial-check"${t.done ? ' checked' : ''}>
+              <input class="plan-input" value="${esc(t.title || '').replace(/"/g, '&quot;')}" placeholder="Video…">
+              <button class="plan-icon-btn" data-act="delete" title="Delete">✕</button>
+            </div>
+          </div>`).join('')
+      : '<p class="vempty">No videos on trial yet.</p>';
+    document.getElementById('trialSummary').textContent = list.length ? `${done} of ${list.length} checked` : '';
+
+    el.querySelectorAll('.trial-item').forEach(row => {
+      const id = row.dataset.tid;
+      row.querySelector('.trial-check').addEventListener('change', function() {
+        row.classList.toggle('done', this.checked);
+        updateTrial(id, { done: this.checked });
+        const n = trials().filter(t => t.done).length;
+        document.getElementById('trialSummary').textContent = `${n} of ${trials().length} checked`;
+      });
+      row.querySelector('.plan-input').addEventListener('input', function() {
+        updateTrial(id, { title: this.value });
+      });
+      row.querySelector('[data-act="delete"]').addEventListener('click', () => {
+        setTrials(trials().filter(t => t.id !== id));
+        save();
+        renderTrial();
+      });
+      makeDraggable(row, '#trialList', () => {
+        const byId = Object.fromEntries(trials().map(t => [t.id, t]));
+        setTrials([...el.querySelectorAll('.trial-item')].map(n => byId[n.dataset.tid]).filter(Boolean));
+        save();
+      });
+    });
   }
 
   function showSubTab(name) {
     document.querySelectorAll('.subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.sub === name));
     document.getElementById('sub-backlog').hidden   = name !== 'backlog';
     document.getElementById('sub-published').hidden = name !== 'published';
+    document.getElementById('sub-trial').hidden     = name !== 'trial';
+    // The backlog stats line is about the linked videos, not the trial list.
+    document.getElementById('vStats').hidden        = name === 'trial';
     try { localStorage.setItem(SUBTAB_KEY, name); } catch {}
   }
 
@@ -2305,6 +2572,11 @@
     document.querySelectorAll('.day-cell:not(.empty)').forEach(bindCell);
     renderPlan();
     renderVideos();
+    renderTrial();
+
+    // Don't clobber the notes while they're being typed in.
+    const notesEl = document.getElementById('notesText');
+    if (document.activeElement !== notesEl) notesEl.value = data.notes || '';
   }
 
   /* ── Interactions ── */
@@ -2390,28 +2662,14 @@
       document.querySelectorAll('.combo-list').forEach(l => { l.hidden = true; });
     }, true);
 
-    // Pasting several lines adds one video per line.
-    document.getElementById('vAddInput').addEventListener('paste', (e) => {
-      const lines = (e.clipboardData?.getData('text') || '')
-        .split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-      if (lines.length < 2) return;
-      e.preventDefault();
-      lines.forEach(addVideo);
-      renderVideos();
-      renderPlan();
+    document.getElementById('notesText').addEventListener('input', function() {
+      if (this.value) data.notes = this.value;
+      else delete data.notes;
+      save();
     });
 
-    document.getElementById('vAddForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const input = document.getElementById('vAddInput');
-      const title = input.value.trim();
-      if (!title) return;
-      addVideo(title);
-      input.value = '';
-      renderVideos();
-      renderPlan();
-      input.focus();
-    });
+    bindAddForm('vAddForm', 'vAddInput', addVideo, () => { renderVideos(); renderPlan(); });
+    bindAddForm('trialAddForm', 'trialAddInput', addTrial, renderTrial);
 
     document.getElementById('planBody').addEventListener('click', (e) => {
       const add = e.target.closest('.plan-add');
