@@ -1189,8 +1189,12 @@
     }
 
     @media (max-width: 767px) {
-      .note-trigger { font-size: 9px; padding: 0 3px 2px; }
-      .note-trigger:empty::before { display: none; }
+      /* No hover on touch: keep the note trigger visible and give it a real tap
+         target pinned to the bottom of the cell, so tapping there opens the note
+         instead of falling through to the cell and adding an hour. */
+      .day-cell:not(.empty) { display: flex; flex-direction: column; }
+      .note-trigger { font-size: 9px; padding: 4px 3px 2px; min-height: 22px; margin-top: auto; }
+      .note-trigger:empty::before { content: '✎'; font-style: normal; font-size: 11px; opacity: .45; }
 
       .note-panel {
         left: 0 !important;
@@ -1320,7 +1324,23 @@
 
   <!-- ─── NOTES TAB ─── -->
   <div id="tab-notes" role="tabpanel" hidden>
-    <textarea id="notesText" class="notes-text" placeholder="Write anything down — ideas, bits, premises, reminders…" spellcheck="true"></textarea>
+    <div class="subtabs">
+      <button class="subtab-btn notes-sub-btn active" data-nsub="text">Notes</button>
+      <button class="subtab-btn notes-sub-btn" data-nsub="todo">To-do <span class="subtab-count" id="cntTodo">0</span></button>
+    </div>
+
+    <div id="nsub-text" class="vpanel">
+      <textarea id="notesText" class="notes-text" placeholder="Write anything down — ideas, bits, premises, reminders…" spellcheck="true"></textarea>
+    </div>
+
+    <div id="nsub-todo" class="vpanel" hidden>
+      <form class="vadd" id="todoAddForm">
+        <input id="todoAddInput" class="vadd-input" placeholder="Add a to-do… (paste a list to add several at once)" autocomplete="off">
+        <button class="vadd-btn" type="submit">Add</button>
+      </form>
+      <p class="trial-summary" id="todoSummary"></p>
+      <div class="vlist" id="todoList"></div>
+    </div>
   </div>
 
   <!-- ─── VIDEOS TAB ─── -->
@@ -1427,6 +1447,7 @@
   const STORAGE_KEY  = 'comedy-tracker-data';
   const TAB_KEY      = 'comedy-tracker-tab';
   const SUBTAB_KEY   = 'comedy-tracker-subtab';
+  const NOTES_SUBTAB_KEY = 'comedy-tracker-notes-subtab';
   const USERNAME_KEY = 'comedy-tracker-username';
 
   let data            = {};
@@ -2281,77 +2302,92 @@
     });
   }
 
-  /* ── Viral Videos on Trial (independent list) ── */
+  /* ── Checklists: Viral Videos on Trial + Notes to-do (independent lists) ── */
 
-  function trials() {
-    return Array.isArray(data.trial) ? data.trial : [];
+  const TRIAL = { key: 'trial', listId: 'trialList', countId: 'cntTrial', summaryId: 'trialSummary',
+                  placeholder: 'Video…', empty: 'No videos on trial yet.' };
+  const TODO  = { key: 'todos', listId: 'todoList',  countId: 'cntTodo',  summaryId: 'todoSummary',
+                  placeholder: 'To-do…', empty: 'Nothing to do yet.' };
+
+  function checkItems(cfg) {
+    return Array.isArray(data[cfg.key]) ? data[cfg.key] : [];
   }
 
-  function setTrials(list) {
-    if (list.length) data.trial = list;
-    else delete data.trial;
+  function setCheckItems(cfg, list) {
+    if (list.length) data[cfg.key] = list;
+    else delete data[cfg.key];
   }
 
-  function addTrial(title) {
-    setTrials([...trials(), { id: uid(), title, done: false }]);
+  function addCheckItem(cfg, title) {
+    setCheckItems(cfg, [...checkItems(cfg), { id: uid(), title, done: false }]);
     save();
   }
 
-  function updateTrial(id, patch) {
-    setTrials(trials().map(t => t.id === id ? { ...t, ...patch } : t));
+  function updateCheckItem(cfg, id, patch) {
+    setCheckItems(cfg, checkItems(cfg).map(t => t.id === id ? { ...t, ...patch } : t));
     save();
   }
 
-  function renderTrial() {
-    const list = trials();
+  const renderTrial = () => renderChecklist(TRIAL);
+  const renderTodo  = () => renderChecklist(TODO);
+
+  function renderChecklist(cfg) {
+    const list = checkItems(cfg);
     const done = list.filter(t => t.done).length;
-    document.getElementById('cntTrial').textContent = list.length;
-    const el = document.getElementById('trialList');
+    document.getElementById(cfg.countId).textContent = list.length;
+    const el = document.getElementById(cfg.listId);
     el.innerHTML = list.length
       ? list.map(t => `
           <div class="plan-item trial-item${t.done ? ' done' : ''}" data-tid="${t.id}">
             <div class="plan-row">
               <span class="plan-handle" title="Drag to reorder">⋮⋮</span>
               <input type="checkbox" class="trial-check"${t.done ? ' checked' : ''}>
-              <input class="plan-input" value="${esc(t.title || '').replace(/"/g, '&quot;')}" placeholder="Video…">
+              <input class="plan-input" value="${esc(t.title || '').replace(/"/g, '&quot;')}" placeholder="${cfg.placeholder}">
               <button class="plan-icon-btn" data-act="delete" title="Delete">✕</button>
             </div>
           </div>`).join('')
-      : '<p class="vempty">No videos on trial yet.</p>';
-    document.getElementById('trialSummary').textContent = list.length ? `${done} of ${list.length} checked` : '';
+      : `<p class="vempty">${cfg.empty}</p>`;
+    document.getElementById(cfg.summaryId).textContent = list.length ? `${done} of ${list.length} checked` : '';
 
     el.querySelectorAll('.trial-item').forEach(row => {
       const id = row.dataset.tid;
       row.querySelector('.trial-check').addEventListener('change', function() {
         row.classList.toggle('done', this.checked);
-        updateTrial(id, { done: this.checked });
-        const n = trials().filter(t => t.done).length;
-        document.getElementById('trialSummary').textContent = `${n} of ${trials().length} checked`;
+        updateCheckItem(cfg, id, { done: this.checked });
+        const items = checkItems(cfg), n = items.filter(t => t.done).length;
+        document.getElementById(cfg.summaryId).textContent = `${n} of ${items.length} checked`;
       });
       row.querySelector('.plan-input').addEventListener('input', function() {
-        updateTrial(id, { title: this.value });
+        updateCheckItem(cfg, id, { title: this.value });
       });
       row.querySelector('[data-act="delete"]').addEventListener('click', () => {
-        setTrials(trials().filter(t => t.id !== id));
+        setCheckItems(cfg, checkItems(cfg).filter(t => t.id !== id));
         save();
-        renderTrial();
+        renderChecklist(cfg);
       });
-      makeDraggable(row, '#trialList', () => {
-        const byId = Object.fromEntries(trials().map(t => [t.id, t]));
-        setTrials([...el.querySelectorAll('.trial-item')].map(n => byId[n.dataset.tid]).filter(Boolean));
+      makeDraggable(row, `#${cfg.listId}`, () => {
+        const byId = Object.fromEntries(checkItems(cfg).map(t => [t.id, t]));
+        setCheckItems(cfg, [...el.querySelectorAll('.trial-item')].map(n => byId[n.dataset.tid]).filter(Boolean));
         save();
       });
     });
   }
 
   function showSubTab(name) {
-    document.querySelectorAll('.subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.sub === name));
+    document.querySelectorAll('.subtab-btn[data-sub]').forEach(b => b.classList.toggle('active', b.dataset.sub === name));
     document.getElementById('sub-backlog').hidden   = name !== 'backlog';
     document.getElementById('sub-published').hidden = name !== 'published';
     document.getElementById('sub-trial').hidden     = name !== 'trial';
     // The backlog stats line is about the linked videos, not the trial list.
     document.getElementById('vStats').hidden        = name === 'trial';
     try { localStorage.setItem(SUBTAB_KEY, name); } catch {}
+  }
+
+  function showNotesSubTab(name) {
+    document.querySelectorAll('.subtab-btn[data-nsub]').forEach(b => b.classList.toggle('active', b.dataset.nsub === name));
+    document.getElementById('nsub-text').hidden = name !== 'text';
+    document.getElementById('nsub-todo').hidden = name !== 'todo';
+    try { localStorage.setItem(NOTES_SUBTAB_KEY, name); } catch {}
   }
 
   function noteFirstLine(dk) {
@@ -2573,6 +2609,7 @@
     renderPlan();
     renderVideos();
     renderTrial();
+    renderTodo();
 
     // Don't clobber the notes while they're being typed in.
     const notesEl = document.getElementById('notesText');
@@ -2646,15 +2683,19 @@
 
     document.querySelectorAll('.tab-btn').forEach(b =>
       b.addEventListener('click', () => showTab(b.dataset.tab)));
-    document.querySelectorAll('.subtab-btn').forEach(b =>
+    document.querySelectorAll('.subtab-btn[data-sub]').forEach(b =>
       b.addEventListener('click', () => showSubTab(b.dataset.sub)));
-    let savedTab = 'calendar', savedSub = 'backlog';
+    document.querySelectorAll('.subtab-btn[data-nsub]').forEach(b =>
+      b.addEventListener('click', () => showNotesSubTab(b.dataset.nsub)));
+    let savedTab = 'calendar', savedSub = 'backlog', savedNotesSub = 'text';
     try {
       savedTab = localStorage.getItem(TAB_KEY) || savedTab;
       savedSub = localStorage.getItem(SUBTAB_KEY) || savedSub;
+      savedNotesSub = localStorage.getItem(NOTES_SUBTAB_KEY) || savedNotesSub;
     } catch {}
     showTab(savedTab);
     showSubTab(savedSub);
+    showNotesSubTab(savedNotesSub);
 
     // Combo lists are position:fixed, so close them when the page scrolls.
     window.addEventListener('scroll', (e) => {
@@ -2669,7 +2710,8 @@
     });
 
     bindAddForm('vAddForm', 'vAddInput', addVideo, () => { renderVideos(); renderPlan(); });
-    bindAddForm('trialAddForm', 'trialAddInput', addTrial, renderTrial);
+    bindAddForm('trialAddForm', 'trialAddInput', t => addCheckItem(TRIAL, t), renderTrial);
+    bindAddForm('todoAddForm', 'todoAddInput', t => addCheckItem(TODO, t), renderTodo);
 
     document.getElementById('planBody').addEventListener('click', (e) => {
       const add = e.target.closest('.plan-add');
