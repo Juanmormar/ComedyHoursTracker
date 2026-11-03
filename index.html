@@ -193,6 +193,8 @@
 
     .plan-icon-btn:hover { color: var(--text); opacity: 1; }
     .plan-icon-btn.has-comment { opacity: 1; color: var(--accent); }
+    .plan-icon-btn.to-backlog { opacity: 1; color: var(--accent); white-space: nowrap; }
+    .plan-icon-btn.to-backlog:hover { background: var(--accent-bg); }
 
     .plan-comment {
       display: block;
@@ -1351,6 +1353,8 @@
       <button class="subtab-btn active" data-sub="backlog">Backlog <span class="subtab-count" id="cntBacklog">0</span></button>
       <button class="subtab-btn" data-sub="published">Published <span class="subtab-count" id="cntPublished">0</span></button>
       <button class="subtab-btn" data-sub="trial">Viral Videos on Trial <span class="subtab-count" id="cntTrial">0</span></button>
+      <button class="subtab-btn" data-sub="edit">Videos to Edit <span class="subtab-count" id="cntEdit">0</span></button>
+      <button class="subtab-btn" data-sub="develop">Videos to Develop <span class="subtab-count" id="cntDevelop">0</span></button>
     </div>
 
     <div id="sub-trial" class="vpanel" hidden>
@@ -1360,6 +1364,24 @@
       </form>
       <p class="trial-summary" id="trialSummary"></p>
       <div class="vlist" id="trialList"></div>
+    </div>
+
+    <div id="sub-edit" class="vpanel" hidden>
+      <form class="vadd" id="editAddForm">
+        <input id="editAddInput" class="vadd-input" placeholder="Add a video to edit… (paste a list to add several at once)" autocomplete="off">
+        <button class="vadd-btn" type="submit">Add</button>
+      </form>
+      <p class="trial-summary" id="editSummary"></p>
+      <div class="vlist" id="editList"></div>
+    </div>
+
+    <div id="sub-develop" class="vpanel" hidden>
+      <form class="vadd" id="developAddForm">
+        <input id="developAddInput" class="vadd-input" placeholder="Add a video to develop… (paste a list to add several at once)" autocomplete="off">
+        <button class="vadd-btn" type="submit">Add</button>
+      </form>
+      <p class="trial-summary" id="developSummary"></p>
+      <div class="vlist" id="developList"></div>
     </div>
 
     <div id="sub-backlog" class="vpanel">
@@ -2302,10 +2324,17 @@
     });
   }
 
-  /* ── Checklists: Viral Videos on Trial + Notes to-do (independent lists) ── */
+  /* ── Checklists: Viral Videos on Trial, Videos to Edit, Videos to Develop + Notes to-do (independent lists) ── */
 
   const TRIAL = { key: 'trial', listId: 'trialList', countId: 'cntTrial', summaryId: 'trialSummary',
                   placeholder: 'Video…', empty: 'No videos on trial yet.' };
+  // Plain rows (no checkbox): the summary is just how many videos are left.
+  const EDIT    = { key: 'toEdit', listId: 'editList', countId: 'cntEdit', summaryId: 'editSummary',
+                    placeholder: 'Video…', empty: 'No videos to edit yet.', noCheck: true,
+                    summary: list => `Videos to edit: ${list.length}`, toBacklog: true };
+  const DEVELOP = { key: 'develop', listId: 'developList', countId: 'cntDevelop', summaryId: 'developSummary',
+                    placeholder: 'Video…', empty: 'No videos to develop yet.', noCheck: true,
+                    summary: list => `Videos to develop: ${list.length}` };
   const TODO  = { key: 'todos', listId: 'todoList',  countId: 'cntTodo',  summaryId: 'todoSummary',
                   placeholder: 'To-do…', empty: 'Nothing to do yet.' };
 
@@ -2329,6 +2358,8 @@
   }
 
   const renderTrial = () => renderChecklist(TRIAL);
+  const renderEdit    = () => renderChecklist(EDIT);
+  const renderDevelop = () => renderChecklist(DEVELOP);
   const renderTodo  = () => renderChecklist(TODO);
 
   function renderChecklist(cfg) {
@@ -2341,17 +2372,19 @@
           <div class="plan-item trial-item${t.done ? ' done' : ''}" data-tid="${t.id}">
             <div class="plan-row">
               <span class="plan-handle" title="Drag to reorder">⋮⋮</span>
-              <input type="checkbox" class="trial-check"${t.done ? ' checked' : ''}>
+              ${cfg.noCheck ? '' : `<input type="checkbox" class="trial-check"${t.done ? ' checked' : ''}>`}
               <input class="plan-input" value="${esc(t.title || '').replace(/"/g, '&quot;')}" placeholder="${cfg.placeholder}">
+              ${cfg.toBacklog ? '<button class="plan-icon-btn to-backlog" data-act="to-backlog" title="Edited — move to Backlog">→ Backlog</button>' : ''}
               <button class="plan-icon-btn" data-act="delete" title="Delete">✕</button>
             </div>
           </div>`).join('')
       : `<p class="vempty">${cfg.empty}</p>`;
-    document.getElementById(cfg.summaryId).textContent = list.length ? `${done} of ${list.length} checked` : '';
+    document.getElementById(cfg.summaryId).textContent = !list.length ? ''
+      : cfg.summary ? cfg.summary(list) : `${done} of ${list.length} checked`;
 
     el.querySelectorAll('.trial-item').forEach(row => {
       const id = row.dataset.tid;
-      row.querySelector('.trial-check').addEventListener('change', function() {
+      row.querySelector('.trial-check')?.addEventListener('change', function() {
         row.classList.toggle('done', this.checked);
         updateCheckItem(cfg, id, { done: this.checked });
         const items = checkItems(cfg), n = items.filter(t => t.done).length;
@@ -2364,6 +2397,16 @@
         setCheckItems(cfg, checkItems(cfg).filter(t => t.id !== id));
         save();
         renderChecklist(cfg);
+      });
+      row.querySelector('[data-act="to-backlog"]')?.addEventListener('click', () => {
+        const item = checkItems(cfg).find(t => t.id === id);
+        const title = (item?.title || '').trim();
+        if (!title) return;
+        setCheckItems(cfg, checkItems(cfg).filter(t => t.id !== id));
+        addVideo(title);   // saves
+        renderChecklist(cfg);
+        renderVideos();
+        renderPlan();
       });
       makeDraggable(row, `#${cfg.listId}`, () => {
         const byId = Object.fromEntries(checkItems(cfg).map(t => [t.id, t]));
@@ -2378,8 +2421,10 @@
     document.getElementById('sub-backlog').hidden   = name !== 'backlog';
     document.getElementById('sub-published').hidden = name !== 'published';
     document.getElementById('sub-trial').hidden     = name !== 'trial';
-    // The backlog stats line is about the linked videos, not the trial list.
-    document.getElementById('vStats').hidden        = name === 'trial';
+    document.getElementById('sub-edit').hidden      = name !== 'edit';
+    document.getElementById('sub-develop').hidden   = name !== 'develop';
+    // The backlog stats line is about the linked videos, not the standalone lists.
+    document.getElementById('vStats').hidden        = ['trial', 'edit', 'develop'].includes(name);
     try { localStorage.setItem(SUBTAB_KEY, name); } catch {}
   }
 
@@ -2609,6 +2654,8 @@
     renderPlan();
     renderVideos();
     renderTrial();
+    renderEdit();
+    renderDevelop();
     renderTodo();
 
     // Don't clobber the notes while they're being typed in.
@@ -2711,6 +2758,8 @@
 
     bindAddForm('vAddForm', 'vAddInput', addVideo, () => { renderVideos(); renderPlan(); });
     bindAddForm('trialAddForm', 'trialAddInput', t => addCheckItem(TRIAL, t), renderTrial);
+    bindAddForm('editAddForm', 'editAddInput', t => addCheckItem(EDIT, t), renderEdit);
+    bindAddForm('developAddForm', 'developAddInput', t => addCheckItem(DEVELOP, t), renderDevelop);
     bindAddForm('todoAddForm', 'todoAddInput', t => addCheckItem(TODO, t), renderTodo);
 
     document.getElementById('planBody').addEventListener('click', (e) => {
