@@ -339,6 +339,78 @@
     .notes-text:focus { border-color: rgba(255,255,255,.9); }
     .notes-text::placeholder { color: var(--text-3); }
 
+    /* ─── ENTRENAMIENTOS TAB ─── */
+
+    .train-auth {
+      max-width: 520px;
+      background: rgba(255, 255, 255, 0.8);
+      -webkit-backdrop-filter: blur(12px) saturate(1.2);
+              backdrop-filter: blur(12px) saturate(1.2);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 40px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.2);
+      padding: 22px 26px;
+    }
+    .train-auth p { font-size: 15px; line-height: 1.5; color: var(--text); margin-bottom: 14px; }
+    .train-auth p:last-child { margin-bottom: 0; }
+    .train-auth .vadd-btn { padding: 10px 20px; }
+    .train-layout {
+      display: grid;
+      grid-template-columns: 300px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+    .train-auth[hidden], .train-layout[hidden], .train-frame[hidden], .train-empty[hidden] { display: none; }
+    .train-tools { display: flex; gap: 8px; margin-bottom: 10px; }
+    .train-tools .vadd-input { flex: 1; min-width: 0; }
+    .train-list { max-height: 75vh; overflow-y: auto; }
+    .train-item {
+      display: block;
+      width: 100%;
+      font-family: inherit;
+      text-align: left;
+      color: var(--text);
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+    .train-item:last-child { border-bottom: none; }
+    .train-item:hover { background: rgba(255, 255, 255, 0.55); }
+    .train-item.active { background: var(--accent-bg); }
+    .train-item-name { display: block; font-size: 13px; font-weight: 500; overflow-wrap: anywhere; }
+    .train-item-date { display: block; font-size: 11px; color: var(--text-2); margin-top: 2px; }
+    .train-editor {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 40px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.2);
+      overflow: hidden;
+    }
+    .train-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+    }
+    .train-bar[hidden] { display: none; }
+    .train-title { flex: 1; min-width: 0; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .train-bar a { color: var(--accent); text-decoration: none; white-space: nowrap; }
+    .train-back { display: none; font: inherit; color: var(--accent); background: none; border: none; cursor: pointer; }
+    .train-frame { display: block; width: 100%; height: 80vh; border: 0; }
+    .train-empty { padding: 60px 20px; text-align: center; font-size: 15px; color: var(--text-2); }
+
+    @media (max-width: 767px) {
+      .tab-btn { padding: 7px 10px; }
+      .train-layout { grid-template-columns: minmax(0, 1fr); }
+      .train-layout.doc-open .train-side { display: none; }
+      .train-layout:not(.doc-open) .train-editor { display: none; }
+      .train-back { display: inline; }
+      .train-list { max-height: none; }
+    }
+
     .vstats {
       font-size: 17px;
       line-height: 1.5;
@@ -1273,6 +1345,7 @@
     <button class="tab-btn active" data-tab="calendar" role="tab">Calendar</button>
     <button class="tab-btn" data-tab="videos" role="tab">Videos</button>
     <button class="tab-btn" data-tab="notes" role="tab">Notes</button>
+    <button class="tab-btn" data-tab="training" role="tab">Entrenamientos</button>
   </div>
 
   <div id="tab-calendar" role="tabpanel">
@@ -1342,6 +1415,35 @@
       </form>
       <p class="trial-summary" id="todoSummary"></p>
       <div class="vlist" id="todoList"></div>
+    </div>
+  </div>
+
+  <!-- ─── ENTRENAMIENTOS TAB ─── -->
+  <div id="tab-training" role="tabpanel" hidden>
+    <div class="train-auth" id="trainAuth">
+      <p id="trainAuthMsg"></p>
+      <button class="vadd-btn" type="button" id="trainSignIn" hidden>Connect Google Drive</button>
+    </div>
+
+    <div class="train-layout" id="trainLayout" hidden>
+      <div class="train-side">
+        <div class="train-tools">
+          <input id="trainFilter" class="vadd-input" type="search" placeholder="Filter…" autocomplete="off">
+          <button class="vadd-btn" type="button" id="trainRefresh" title="Refresh list" aria-label="Refresh list">↻</button>
+        </div>
+        <p class="trial-summary" id="trainStatus"></p>
+        <div class="vlist train-list" id="trainList"></div>
+      </div>
+
+      <div class="train-editor">
+        <div class="train-bar" id="trainBar" hidden>
+          <button class="train-back" type="button" id="trainBack">‹ All</button>
+          <span class="train-title" id="trainTitle"></span>
+          <a id="trainOpen" target="_blank" rel="noopener noreferrer">Open in new tab ↗</a>
+        </div>
+        <div class="train-empty" id="trainEmpty">Pick a document to edit it here.</div>
+        <iframe class="train-frame" id="trainFrame" title="Document editor" hidden></iframe>
+      </div>
     </div>
   </div>
 
@@ -1464,6 +1566,15 @@
   // ─────────────────────────────────────────────────────────────────────────────
   const SUPABASE_URL = 'https://prbjwcbssdagdritweyf.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_U9UsAevtdOvy-Nwffklkiw_m5eC_seF';
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  // ─── GOOGLE DRIVE (Entrenamientos tab) ───────────────────────────────────────
+  // OAuth client ID from Google Cloud. It is public by design, safe in this file.
+  const DRIVE_CLIENT_ID    = '740076663819-6eju4us7il5v8kt58n1cktlsrecfgh6q.apps.googleusercontent.com';
+  const TRAINING_FOLDER_ID = '1p3mME0C4YU84vlPltfv6MbNDh7r7LdML';
+  // The app only reads file names. Editing happens in Google Docs' own editor.
+  const DRIVE_SCOPE        = 'https://www.googleapis.com/auth/drive.metadata.readonly';
+  const GOOGLE_DOC_MIME    = 'application/vnd.google-apps.document';
   // ─────────────────────────────────────────────────────────────────────────────
 
   const STORAGE_KEY  = 'comedy-tracker-data';
@@ -2299,7 +2410,161 @@
     document.getElementById('tab-calendar').hidden = name !== 'calendar';
     document.getElementById('tab-videos').hidden   = name !== 'videos';
     document.getElementById('tab-notes').hidden    = name !== 'notes';
+    document.getElementById('tab-training').hidden = name !== 'training';
+    if (name === 'training') prepareTraining();
     try { localStorage.setItem(TAB_KEY, name); } catch {}
+  }
+
+  /* ── Entrenamientos: list a Drive folder, edit its Docs in Google's editor ── */
+
+  const training = {
+    prepared: false, tokenClient: null, token: null,
+    files: [], activeId: null, loadSeq: 0,
+  };
+
+  function trainingAuthMessage(msg, showButton) {
+    document.getElementById('trainAuth').hidden = false;
+    document.getElementById('trainLayout').hidden = true;
+    document.getElementById('trainAuthMsg').textContent = msg;
+    document.getElementById('trainSignIn').hidden = !showButton;
+  }
+
+  // Loaded when the tab is first opened, so the sign-in popup can open straight
+  // from the button click instead of being caught by the popup blocker.
+  function prepareTraining() {
+    if (training.prepared) return;
+    if (location.protocol === 'file:') {
+      trainingAuthMessage('Google sign-in does not work when index.html is opened directly. Run a local server and open http://localhost:8000.', false);
+      return;
+    }
+    if (!DRIVE_CLIENT_ID) {
+      trainingAuthMessage('Google Drive is not set up yet: DRIVE_CLIENT_ID is empty in index.html.', false);
+      return;
+    }
+    training.prepared = true;
+    trainingAuthMessage('Loading Google sign-in…', false);
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.onload = () => {
+      training.tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: DRIVE_CLIENT_ID,
+        scope: DRIVE_SCOPE,
+        callback: onTrainingToken,
+        error_callback: (err) => trainingAuthMessage(
+          err?.type === 'popup_failed_to_open'
+            ? 'The browser blocked the Google sign-in popup. Allow popups for this site and try again.'
+            : 'Google sign-in was not completed. Try again when you are ready.', true),
+      });
+      trainingAuthMessage('Connect your Google account to see your training documents.', true);
+    };
+    script.onerror = () => {
+      training.prepared = false;
+      trainingAuthMessage('Could not load Google sign-in. Check your connection and reopen this tab.', false);
+    };
+    document.head.appendChild(script);
+  }
+
+  function onTrainingToken(resp) {
+    if (resp.error || !google.accounts.oauth2.hasGrantedAllScopes(resp, DRIVE_SCOPE)) {
+      trainingAuthMessage('Google did not grant access to your Drive file list. Connect again and tick the permission.', true);
+      return;
+    }
+    training.token = resp.access_token;
+    document.getElementById('trainAuth').hidden = true;
+    document.getElementById('trainLayout').hidden = false;
+    loadTrainingFiles();
+  }
+
+  async function loadTrainingFiles() {
+    const seq = ++training.loadSeq;
+    const status = document.getElementById('trainStatus');
+    status.textContent = 'Loading…';
+    const files = [];
+    let pageToken = '';
+    try {
+      do {
+        const params = new URLSearchParams({
+          q: `'${TRAINING_FOLDER_ID}' in parents and trashed = false`,
+          orderBy: 'modifiedTime desc',
+          pageSize: '200',
+          fields: 'nextPageToken,files(id,name,mimeType,modifiedTime,webViewLink)',
+        });
+        if (pageToken) params.set('pageToken', pageToken);
+        const res = await fetch(`https://www.googleapis.com/drive/v3/files?${params}`, {
+          headers: { Authorization: `Bearer ${training.token}` },
+        });
+        if (seq !== training.loadSeq) return;
+        if (res.status === 401) {
+          training.token = null;
+          trainingAuthMessage('Your Google session expired. Connect again to refresh the list.', true);
+          return;
+        }
+        if (!res.ok) throw new Error(`Drive ${res.status}`);
+        const page = await res.json();
+        if (seq !== training.loadSeq) return;
+        files.push(...(page.files || []));
+        pageToken = page.nextPageToken || '';
+      } while (pageToken);
+    } catch (err) {
+      if (seq === training.loadSeq) status.textContent = `Could not load the list (${err.message}).`;
+      return;
+    }
+    training.files = files;
+    renderTrainingList();
+  }
+
+  function renderTrainingList() {
+    const query = document.getElementById('trainFilter').value.trim().toLowerCase();
+    const shown = training.files.filter(f => f.name.toLowerCase().includes(query));
+    document.getElementById('trainStatus').textContent =
+      query ? `${shown.length} of ${training.files.length} files` : `${training.files.length} files`;
+    const list = document.getElementById('trainList');
+    list.replaceChildren(...shown.map(f => {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'train-item';
+      item.classList.toggle('active', f.id === training.activeId);
+      const name = document.createElement('span');
+      name.className = 'train-item-name';
+      name.textContent = f.name;
+      const date = document.createElement('span');
+      date.className = 'train-item-date';
+      date.textContent = new Date(f.modifiedTime).toLocaleDateString(undefined,
+        { year: 'numeric', month: 'short', day: 'numeric' });
+      item.append(name, date);
+      item.addEventListener('click', () => openTrainingFile(f));
+      return item;
+    }));
+  }
+
+  function openTrainingFile(file) {
+    // Only Google Docs open in the embedded editor; anything else gets a new tab.
+    if (file.mimeType !== GOOGLE_DOC_MIME) {
+      window.open(file.webViewLink, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    training.activeId = file.id;
+    document.getElementById('trainTitle').textContent = file.name;
+    document.getElementById('trainOpen').href = file.webViewLink;
+    document.getElementById('trainBar').hidden = false;
+    document.getElementById('trainEmpty').hidden = true;
+    const frame = document.getElementById('trainFrame');
+    frame.hidden = false;
+    frame.src = `https://docs.google.com/document/d/${encodeURIComponent(file.id)}/edit`;
+    document.getElementById('trainLayout').classList.add('doc-open');
+    renderTrainingList();
+  }
+
+  function bindTraining() {
+    document.getElementById('trainSignIn').addEventListener('click', () => {
+      training.tokenClient?.requestAccessToken({ prompt: '' });
+    });
+    document.getElementById('trainFilter').addEventListener('input', renderTrainingList);
+    document.getElementById('trainRefresh').addEventListener('click', loadTrainingFiles);
+    document.getElementById('trainBack').addEventListener('click', () => {
+      document.getElementById('trainLayout').classList.remove('doc-open');
+    });
   }
 
   // Add box for a list: Enter adds one title; pasting several lines adds one per line.
@@ -2734,6 +2999,7 @@
       b.addEventListener('click', () => showSubTab(b.dataset.sub)));
     document.querySelectorAll('.subtab-btn[data-nsub]').forEach(b =>
       b.addEventListener('click', () => showNotesSubTab(b.dataset.nsub)));
+    bindTraining();
     let savedTab = 'calendar', savedSub = 'backlog', savedNotesSub = 'text';
     try {
       savedTab = localStorage.getItem(TAB_KEY) || savedTab;
