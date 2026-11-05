@@ -339,7 +339,7 @@
     .notes-text:focus { border-color: rgba(255,255,255,.9); }
     .notes-text::placeholder { color: var(--text-3); }
 
-    /* ─── ENTRENAMIENTOS TAB ─── */
+    /* ─── TRAININGS TAB ─── */
 
     .train-auth {
       max-width: 520px;
@@ -400,6 +400,25 @@
     .train-bar a { color: var(--accent); text-decoration: none; white-space: nowrap; }
     .train-back { display: none; font: inherit; color: var(--accent); background: none; border: none; cursor: pointer; }
     .train-frame { display: block; width: 100%; height: 80vh; border: 0; }
+    .train-full-btn { font: inherit; color: var(--accent); background: none; border: none; cursor: pointer; white-space: nowrap; }
+    .train-editor:fullscreen, .train-editor.is-full {
+      display: flex;
+      flex-direction: column;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      border-radius: 0;
+    }
+    .train-editor.is-full { position: fixed; inset: 0; z-index: 9999; }
+    .train-editor:-webkit-full-screen {
+      display: flex;
+      flex-direction: column;
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+    }
+    .train-editor:fullscreen .train-frame, .train-editor.is-full .train-frame { flex: 1; height: auto; min-height: 0; }
+    .train-editor:-webkit-full-screen .train-frame { flex: 1; height: auto; min-height: 0; }
     .train-empty { padding: 60px 20px; text-align: center; font-size: 15px; color: var(--text-2); }
 
     @media (max-width: 767px) {
@@ -838,7 +857,7 @@
     .sync-status {
       position: fixed;
       top: 18px;
-      right: 22px;
+      right: 130px;
       font-size: 11px;
       font-weight: 500;
       color: var(--text-3);
@@ -849,6 +868,28 @@
     }
 
     .sync-status.visible { opacity: 1; }
+
+    .lang-select {
+      position: absolute;
+      top: 14px;
+      right: 22px;
+      z-index: 1100;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      color: #fff;
+      background: rgba(0,0,0,.32);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 8px;
+      padding: 4px 6px;
+      cursor: pointer;
+    }
+    .lang-select:hover { background: rgba(0,0,0,.45); }
+    .lang-select option { color: #1d1d1f; background: #fff; }
+
+    @media (max-width: 767px) {
+      .lang-select { top: 4px; right: 12px; font-size: 11px; padding: 2px 4px; }
+    }
 
     /* ─── USERNAME MODAL ─── */
 
@@ -996,7 +1037,7 @@
       .x-mark  { font-size: 11px; }
       .footer  { font-size: 11px; }
 
-      .sync-status { top: 10px; right: 14px; }
+      .sync-status { top: 10px; right: 110px; }
       .modal-card  { padding: 36px 28px 32px; }
       .modal-title { font-size: 22px; }
     }
@@ -1291,6 +1332,12 @@
 </head>
 <body>
 
+<select id="langSelect" class="lang-select" data-i18n-aria="language" data-i18n-title="language" aria-label="Language">
+  <option value="en">English</option>
+  <option value="es">Español</option>
+  <option value="pt">Português</option>
+</select>
+
 <!-- ─── STAGE BACKDROP (curtain + comedian photos) ─── -->
 <div class="stage" aria-hidden="true">
   <div class="stage-photos">
@@ -1305,14 +1352,14 @@
 <!-- ─── USERNAME MODAL ─── -->
 <div id="modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal-card">
-    <h2 class="modal-title" id="modalTitle">What's your name?</h2>
-    <p class="modal-sub">We'll use it to sync your writing hours across devices.</p>
+    <h2 class="modal-title" id="modalTitle" data-i18n="modalTitle">What's your name?</h2>
+    <p class="modal-sub" data-i18n="modalSub">We'll use it to sync your writing hours across devices.</p>
     <input
       type="text" id="nameInput" class="modal-input"
-      placeholder="Your name"
+      data-i18n-placeholder="modalPlaceholder" placeholder="Your name"
       autocomplete="off" autocorrect="off" spellcheck="false" maxlength="40"
     >
-    <button id="confirmBtn" class="modal-btn" disabled>Continue</button>
+    <button id="confirmBtn" class="modal-btn" disabled data-i18n="modalContinue">Continue</button>
   </div>
 </div>
 
@@ -1323,29 +1370,29 @@
 
   <div class="masthead">
     <div class="title-block">
-      <h1>Comedy Hours  - Don't break the chain</h1>
-      <p class="byline">Track the hours you spend writing comedy — one ✕ per hour.</p>
+      <h1 data-i18n="siteTitle">Comedy Hours  - Don't break the chain</h1>
+      <p class="byline" data-i18n="byline">Track the hours you spend writing comedy — one ✕ per hour.</p>
     </div>
     <div class="badges">
       <div class="monthly-badge">
-        This month<br>
+        <span data-i18n="thisMonth">This month</span><br>
         <span class="big-num" id="totalNum">0</span>
-        hrs written
+        <span data-i18n="hrsWritten">hrs written</span>
       </div>
       <div class="monthly-badge videos">
-        This month<br>
+        <span data-i18n="thisMonth">This month</span><br>
         <span class="big-num" id="vidTotalNum">0</span>
-        videos edited
+        <span data-i18n="videosEdited">videos edited</span>
         <span class="badge-sub" id="vidAvg"></span>
       </div>
     </div>
   </div>
 
   <div class="tabs" role="tablist">
-    <button class="tab-btn active" data-tab="calendar" role="tab">Calendar</button>
-    <button class="tab-btn" data-tab="videos" role="tab">Videos</button>
-    <button class="tab-btn" data-tab="notes" role="tab">Notes</button>
-    <button class="tab-btn" data-tab="training" role="tab">Entrenamientos</button>
+    <button class="tab-btn active" data-tab="calendar" role="tab" data-i18n="tabCalendar">Calendar</button>
+    <button class="tab-btn" data-tab="videos" role="tab" data-i18n="tabVideos">Videos</button>
+    <button class="tab-btn" data-tab="notes" role="tab" data-i18n="tabNotes">Notes</button>
+    <button class="tab-btn" data-tab="training" role="tab" data-i18n="tabTrainings">Trainings</button>
   </div>
 
   <div id="tab-calendar" role="tabpanel">
@@ -1360,36 +1407,31 @@
 
   <div class="calendar" id="calendar">
     <div class="col-headers">
-      <div class="col-header">Mon</div>
-      <div class="col-header">Tue</div>
-      <div class="col-header">Wed</div>
-      <div class="col-header">Thu</div>
-      <div class="col-header">Fri</div>
-      <div class="col-header">Sat</div>
-      <div class="col-header">Sun</div>
-      <div class="col-header">// wk</div>
+      <div class="col-header" data-i18n="dayMon">Mon</div>
+      <div class="col-header" data-i18n="dayTue">Tue</div>
+      <div class="col-header" data-i18n="dayWed">Wed</div>
+      <div class="col-header" data-i18n="dayThu">Thu</div>
+      <div class="col-header" data-i18n="dayFri">Fri</div>
+      <div class="col-header" data-i18n="daySat">Sat</div>
+      <div class="col-header" data-i18n="daySun">Sun</div>
+      <div class="col-header" data-i18n="colWeek">// wk</div>
     </div>
     <div id="calBody"></div>
   </div>
 
-  <p class="footer">
-    Click to add &nbsp;&middot;&nbsp;
-    Right-click or long-press to remove &nbsp;&middot;&nbsp;
-    🎬 next to the day = videos edited &nbsp;&middot;&nbsp;
-    Data saved automatically
-  </p>
+  <p class="footer" data-i18n-html="footer"></p>
 
   </div>
 
   <!-- ─── UPLOAD PLAN ─── -->
   <aside class="plan">
     <div class="plan-head">
-      <span class="plan-title">Upload plan</span>
+      <span class="plan-title" data-i18n="uploadPlan">Upload plan</span>
       <div class="plan-legend">
-        <span><i class="plan-dot"></i>Pending</span>
-        <span><i class="plan-dot green"></i>Worked</span>
-        <span><i class="plan-dot purple"></i>So-so</span>
-        <span><i class="plan-dot red"></i>Flopped</span>
+        <span><i class="plan-dot"></i><span data-i18n="legendPending">Pending</span></span>
+        <span><i class="plan-dot green"></i><span data-i18n="legendWorked">Worked</span></span>
+        <span><i class="plan-dot purple"></i><span data-i18n="legendSoSo">So-so</span></span>
+        <span><i class="plan-dot red"></i><span data-i18n="legendFlopped">Flopped</span></span>
       </div>
     </div>
     <div class="plan-body" id="planBody"></div>
@@ -1400,49 +1442,54 @@
   <!-- ─── NOTES TAB ─── -->
   <div id="tab-notes" role="tabpanel" hidden>
     <div class="subtabs">
-      <button class="subtab-btn notes-sub-btn active" data-nsub="text">Notes</button>
-      <button class="subtab-btn notes-sub-btn" data-nsub="todo">To-do <span class="subtab-count" id="cntTodo">0</span></button>
+      <button class="subtab-btn notes-sub-btn active" data-nsub="text" data-i18n="notes">Notes</button>
+      <button class="subtab-btn notes-sub-btn" data-nsub="todo"><span data-i18n="todo">To-do</span> <span class="subtab-count" id="cntTodo">0</span></button>
     </div>
 
     <div id="nsub-text" class="vpanel">
-      <textarea id="notesText" class="notes-text" placeholder="Write anything down — ideas, bits, premises, reminders…" spellcheck="true"></textarea>
+      <textarea id="notesText" class="notes-text" data-i18n-placeholder="notesPlaceholder" placeholder="Write anything down — ideas, bits, premises, reminders…" spellcheck="true"></textarea>
     </div>
 
     <div id="nsub-todo" class="vpanel" hidden>
       <form class="vadd" id="todoAddForm">
-        <input id="todoAddInput" class="vadd-input" placeholder="Add a to-do… (paste a list to add several at once)" autocomplete="off">
-        <button class="vadd-btn" type="submit">Add</button>
+        <input id="todoAddInput" class="vadd-input" data-i18n-placeholder="todoAddPlaceholder" placeholder="Add a to-do… (paste a list to add several at once)" autocomplete="off">
+        <button class="vadd-btn" type="submit" data-i18n="add">Add</button>
       </form>
       <p class="trial-summary" id="todoSummary"></p>
       <div class="vlist" id="todoList"></div>
     </div>
   </div>
 
-  <!-- ─── ENTRENAMIENTOS TAB ─── -->
+  <!-- ─── TRAININGS TAB ─── -->
   <div id="tab-training" role="tabpanel" hidden>
     <div class="train-auth" id="trainAuth">
       <p id="trainAuthMsg"></p>
-      <button class="vadd-btn" type="button" id="trainSignIn" hidden>Connect Google Drive</button>
+      <button class="vadd-btn" type="button" id="trainSignIn" hidden data-i18n="connectDrive">Connect Google Drive</button>
     </div>
 
     <div class="train-layout" id="trainLayout" hidden>
       <div class="train-side">
         <div class="train-tools">
-          <input id="trainFilter" class="vadd-input" type="search" placeholder="Filter…" autocomplete="off">
-          <button class="vadd-btn" type="button" id="trainRefresh" title="Refresh list" aria-label="Refresh list">↻</button>
+          <input id="trainFilter" class="vadd-input" type="search" data-i18n-placeholder="filter" placeholder="Filter…" autocomplete="off">
+          <button class="vadd-btn" type="button" id="trainRefresh" data-i18n-title="refreshList" data-i18n-aria="refreshList" title="Refresh list" aria-label="Refresh list">↻</button>
         </div>
+        <form class="train-tools" id="trainNewForm">
+          <input id="trainNewName" class="vadd-input" data-i18n-placeholder="newDocName" placeholder="New document name" autocomplete="off" required>
+          <button class="vadd-btn" type="submit" id="trainNewBtn" data-i18n="newDoc">New</button>
+        </form>
         <p class="trial-summary" id="trainStatus"></p>
         <div class="vlist train-list" id="trainList"></div>
       </div>
 
-      <div class="train-editor">
+      <div class="train-editor" id="trainEditor">
         <div class="train-bar" id="trainBar" hidden>
-          <button class="train-back" type="button" id="trainBack">‹ All</button>
+          <button class="train-back" type="button" id="trainBack" data-i18n="backAll">‹ All</button>
           <span class="train-title" id="trainTitle"></span>
-          <a id="trainOpen" target="_blank" rel="noopener noreferrer">Open in new tab ↗</a>
+          <button class="train-full-btn" type="button" id="trainFull">Full screen</button>
+          <a id="trainOpen" target="_blank" rel="noopener noreferrer" data-i18n="openNewTab">Open in new tab ↗</a>
         </div>
-        <div class="train-empty" id="trainEmpty">Pick a document to edit it here.</div>
-        <iframe class="train-frame" id="trainFrame" title="Document editor" hidden></iframe>
+        <div class="train-empty" id="trainEmpty" data-i18n="pickDoc">Pick a document to edit it here.</div>
+        <iframe class="train-frame" id="trainFrame" data-i18n-title="docEditor" title="Document editor" hidden></iframe>
       </div>
     </div>
   </div>
@@ -1452,17 +1499,17 @@
     <p class="vstats" id="vStats"></p>
 
     <div class="subtabs">
-      <button class="subtab-btn active" data-sub="backlog">Backlog <span class="subtab-count" id="cntBacklog">0</span></button>
-      <button class="subtab-btn" data-sub="published">Published <span class="subtab-count" id="cntPublished">0</span></button>
-      <button class="subtab-btn" data-sub="trial">Viral Videos on Trial <span class="subtab-count" id="cntTrial">0</span></button>
-      <button class="subtab-btn" data-sub="edit">Videos to Edit <span class="subtab-count" id="cntEdit">0</span></button>
-      <button class="subtab-btn" data-sub="develop">Videos to Develop <span class="subtab-count" id="cntDevelop">0</span></button>
+      <button class="subtab-btn active" data-sub="backlog"><span data-i18n="subBacklog">Backlog</span> <span class="subtab-count" id="cntBacklog">0</span></button>
+      <button class="subtab-btn" data-sub="published"><span data-i18n="subPublished">Published</span> <span class="subtab-count" id="cntPublished">0</span></button>
+      <button class="subtab-btn" data-sub="trial"><span data-i18n="subTrial">Viral Videos on Trial</span> <span class="subtab-count" id="cntTrial">0</span></button>
+      <button class="subtab-btn" data-sub="edit"><span data-i18n="subEdit">Videos to Edit</span> <span class="subtab-count" id="cntEdit">0</span></button>
+      <button class="subtab-btn" data-sub="develop"><span data-i18n="subDevelop">Videos to Develop</span> <span class="subtab-count" id="cntDevelop">0</span></button>
     </div>
 
     <div id="sub-trial" class="vpanel" hidden>
       <form class="vadd" id="trialAddForm">
-        <input id="trialAddInput" class="vadd-input" placeholder="Add a video… (paste a list to add several at once)" autocomplete="off">
-        <button class="vadd-btn" type="submit">Add</button>
+        <input id="trialAddInput" class="vadd-input" data-i18n-placeholder="trialAddPlaceholder" placeholder="Add a video… (paste a list to add several at once)" autocomplete="off">
+        <button class="vadd-btn" type="submit" data-i18n="add">Add</button>
       </form>
       <p class="trial-summary" id="trialSummary"></p>
       <div class="vlist" id="trialList"></div>
@@ -1470,8 +1517,8 @@
 
     <div id="sub-edit" class="vpanel" hidden>
       <form class="vadd" id="editAddForm">
-        <input id="editAddInput" class="vadd-input" placeholder="Add a video to edit… (paste a list to add several at once)" autocomplete="off">
-        <button class="vadd-btn" type="submit">Add</button>
+        <input id="editAddInput" class="vadd-input" data-i18n-placeholder="editAddPlaceholder" placeholder="Add a video to edit… (paste a list to add several at once)" autocomplete="off">
+        <button class="vadd-btn" type="submit" data-i18n="add">Add</button>
       </form>
       <p class="trial-summary" id="editSummary"></p>
       <div class="vlist" id="editList"></div>
@@ -1479,8 +1526,8 @@
 
     <div id="sub-develop" class="vpanel" hidden>
       <form class="vadd" id="developAddForm">
-        <input id="developAddInput" class="vadd-input" placeholder="Add a video to develop… (paste a list to add several at once)" autocomplete="off">
-        <button class="vadd-btn" type="submit">Add</button>
+        <input id="developAddInput" class="vadd-input" data-i18n-placeholder="developAddPlaceholder" placeholder="Add a video to develop… (paste a list to add several at once)" autocomplete="off">
+        <button class="vadd-btn" type="submit" data-i18n="add">Add</button>
       </form>
       <p class="trial-summary" id="developSummary"></p>
       <div class="vlist" id="developList"></div>
@@ -1488,18 +1535,18 @@
 
     <div id="sub-backlog" class="vpanel">
       <form class="vadd" id="vAddForm">
-        <input id="vAddInput" class="vadd-input" placeholder="New video title… (paste a list to add several at once)" autocomplete="off">
-        <button class="vadd-btn" type="submit">Add</button>
+        <input id="vAddInput" class="vadd-input" data-i18n-placeholder="backlogAddPlaceholder" placeholder="New video title… (paste a list to add several at once)" autocomplete="off">
+        <button class="vadd-btn" type="submit" data-i18n="add">Add</button>
       </form>
       <div class="vlist" id="backlogList"></div>
     </div>
 
     <div id="sub-published" class="vpanel" hidden>
       <div class="plan-legend vlegend">
-        <span><i class="plan-dot"></i>Pending</span>
-        <span><i class="plan-dot green"></i>Worked</span>
-        <span><i class="plan-dot purple"></i>So-so</span>
-        <span><i class="plan-dot red"></i>Flopped</span>
+        <span><i class="plan-dot"></i><span data-i18n="legendPending">Pending</span></span>
+        <span><i class="plan-dot green"></i><span data-i18n="legendWorked">Worked</span></span>
+        <span><i class="plan-dot purple"></i><span data-i18n="legendSoSo">So-so</span></span>
+        <span><i class="plan-dot red"></i><span data-i18n="legendFlopped">Flopped</span></span>
       </div>
       <div class="vlist" id="publishedList"></div>
     </div>
@@ -1507,7 +1554,7 @@
 
   <!-- ─── SYNC NOW ─── -->
   <div id="syncActions" style="display:none">
-    <button id="syncNowBtn" class="sync-now-btn">↻ &nbsp;Sync now</button>
+    <button id="syncNowBtn" class="sync-now-btn" data-i18n-html="syncNow">↻ &nbsp;Sync now</button>
   </div>
 
   <!-- ─── DEBUG PANEL ─── -->
@@ -1515,19 +1562,19 @@
     <button id="debugToggle" class="debug-toggle">▸ Debug info</button>
     <div id="debugBody" class="debug-body" hidden>
       <div class="debug-row">
-        <span class="debug-label">Username</span>
+        <span class="debug-label" data-i18n="dbgUsername">Username</span>
         <span class="debug-value" id="dbgUser">—</span>
       </div>
       <div class="debug-row">
-        <span class="debug-label">Project</span>
+        <span class="debug-label" data-i18n="dbgProject">Project</span>
         <span class="debug-value" id="dbgBin">—</span>
       </div>
       <div class="debug-row">
-        <span class="debug-label">Last sync</span>
+        <span class="debug-label" data-i18n="dbgLastSync">Last sync</span>
         <span class="debug-value" id="dbgTime">—</span>
       </div>
       <div class="debug-row">
-        <span class="debug-label">API status</span>
+        <span class="debug-label" data-i18n="dbgApiStatus">API status</span>
         <span class="debug-value" id="dbgStatus">—</span>
       </div>
     </div>
@@ -1538,7 +1585,7 @@
 <!-- ─── NOTE PANEL ─── -->
 <div id="notePanel" class="note-panel" hidden>
   <textarea id="notePanelText" class="note-panel-textarea"
-    placeholder="Write a note for this day…"
+    data-i18n-placeholder="notePlaceholder" placeholder="Write a note for this day…"
     rows="4"></textarea>
 </div>
 
@@ -1568,13 +1615,242 @@
   const SUPABASE_KEY = 'sb_publishable_U9UsAevtdOvy-Nwffklkiw_m5eC_seF';
   // ─────────────────────────────────────────────────────────────────────────────
 
-  // ─── GOOGLE DRIVE (Entrenamientos tab) ───────────────────────────────────────
+  // ─── GOOGLE DRIVE (Trainings tab) ─────────────────────────────────────────────
   // OAuth client ID from Google Cloud. It is public by design, safe in this file.
   const DRIVE_CLIENT_ID    = '740076663819-6eju4us7il5v8kt58n1cktlsrecfgh6q.apps.googleusercontent.com';
   const TRAINING_FOLDER_ID = '1p3mME0C4YU84vlPltfv6MbNDh7r7LdML';
-  // The app only reads file names. Editing happens in Google Docs' own editor.
-  const DRIVE_SCOPE        = 'https://www.googleapis.com/auth/drive.metadata.readonly';
+  // Read file names, and create new files. Editing happens in Google Docs' own editor.
+  const DRIVE_SCOPES       = [
+    'https://www.googleapis.com/auth/drive.metadata.readonly',
+    'https://www.googleapis.com/auth/drive.file',
+  ];
   const GOOGLE_DOC_MIME    = 'application/vnd.google-apps.document';
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  // ─── LANGUAGES ───────────────────────────────────────────────────────────────
+  // Keys ending in _one are the singular of the same key without it (see tn()).
+  const I18N = {
+    en: {
+      language: 'Language',
+      siteTitle: "Comedy Hours  - Don't break the chain",
+      byline: 'Track the hours you spend writing comedy — one ✕ per hour.',
+      modalTitle: "What's your name?", modalSub: "We'll use it to sync your writing hours across devices.",
+      modalPlaceholder: 'Your name', modalContinue: 'Continue',
+      thisMonth: 'This month', hrsWritten: 'hrs written', videosEdited: 'videos edited',
+      tabCalendar: 'Calendar', tabVideos: 'Videos', tabNotes: 'Notes', tabTrainings: 'Trainings',
+      dayMon: 'Mon', dayTue: 'Tue', dayWed: 'Wed', dayThu: 'Thu', dayFri: 'Fri', daySat: 'Sat', daySun: 'Sun', colWeek: '// wk',
+      footer: 'Click to add &nbsp;&middot;&nbsp; Right-click or long-press to remove &nbsp;&middot;&nbsp; 🎬 next to the day = videos edited &nbsp;&middot;&nbsp; Data saved automatically',
+      uploadPlan: 'Upload plan', legendPending: 'Pending', legendWorked: 'Worked', legendSoSo: 'So-so', legendFlopped: 'Flopped',
+      notes: 'Notes', todo: 'To-do', notesPlaceholder: 'Write anything down — ideas, bits, premises, reminders…',
+      todoAddPlaceholder: 'Add a to-do… (paste a list to add several at once)', add: 'Add',
+      connectDrive: 'Connect Google Drive', filter: 'Filter…', refreshList: 'Refresh list',
+      newDocName: 'New document name', newDoc: 'New', backAll: '‹ All', fullScreen: 'Full screen', exitFullScreen: 'Exit full screen',
+      openNewTab: 'Open in new tab ↗', pickDoc: 'Pick a document to edit it here.', docEditor: 'Document editor',
+      subBacklog: 'Backlog', subPublished: 'Published', subTrial: 'Viral Videos on Trial', subEdit: 'Videos to Edit', subDevelop: 'Videos to Develop',
+      trialAddPlaceholder: 'Add a video… (paste a list to add several at once)',
+      editAddPlaceholder: 'Add a video to edit… (paste a list to add several at once)',
+      developAddPlaceholder: 'Add a video to develop… (paste a list to add several at once)',
+      backlogAddPlaceholder: 'New video title… (paste a list to add several at once)',
+      syncNow: '↻ &nbsp;Sync now', debugInfo: 'Debug info', dbgUsername: 'Username', dbgProject: 'Project', dbgLastSync: 'Last sync', dbgApiStatus: 'API status',
+      notePlaceholder: 'Write a note for this day…',
+      saving: 'Saving…', saved: 'Saved ✓', offlineSaved: 'Offline — saved locally', syncError: 'Sync error',
+      nextWeekUpload: 'next wk: upload {n}', canUpload: 'can upload {n}',
+      avgPerWeek: '≈ {avg}/wk over {n} full wks', avgPerWeek_one: '≈ {avg}/wk over {n} full wk', noFullWeeks: 'no full weeks yet',
+      statusGray: 'Not uploaded yet', statusGreen: 'Uploaded — worked', statusPurple: 'Worked more or less', statusRed: "Didn't work",
+      statusClick: '{label} — click to change', notStartedTip: "Not uploaded yet — this week hasn't started", chooseVideoFirst: 'Choose a video first',
+      notUploadedSetResult: 'Not uploaded yet — click to set the result',
+      monthsShort: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+      slotLabel: '{mon} {y} · Week {w}', weekRange: 'Week {w} · {range}', dateOne: '{mon} {a}', dateRange: '{mon} {a}–{b}', addVideo: '+ Add video',
+      untitled: 'Untitled', createNamed: '＋ Create “{name}”', comboEmpty: 'No videos left in the backlog — type a title to create one',
+      dragMove: 'Drag to move', dragReorder: 'Drag to reorder', comments: 'Comments', commentsPlaceholder: 'Comments…',
+      removeFromWeek: 'Remove from this week', typeOrChoose: 'Type or choose a video…',
+      weeksCount: '{n} weeks', weeksCount_one: '{n} week',
+      backlogStats: "You have <b>{n}</b> videos in the backlog — that's <b>{w2}</b> at 2 per week, or <b>{w3}</b> at 3 per week.",
+      backlogStats_one: "You have <b>{n}</b> video in the backlog — that's <b>{w2}</b> at 2 per week, or <b>{w3}</b> at 3 per week.",
+      alreadySelected: '{n} already selected in the calendar.', backlogEmptyStats: 'Your backlog is empty — add the videos you have ready below.',
+      noBacklog: 'No videos in the backlog.', noPublished: 'Nothing published yet. Videos show up here once their week in the calendar starts.',
+      selectedPrefix: '✓ Selected · ', videoTitlePlaceholder: 'Video title…', deleteVideo: 'Delete video', delete: 'Delete',
+      thisVideo: 'this video', confirmDelete: 'Delete "{title}"? It will also be removed from the calendar.',
+      authFile: 'Google sign-in does not work when index.html is opened directly. Run a local server and open http://localhost:8000.',
+      authNoClient: 'Google Drive is not set up yet: DRIVE_CLIENT_ID is empty in index.html.',
+      authLoading: 'Loading Google sign-in…', authPopupBlocked: 'The browser blocked the Google sign-in popup. Allow popups for this site and try again.',
+      authIncomplete: 'Google sign-in was not completed. Try again when you are ready.', authConnect: 'Connect your Google account to see your training documents.',
+      authLoadFail: 'Could not load Google sign-in. Check your connection and reopen this tab.',
+      authDenied: 'Google did not grant the Drive permissions. Connect again and tick both boxes.',
+      authExpiredList: 'Your Google session expired. Connect again to refresh the list.',
+      authExpiredCreate: 'Your Google session expired. Connect again, then create the document.',
+      loading: 'Loading…', creating: 'Creating…', listFail: 'Could not load the list ({error}).',
+      createFailStatus: 'Could not create the document (Drive {status}). Nothing was created.', createFail: 'Could not create the document ({error}).',
+      filesCount: '{n} files', filesCount_one: '{n} file', filesFiltered: '{n} of {total} files',
+      videoPlaceholder: 'Video…', todoPlaceholder: 'To-do…', emptyTrial: 'No videos on trial yet.', emptyEdit: 'No videos to edit yet.',
+      emptyDevelop: 'No videos to develop yet.', emptyTodo: 'Nothing to do yet.', videosToEditCount: 'Videos to edit: {n}', videosToDevelopCount: 'Videos to develop: {n}',
+      checkedSummary: '{n} of {total} checked', moveToBacklogTip: 'Edited — move to Backlog', moveToBacklog: '→ Backlog',
+      vidTip: 'Videos edited — click +1, right-click −1', unitVids: 'vids', unitHrs: 'hrs',
+    },
+    es: {
+      language: 'Idioma',
+      siteTitle: 'Comedy Hours  - No rompas la cadena',
+      byline: 'Registra las horas que dedicas a escribir comedia: una ✕ por hora.',
+      modalTitle: '¿Cómo te llamas?', modalSub: 'Lo usaremos para sincronizar tus horas de escritura entre dispositivos.',
+      modalPlaceholder: 'Tu nombre', modalContinue: 'Continuar',
+      thisMonth: 'Este mes', hrsWritten: 'hrs escritas', videosEdited: 'vídeos editados',
+      tabCalendar: 'Calendario', tabVideos: 'Vídeos', tabNotes: 'Notas', tabTrainings: 'Entrenamientos',
+      dayMon: 'Lun', dayTue: 'Mar', dayWed: 'Mié', dayThu: 'Jue', dayFri: 'Vie', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
+      footer: 'Haz clic para añadir &nbsp;&middot;&nbsp; Clic derecho o pulsación larga para quitar &nbsp;&middot;&nbsp; 🎬 junto al día = vídeos editados &nbsp;&middot;&nbsp; Los datos se guardan automáticamente',
+      uploadPlan: 'Plan de subidas', legendPending: 'Pendiente', legendWorked: 'Funcionó', legendSoSo: 'Regular', legendFlopped: 'Fracasó',
+      notes: 'Notas', todo: 'Por hacer', notesPlaceholder: 'Apunta lo que quieras: ideas, chistes, premisas, recordatorios…',
+      todoAddPlaceholder: 'Añade una tarea… (pega una lista para añadir varias a la vez)', add: 'Añadir',
+      connectDrive: 'Conectar Google Drive', filter: 'Filtrar…', refreshList: 'Actualizar lista',
+      newDocName: 'Nombre del documento nuevo', newDoc: 'Nuevo', backAll: '‹ Todos', fullScreen: 'Pantalla completa', exitFullScreen: 'Salir de pantalla completa',
+      openNewTab: 'Abrir en pestaña nueva ↗', pickDoc: 'Elige un documento para editarlo aquí.', docEditor: 'Editor de documentos',
+      subBacklog: 'Backlog', subPublished: 'Publicados', subTrial: 'Vídeos virales a prueba', subEdit: 'Vídeos por editar', subDevelop: 'Vídeos por desarrollar',
+      trialAddPlaceholder: 'Añade un vídeo… (pega una lista para añadir varios a la vez)',
+      editAddPlaceholder: 'Añade un vídeo por editar… (pega una lista para añadir varios a la vez)',
+      developAddPlaceholder: 'Añade un vídeo por desarrollar… (pega una lista para añadir varios a la vez)',
+      backlogAddPlaceholder: 'Título del vídeo nuevo… (pega una lista para añadir varios a la vez)',
+      syncNow: '↻ &nbsp;Sincronizar ahora', debugInfo: 'Información de depuración', dbgUsername: 'Usuario', dbgProject: 'Proyecto', dbgLastSync: 'Última sincronización', dbgApiStatus: 'Estado de la API',
+      notePlaceholder: 'Escribe una nota para este día…',
+      saving: 'Guardando…', saved: 'Guardado ✓', offlineSaved: 'Sin conexión: guardado en este dispositivo', syncError: 'Error de sincronización',
+      nextWeekUpload: 'próx. sem: subir {n}', canUpload: 'puedes subir {n}',
+      avgPerWeek: '≈ {avg}/sem en {n} sem completas', avgPerWeek_one: '≈ {avg}/sem en {n} sem completa', noFullWeeks: 'aún sin semanas completas',
+      statusGray: 'Aún sin subir', statusGreen: 'Subido: funcionó', statusPurple: 'Funcionó más o menos', statusRed: 'No funcionó',
+      statusClick: '{label}. Haz clic para cambiar', notStartedTip: 'Aún sin subir: esta semana no ha empezado', chooseVideoFirst: 'Elige primero un vídeo',
+      notUploadedSetResult: 'Aún sin subir. Haz clic para poner el resultado',
+      monthsShort: ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],
+      months: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+      slotLabel: '{mon} {y} · Semana {w}', weekRange: 'Semana {w} · {range}', dateOne: '{a} {mon}', dateRange: '{a}–{b} {mon}', addVideo: '+ Añadir vídeo',
+      untitled: 'Sin título', createNamed: '＋ Crear «{name}»', comboEmpty: 'No quedan vídeos en el backlog: escribe un título para crear uno',
+      dragMove: 'Arrastra para mover', dragReorder: 'Arrastra para reordenar', comments: 'Comentarios', commentsPlaceholder: 'Comentarios…',
+      removeFromWeek: 'Quitar de esta semana', typeOrChoose: 'Escribe o elige un vídeo…',
+      weeksCount: '{n} semanas', weeksCount_one: '{n} semana',
+      backlogStats: 'Tienes <b>{n}</b> vídeos en el backlog: son <b>{w2}</b> a 2 por semana, o <b>{w3}</b> a 3 por semana.',
+      backlogStats_one: 'Tienes <b>{n}</b> vídeo en el backlog: son <b>{w2}</b> a 2 por semana, o <b>{w3}</b> a 3 por semana.',
+      alreadySelected: '{n} ya seleccionados en el calendario.', backlogEmptyStats: 'Tu backlog está vacío: añade abajo los vídeos que tengas listos.',
+      noBacklog: 'No hay vídeos en el backlog.', noPublished: 'Aún no hay nada publicado. Los vídeos aparecen aquí cuando empieza su semana en el calendario.',
+      selectedPrefix: '✓ Seleccionado · ', videoTitlePlaceholder: 'Título del vídeo…', deleteVideo: 'Eliminar vídeo', delete: 'Eliminar',
+      thisVideo: 'este vídeo', confirmDelete: '¿Eliminar "{title}"? También se quitará del calendario.',
+      authFile: 'El inicio de sesión de Google no funciona si abres index.html directamente. Inicia un servidor local y abre http://localhost:8000.',
+      authNoClient: 'Google Drive aún no está configurado: DRIVE_CLIENT_ID está vacío en index.html.',
+      authLoading: 'Cargando el inicio de sesión de Google…', authPopupBlocked: 'El navegador ha bloqueado la ventana de inicio de sesión de Google. Permite las ventanas emergentes en este sitio y vuelve a intentarlo.',
+      authIncomplete: 'No se completó el inicio de sesión de Google. Vuelve a intentarlo cuando quieras.', authConnect: 'Conecta tu cuenta de Google para ver tus documentos de entrenamiento.',
+      authLoadFail: 'No se pudo cargar el inicio de sesión de Google. Comprueba tu conexión y vuelve a abrir este tab.',
+      authDenied: 'Google no ha concedido los permisos de Drive. Vuelve a conectar y marca las dos casillas.',
+      authExpiredList: 'Tu sesión de Google ha caducado. Vuelve a conectar para actualizar la lista.',
+      authExpiredCreate: 'Tu sesión de Google ha caducado. Vuelve a conectar y crea el documento.',
+      loading: 'Cargando…', creating: 'Creando…', listFail: 'No se pudo cargar la lista ({error}).',
+      createFailStatus: 'No se pudo crear el documento (Drive {status}). No se ha creado nada.', createFail: 'No se pudo crear el documento ({error}).',
+      filesCount: '{n} archivos', filesCount_one: '{n} archivo', filesFiltered: '{n} de {total} archivos',
+      videoPlaceholder: 'Vídeo…', todoPlaceholder: 'Tarea…', emptyTrial: 'Aún no hay vídeos a prueba.', emptyEdit: 'Aún no hay vídeos por editar.',
+      emptyDevelop: 'Aún no hay vídeos por desarrollar.', emptyTodo: 'Aún no hay nada por hacer.', videosToEditCount: 'Vídeos por editar: {n}', videosToDevelopCount: 'Vídeos por desarrollar: {n}',
+      checkedSummary: '{n} de {total} marcados', moveToBacklogTip: 'Editado: mover al backlog', moveToBacklog: '→ Backlog',
+      vidTip: 'Vídeos editados: clic +1, clic derecho −1', unitVids: 'vídeos', unitHrs: 'hrs',
+    },
+    pt: {
+      language: 'Idioma',
+      siteTitle: 'Comedy Hours  - Não quebre a corrente',
+      byline: 'Registre as horas que você dedica a escrever comédia: um ✕ por hora.',
+      modalTitle: 'Qual é o seu nome?', modalSub: 'Vamos usá-lo para sincronizar as suas horas de escrita entre dispositivos.',
+      modalPlaceholder: 'O seu nome', modalContinue: 'Continuar',
+      thisMonth: 'Este mês', hrsWritten: 'hrs escritas', videosEdited: 'vídeos editados',
+      tabCalendar: 'Calendário', tabVideos: 'Vídeos', tabNotes: 'Notas', tabTrainings: 'Treinos',
+      dayMon: 'Seg', dayTue: 'Ter', dayWed: 'Qua', dayThu: 'Qui', dayFri: 'Sex', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
+      footer: 'Clique para adicionar &nbsp;&middot;&nbsp; Clique direito ou toque longo para remover &nbsp;&middot;&nbsp; 🎬 ao lado do dia = vídeos editados &nbsp;&middot;&nbsp; Os dados são salvos automaticamente',
+      uploadPlan: 'Plano de publicação', legendPending: 'Pendente', legendWorked: 'Funcionou', legendSoSo: 'Mais ou menos', legendFlopped: 'Fracassou',
+      notes: 'Notas', todo: 'A fazer', notesPlaceholder: 'Anote o que quiser: ideias, piadas, premissas, lembretes…',
+      todoAddPlaceholder: 'Adicione uma tarefa… (cole uma lista para adicionar várias de uma vez)', add: 'Adicionar',
+      connectDrive: 'Conectar Google Drive', filter: 'Filtrar…', refreshList: 'Atualizar lista',
+      newDocName: 'Nome do novo documento', newDoc: 'Novo', backAll: '‹ Todos', fullScreen: 'Tela cheia', exitFullScreen: 'Sair da tela cheia',
+      openNewTab: 'Abrir em nova aba ↗', pickDoc: 'Escolha um documento para editá-lo aqui.', docEditor: 'Editor de documentos',
+      subBacklog: 'Backlog', subPublished: 'Publicados', subTrial: 'Vídeos virais em teste', subEdit: 'Vídeos para editar', subDevelop: 'Vídeos para desenvolver',
+      trialAddPlaceholder: 'Adicione um vídeo… (cole uma lista para adicionar vários de uma vez)',
+      editAddPlaceholder: 'Adicione um vídeo para editar… (cole uma lista para adicionar vários de uma vez)',
+      developAddPlaceholder: 'Adicione um vídeo para desenvolver… (cole uma lista para adicionar vários de uma vez)',
+      backlogAddPlaceholder: 'Título do novo vídeo… (cole uma lista para adicionar vários de uma vez)',
+      syncNow: '↻ &nbsp;Sincronizar agora', debugInfo: 'Informações de depuração', dbgUsername: 'Usuário', dbgProject: 'Projeto', dbgLastSync: 'Última sincronização', dbgApiStatus: 'Status da API',
+      notePlaceholder: 'Escreva uma nota para este dia…',
+      saving: 'Salvando…', saved: 'Salvo ✓', offlineSaved: 'Sem conexão: salvo neste dispositivo', syncError: 'Erro de sincronização',
+      nextWeekUpload: 'próx. sem: publicar {n}', canUpload: 'pode publicar {n}',
+      avgPerWeek: '≈ {avg}/sem em {n} sem completas', avgPerWeek_one: '≈ {avg}/sem em {n} sem completa', noFullWeeks: 'ainda sem semanas completas',
+      statusGray: 'Ainda não publicado', statusGreen: 'Publicado: funcionou', statusPurple: 'Funcionou mais ou menos', statusRed: 'Não funcionou',
+      statusClick: '{label}. Clique para alterar', notStartedTip: 'Ainda não publicado: esta semana não começou', chooseVideoFirst: 'Escolha um vídeo primeiro',
+      notUploadedSetResult: 'Ainda não publicado. Clique para definir o resultado',
+      monthsShort: ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'],
+      months: ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+      slotLabel: '{mon} {y} · Semana {w}', weekRange: 'Semana {w} · {range}', dateOne: '{a} {mon}', dateRange: '{a}–{b} {mon}', addVideo: '+ Adicionar vídeo',
+      untitled: 'Sem título', createNamed: '＋ Criar “{name}”', comboEmpty: 'Não há mais vídeos no backlog: digite um título para criar um',
+      dragMove: 'Arraste para mover', dragReorder: 'Arraste para reordenar', comments: 'Comentários', commentsPlaceholder: 'Comentários…',
+      removeFromWeek: 'Remover desta semana', typeOrChoose: 'Digite ou escolha um vídeo…',
+      weeksCount: '{n} semanas', weeksCount_one: '{n} semana',
+      backlogStats: 'Você tem <b>{n}</b> vídeos no backlog: são <b>{w2}</b> a 2 por semana, ou <b>{w3}</b> a 3 por semana.',
+      backlogStats_one: 'Você tem <b>{n}</b> vídeo no backlog: são <b>{w2}</b> a 2 por semana, ou <b>{w3}</b> a 3 por semana.',
+      alreadySelected: '{n} já selecionados no calendário.', backlogEmptyStats: 'O seu backlog está vazio: adicione abaixo os vídeos que você tem prontos.',
+      noBacklog: 'Não há vídeos no backlog.', noPublished: 'Nada publicado ainda. Os vídeos aparecem aqui quando a semana deles começa no calendário.',
+      selectedPrefix: '✓ Selecionado · ', videoTitlePlaceholder: 'Título do vídeo…', deleteVideo: 'Excluir vídeo', delete: 'Excluir',
+      thisVideo: 'este vídeo', confirmDelete: 'Excluir "{title}"? Ele também será removido do calendário.',
+      authFile: 'O login do Google não funciona quando index.html é aberto diretamente. Inicie um servidor local e abra http://localhost:8000.',
+      authNoClient: 'O Google Drive ainda não está configurado: DRIVE_CLIENT_ID está vazio em index.html.',
+      authLoading: 'Carregando o login do Google…', authPopupBlocked: 'O navegador bloqueou a janela de login do Google. Permita pop-ups neste site e tente novamente.',
+      authIncomplete: 'O login do Google não foi concluído. Tente novamente quando quiser.', authConnect: 'Conecte a sua conta do Google para ver os seus documentos de treino.',
+      authLoadFail: 'Não foi possível carregar o login do Google. Verifique a sua conexão e reabra esta aba.',
+      authDenied: 'O Google não concedeu as permissões do Drive. Conecte novamente e marque as duas caixas.',
+      authExpiredList: 'A sua sessão do Google expirou. Conecte novamente para atualizar a lista.',
+      authExpiredCreate: 'A sua sessão do Google expirou. Conecte novamente e crie o documento.',
+      loading: 'Carregando…', creating: 'Criando…', listFail: 'Não foi possível carregar a lista ({error}).',
+      createFailStatus: 'Não foi possível criar o documento (Drive {status}). Nada foi criado.', createFail: 'Não foi possível criar o documento ({error}).',
+      filesCount: '{n} arquivos', filesCount_one: '{n} arquivo', filesFiltered: '{n} de {total} arquivos',
+      videoPlaceholder: 'Vídeo…', todoPlaceholder: 'Tarefa…', emptyTrial: 'Ainda não há vídeos em teste.', emptyEdit: 'Ainda não há vídeos para editar.',
+      emptyDevelop: 'Ainda não há vídeos para desenvolver.', emptyTodo: 'Ainda não há nada a fazer.', videosToEditCount: 'Vídeos para editar: {n}', videosToDevelopCount: 'Vídeos para desenvolver: {n}',
+      checkedSummary: '{n} de {total} marcados', moveToBacklogTip: 'Editado: mover para o backlog', moveToBacklog: '→ Backlog',
+      vidTip: 'Vídeos editados: clique +1, clique direito −1', unitVids: 'vídeos', unitHrs: 'hrs',
+    },
+  };
+  const LOCALES  = { en: 'en', es: 'es', pt: 'pt' };
+  const LANG_KEY = 'comedy-tracker-lang';
+  let lang = 'en';
+
+  function t(key, vars) {
+    const value = I18N[lang][key] ?? I18N.en[key] ?? key;
+    if (typeof value !== 'string' || !vars) return value;
+    return value.replace(/\{(\w+)\}/g, (m, name) => name in vars ? vars[name] : m);
+  }
+
+  // Picks the singular form (key_one) when n is 1.
+  function tn(key, n, vars) {
+    return t(n === 1 ? `${key}_one` : key, { n: n.toLocaleString(LOCALES[lang]), ...vars });
+  }
+
+  function applyLanguageToPage() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
+    document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+    const debugBody = document.getElementById('debugBody');
+    document.getElementById('debugToggle').textContent = (debugBody.hidden ? '▸ ' : '▾ ') + t('debugInfo');
+    updateTrainingFullButton();
+  }
+
+  function changeLanguage(next) {
+    lang = next;
+    try { localStorage.setItem(LANG_KEY, lang); } catch {}
+    applyLanguageToPage();
+    render();
+    renderVideos();
+    refreshTrainingLanguage();
+  }
+
+  function initLanguage() {
+    try {
+      const saved = localStorage.getItem(LANG_KEY);
+      if (saved && Object.hasOwn(I18N, saved)) lang = saved;
+    } catch {}
+    const select = document.getElementById('langSelect');
+    select.value = lang;
+    select.addEventListener('change', () => changeLanguage(select.value));
+    applyLanguageToPage();
+  }
   // ─────────────────────────────────────────────────────────────────────────────
 
   const STORAGE_KEY  = 'comedy-tracker-data';
@@ -1609,16 +1885,16 @@
     el.classList.remove('error');
     el.classList.add('visible');
     if (state === 'saving') {
-      el.textContent = 'Saving…';
+      el.textContent = t('saving');
     } else if (state === 'saved') {
-      el.textContent = 'Saved ✓';
+      el.textContent = t('saved');
       statusHideTimer = setTimeout(() => el.classList.remove('visible'), 2500);
     } else if (state === 'offline') {
-      el.textContent = 'Offline — saved locally';
+      el.textContent = t('offlineSaved');
       statusHideTimer = setTimeout(() => el.classList.remove('visible'), 4000);
     } else if (state === 'error') {
       el.classList.add('error');
-      el.textContent = 'Sync error';
+      el.textContent = t('syncError');
       statusHideTimer = setTimeout(() => el.classList.remove('visible'), 6000);
     } else {
       el.classList.remove('visible');
@@ -1865,7 +2141,7 @@
   }
 
   function nextWeekText(wv) {
-    return wv > 0 ? `next wk: upload ${wv - 1}` : '';
+    return wv > 0 ? t('nextWeekUpload', { n: wv - 1 }) : '';
   }
 
   // Monthly video total, plus the average per completed week. A week belongs to
@@ -1895,7 +2171,7 @@
       // Plan allowance for this week comes from the videos edited the week before.
       const allowed = Math.max(0, weekVids(weekStart(w - 1, offset)) - 1);
       const hintEl  = document.getElementById(`ph${w}`);
-      if (hintEl) hintEl.textContent = allowed > 0 ? `can upload ${allowed}` : '';
+      if (hintEl) hintEl.textContent = allowed > 0 ? t('canUpload', { n: allowed }) : '';
 
       if (sunday.getMonth() === mo && sunday < todayStart) {
         doneWeeks++;
@@ -1905,8 +2181,8 @@
 
     document.getElementById('vidTotalNum').textContent = total;
     document.getElementById('vidAvg').textContent = doneWeeks > 0
-      ? `≈ ${Math.round(doneVids / doneWeeks * 10) / 10}/wk over ${doneWeeks} full wk${doneWeeks > 1 ? 's' : ''}`
-      : 'no full weeks yet';
+      ? tn('avgPerWeek', doneWeeks, { avg: (Math.round(doneVids / doneWeeks * 10) / 10).toLocaleString(LOCALES[lang]) })
+      : t('noFullWeeks');
   }
 
   function changeVids(btn, delta) {
@@ -1923,11 +2199,8 @@
   /* ── Video library ── */
 
   const STATUSES = ['gray', 'green', 'purple', 'red'];
-  const STATUS_LABEL = {
-    gray: 'Not uploaded yet', green: 'Uploaded — worked',
-    purple: 'Worked more or less', red: "Didn't work"
-  };
-  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const STATUS_KEY = { gray: 'statusGray', green: 'statusGreen', purple: 'statusPurple', red: 'statusRed' };
+  const statusClickTip = st => t('statusClick', { label: t(STATUS_KEY[st]) });
 
   function uid() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -2023,7 +2296,7 @@
   }
 
   function slotLabel(s) {
-    return `${MON[s.m]} ${s.y} · Week ${s.w + 1}`;
+    return t('slotLabel', { mon: t('monthsShort')[s.m], y: s.y, w: s.w + 1 });
   }
 
   // Older plan entries carried their own title/status/comment; move them into the library.
@@ -2053,17 +2326,18 @@
     for (let w = 0; w < numWeeks; w++) {
       const first = Math.max(1, w * 7 - offset + 1);
       const last  = Math.min(daysInMonth, w * 7 - offset + 7);
-      const range = first === last ? `${MON[mo]} ${first}` : `${MON[mo]} ${first}–${last}`;
+      const mon   = t('monthsShort')[mo];
+      const range = first === last ? t('dateOne', { mon, a: first }) : t('dateRange', { mon, a: first, b: last });
       const future = isFutureWeek(w);
       // Entries from weeks that no longer exist (shouldn't happen) land in the last week.
       const mine = items.filter(it => Math.min(it.w || 0, numWeeks - 1) === w);
       html += `
         <div class="plan-week">
-          <div class="plan-week-label"><span>Week ${w + 1} · ${range}</span><span class="hint" id="ph${w}"></span></div>
+          <div class="plan-week-label"><span>${t('weekRange', { w: w + 1, range })}</span><span class="hint" id="ph${w}"></span></div>
           <div class="plan-list" data-w="${w}"${future ? ' data-future' : ''}>
             ${mine.map(it => planItemHtml(it, future, sched)).join('')}
           </div>
-          <button class="plan-add" data-w="${w}">+ Add video</button>
+          <button class="plan-add" data-w="${w}">${t('addVideo')}</button>
         </div>`;
     }
 
@@ -2093,15 +2367,15 @@
       const sched = schedule();
       opts = videos()
         .filter(v => (v.id === vid() || !sched[v.id]) && norm(v.title).includes(q))
-        .map(v => ({ id: v.id, label: v.title || 'Untitled' }));
+        .map(v => ({ id: v.id, label: v.title || t('untitled') }));
       if (typed && !videos().some(v => norm(v.title) === norm(typed))) {
-        opts.push({ id: '__new', label: `＋ Create “${typed}”`, title: typed });
+        opts.push({ id: '__new', label: t('createNamed', { name: typed }), title: typed });
       }
       active = Math.max(0, Math.min(active, opts.length - 1));
 
       list.innerHTML = opts.length
         ? opts.map((o, i) => `<div class="combo-opt${i === active ? ' active' : ''}${o.id === '__new' ? ' create' : ''}" data-i="${i}">${esc(o.label)}</div>`).join('')
-        : '<div class="combo-empty">No videos left in the backlog — type a title to create one</div>';
+        : `<div class="combo-empty">${t('comboEmpty')}</div>`;
       const r = input.getBoundingClientRect();
       list.style.left  = r.left + 'px';
       list.style.top   = (r.bottom + 4) + 'px';
@@ -2140,22 +2414,22 @@
     const v   = it.vid ? video(it.vid) : null;
     const st  = locked || !v ? 'gray' : (v.status || 'gray');
     const c   = v?.comment || '';
-    const tip = locked ? 'Not uploaded yet — this week hasn\'t started'
-              : !v ? 'Choose a video first'
-              : `${STATUS_LABEL[st]} — click to change`;
+    const tip = locked ? t('notStartedTip')
+              : !v ? t('chooseVideoFirst')
+              : statusClickTip(st);
     return `
       <div class="plan-item" data-id="${it.id}">
         <div class="plan-row">
-          <span class="plan-handle" title="Drag to move">⋮⋮</span>
+          <span class="plan-handle" title="${t('dragMove')}">⋮⋮</span>
           <button class="plan-dot ${st}" title="${tip}"${locked || !v ? ' disabled' : ''}></button>
           <div class="combo">
-            <input class="combo-input" value="${esc(v?.title || '').replace(/"/g, '&quot;')}" placeholder="Type or choose a video…" autocomplete="off" spellcheck="false">
+            <input class="combo-input" value="${esc(v?.title || '').replace(/"/g, '&quot;')}" placeholder="${t('typeOrChoose')}" autocomplete="off" spellcheck="false">
             <div class="combo-list" hidden></div>
           </div>
-          <button class="plan-icon-btn${c ? ' has-comment' : ''}" data-act="comment" title="Comments"${v ? '' : ' disabled'}>💬</button>
-          <button class="plan-icon-btn" data-act="delete" title="Remove from this week">✕</button>
+          <button class="plan-icon-btn${c ? ' has-comment' : ''}" data-act="comment" title="${t('comments')}"${v ? '' : ' disabled'}>💬</button>
+          <button class="plan-icon-btn" data-act="delete" title="${t('removeFromWeek')}">✕</button>
         </div>
-        <textarea class="plan-comment" placeholder="Comments…" ${c ? '' : 'hidden'}>${esc(c)}</textarea>
+        <textarea class="plan-comment" placeholder="${t('commentsPlaceholder')}" ${c ? '' : 'hidden'}>${esc(c)}</textarea>
       </div>`;
   }
 
@@ -2194,7 +2468,7 @@
       if (!v || dot.disabled) return;
       const next = STATUSES[(STATUSES.indexOf(v.status || 'gray') + 1) % STATUSES.length];
       dot.className = `plan-dot ${next}`;
-      dot.title = `${STATUS_LABEL[next]} — click to change`;
+      dot.title = statusClickTip(next);
       updateVideo(v.id, { status: next });
       after();
     });
@@ -2325,12 +2599,12 @@
     const selected = backlog.filter(v => sched[v.id]).length;
     const weeks = k => {
       const x = Math.round(n / k * 10) / 10;
-      return `${x} week${x === 1 ? '' : 's'}`;
+      return tn('weeksCount', x);
     };
     document.getElementById('vStats').innerHTML = n
-      ? `You have <b>${n}</b> video${n === 1 ? '' : 's'} in the backlog — that's <b>${weeks(2)}</b> at 2 per week, or <b>${weeks(3)}</b> at 3 per week.` +
-        (selected ? ` <span class="vstats-sub">${selected} already selected in the calendar.</span>` : '')
-      : 'Your backlog is empty — add the videos you have ready below.';
+      ? tn('backlogStats', n, { w2: weeks(2), w3: weeks(3) }) +
+        (selected ? ` <span class="vstats-sub">${t('alreadySelected', { n: selected })}</span>` : '')
+      : t('backlogEmptyStats');
     document.getElementById('cntBacklog').textContent   = n;
     document.getElementById('cntPublished').textContent = published.length;
 
@@ -2338,10 +2612,10 @@
     const publishedEl = document.getElementById('publishedList');
     backlogEl.innerHTML = n
       ? backlog.map(v => videoRowHtml(v, sched[v.id], false)).join('')
-      : '<p class="vempty">No videos in the backlog.</p>';
+      : `<p class="vempty">${t('noBacklog')}</p>`;
     publishedEl.innerHTML = published.length
       ? published.map(v => videoRowHtml(v, sched[v.id], true)).join('')
-      : '<p class="vempty">Nothing published yet. Videos show up here once their week in the calendar starts.</p>';
+      : `<p class="vempty">${t('noPublished')}</p>`;
 
     backlogEl.querySelectorAll('.plan-item').forEach(el => {
       bindVideoRow(el);
@@ -2357,23 +2631,23 @@
     // them a colour here moves them to Published. Future weeks stay locked grey.
     let dot = '';
     if (published) {
-      dot = `<button class="plan-dot ${st}" title="${STATUS_LABEL[st]} — click to change"></button>`;
+      dot = `<button class="plan-dot ${st}" title="${statusClickTip(st)}"></button>`;
     } else if (slot) {
       dot = slot.future
-        ? `<button class="plan-dot gray" title="Not uploaded yet — this week hasn't started" disabled></button>`
-        : `<button class="plan-dot gray" title="Not uploaded yet — click to set the result"></button>`;
+        ? `<button class="plan-dot gray" title="${t('notStartedTip')}" disabled></button>`
+        : `<button class="plan-dot gray" title="${t('notUploadedSetResult')}"></button>`;
     }
     return `
       <div class="plan-item${!published && slot ? ' is-selected' : ''}" data-vid="${v.id}">
         <div class="plan-row">
-          ${published ? '' : `<span class="plan-handle" title="Drag to reorder">⋮⋮</span>`}
+          ${published ? '' : `<span class="plan-handle" title="${t('dragReorder')}">⋮⋮</span>`}
           ${dot}
-          <input class="plan-input" value="${esc(v.title || '').replace(/"/g, '&quot;')}" placeholder="Video title…">
-          ${slot ? `<span class="vslot${published ? '' : ' scheduled'}">${published ? '' : '✓ Selected · '}${slotLabel(slot)}</span>` : ''}
-          <button class="plan-icon-btn${c ? ' has-comment' : ''}" data-act="comment" title="Comments">💬</button>
-          <button class="plan-icon-btn" data-act="delete" title="Delete video">✕</button>
+          <input class="plan-input" value="${esc(v.title || '').replace(/"/g, '&quot;')}" placeholder="${t('videoTitlePlaceholder')}">
+          ${slot ? `<span class="vslot${published ? '' : ' scheduled'}">${published ? '' : t('selectedPrefix')}${slotLabel(slot)}</span>` : ''}
+          <button class="plan-icon-btn${c ? ' has-comment' : ''}" data-act="comment" title="${t('comments')}">💬</button>
+          <button class="plan-icon-btn" data-act="delete" title="${t('deleteVideo')}">✕</button>
         </div>
-        <textarea class="plan-comment" placeholder="Comments…" ${c ? '' : 'hidden'}>${esc(c)}</textarea>
+        <textarea class="plan-comment" placeholder="${t('commentsPlaceholder')}" ${c ? '' : 'hidden'}>${esc(c)}</textarea>
       </div>`;
   }
 
@@ -2390,7 +2664,7 @@
 
     el.querySelector('[data-act="delete"]').addEventListener('click', () => {
       const v = video(id);
-      if (!confirm(`Delete "${v?.title || 'this video'}"? It will also be removed from the calendar.`)) return;
+      if (!confirm(t('confirmDelete', { title: v?.title || t('thisVideo') }))) return;
       deleteVideo(id);
       renderVideos();
       renderPlan();
@@ -2415,18 +2689,31 @@
     try { localStorage.setItem(TAB_KEY, name); } catch {}
   }
 
-  /* ── Entrenamientos: list a Drive folder, edit its Docs in Google's editor ── */
+  /* ── Trainings: list a Drive folder, edit its Docs in Google's editor ── */
 
   const training = {
     prepared: false, tokenClient: null, token: null,
-    files: [], activeId: null, loadSeq: 0,
+    files: [], activeId: null, loadSeq: 0, authKey: null, status: null,
   };
 
-  function trainingAuthMessage(msg, showButton) {
+  function trainingAuthMessage(key, showButton) {
+    training.authKey = key;
     document.getElementById('trainAuth').hidden = false;
     document.getElementById('trainLayout').hidden = true;
-    document.getElementById('trainAuthMsg').textContent = msg;
+    document.getElementById('trainAuthMsg').textContent = t(key);
     document.getElementById('trainSignIn').hidden = !showButton;
+  }
+
+  function setTrainingStatus(key, vars) {
+    training.status = { key, vars };
+    document.getElementById('trainStatus').textContent = t(key, vars);
+  }
+
+  function refreshTrainingLanguage() {
+    if (training.authKey) document.getElementById('trainAuthMsg').textContent = t(training.authKey);
+    const status = training.status;
+    if (training.files.length) renderTrainingList();
+    if (status) setTrainingStatus(status.key, status.vars);
   }
 
   // Loaded when the tab is first opened, so the sign-in popup can open straight
@@ -2434,40 +2721,40 @@
   function prepareTraining() {
     if (training.prepared) return;
     if (location.protocol === 'file:') {
-      trainingAuthMessage('Google sign-in does not work when index.html is opened directly. Run a local server and open http://localhost:8000.', false);
+      trainingAuthMessage('authFile', false);
       return;
     }
     if (!DRIVE_CLIENT_ID) {
-      trainingAuthMessage('Google Drive is not set up yet: DRIVE_CLIENT_ID is empty in index.html.', false);
+      trainingAuthMessage('authNoClient', false);
       return;
     }
     training.prepared = true;
-    trainingAuthMessage('Loading Google sign-in…', false);
+    trainingAuthMessage('authLoading', false);
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.onload = () => {
       training.tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: DRIVE_CLIENT_ID,
-        scope: DRIVE_SCOPE,
+        scope: DRIVE_SCOPES.join(' '),
         callback: onTrainingToken,
         error_callback: (err) => trainingAuthMessage(
           err?.type === 'popup_failed_to_open'
-            ? 'The browser blocked the Google sign-in popup. Allow popups for this site and try again.'
-            : 'Google sign-in was not completed. Try again when you are ready.', true),
+            ? 'authPopupBlocked'
+            : 'authIncomplete', true),
       });
-      trainingAuthMessage('Connect your Google account to see your training documents.', true);
+      trainingAuthMessage('authConnect', true);
     };
     script.onerror = () => {
       training.prepared = false;
-      trainingAuthMessage('Could not load Google sign-in. Check your connection and reopen this tab.', false);
+      trainingAuthMessage('authLoadFail', false);
     };
     document.head.appendChild(script);
   }
 
   function onTrainingToken(resp) {
-    if (resp.error || !google.accounts.oauth2.hasGrantedAllScopes(resp, DRIVE_SCOPE)) {
-      trainingAuthMessage('Google did not grant access to your Drive file list. Connect again and tick the permission.', true);
+    if (resp.error || !google.accounts.oauth2.hasGrantedAllScopes(resp, ...DRIVE_SCOPES)) {
+      trainingAuthMessage('authDenied', true);
       return;
     }
     training.token = resp.access_token;
@@ -2478,8 +2765,7 @@
 
   async function loadTrainingFiles() {
     const seq = ++training.loadSeq;
-    const status = document.getElementById('trainStatus');
-    status.textContent = 'Loading…';
+    setTrainingStatus('loading');
     const files = [];
     let pageToken = '';
     try {
@@ -2497,7 +2783,7 @@
         if (seq !== training.loadSeq) return;
         if (res.status === 401) {
           training.token = null;
-          trainingAuthMessage('Your Google session expired. Connect again to refresh the list.', true);
+          trainingAuthMessage('authExpiredList', true);
           return;
         }
         if (!res.ok) throw new Error(`Drive ${res.status}`);
@@ -2507,18 +2793,99 @@
         pageToken = page.nextPageToken || '';
       } while (pageToken);
     } catch (err) {
-      if (seq === training.loadSeq) status.textContent = `Could not load the list (${err.message}).`;
+      if (seq === training.loadSeq) setTrainingStatus('listFail', { error: err.message });
       return;
     }
     training.files = files;
     renderTrainingList();
+    suggestTrainingName();
+  }
+
+  // Docs are numbered Entrenamiento_306_Title, so offer the next number.
+  function suggestTrainingName() {
+    const numbers = training.files
+      .map(f => /^Entrenamiento_(\d+)/i.exec(f.name))
+      .filter(Boolean).map(m => Number(m[1]));
+    const suggestion = numbers.length ? `Entrenamiento_${Math.max(...numbers) + 1}_` : '';
+    const input = document.getElementById('trainNewName');
+    if (!input.value || input.value === training.suggestion) input.value = suggestion;
+    training.suggestion = suggestion;
+  }
+
+  async function createTrainingDoc(name) {
+    const btn = document.getElementById('trainNewBtn');
+    btn.disabled = true;
+    setTrainingStatus('creating');
+    try {
+      const res = await fetch(
+        'https://www.googleapis.com/drive/v3/files?fields=id,name,mimeType,modifiedTime,webViewLink',
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${training.token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, mimeType: GOOGLE_DOC_MIME, parents: [TRAINING_FOLDER_ID] }),
+        });
+      if (res.status === 401) {
+        training.token = null;
+        trainingAuthMessage('authExpiredCreate', true);
+        return;
+      }
+      if (!res.ok) {
+        setTrainingStatus('createFailStatus', { status: res.status });
+        return;
+      }
+      const file = await res.json();
+      training.files.unshift(file);
+      document.getElementById('trainFilter').value = '';
+      document.getElementById('trainNewName').value = '';
+      suggestTrainingName();
+      openTrainingFile(file);
+    } catch (err) {
+      setTrainingStatus('createFail', { error: err.message });
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function trainingFullscreenElement() {
+    return document.fullscreenElement || document.webkitFullscreenElement || null;
+  }
+
+  function updateTrainingFullButton() {
+    const editor = document.getElementById('trainEditor');
+    const full = trainingFullscreenElement() === editor || editor.classList.contains('is-full');
+    document.getElementById('trainFull').textContent = t(full ? 'exitFullScreen' : 'fullScreen');
+  }
+
+  async function exitTrainingFullscreen() {
+    document.getElementById('trainEditor').classList.remove('is-full');
+    if (trainingFullscreenElement()) {
+      await (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    }
+    updateTrainingFullButton();
+  }
+
+  async function toggleTrainingFullscreen() {
+    const editor = document.getElementById('trainEditor');
+    if (trainingFullscreenElement() || editor.classList.contains('is-full')) {
+      await exitTrainingFullscreen();
+      return;
+    }
+    // iPhones have no fullscreen API for pages: fill the window instead.
+    const request = editor.requestFullscreen || editor.webkitRequestFullscreen;
+    try {
+      if (!request) throw new Error('unsupported');
+      await request.call(editor);
+    } catch {
+      editor.classList.add('is-full');
+    }
+    updateTrainingFullButton();
   }
 
   function renderTrainingList() {
     const query = document.getElementById('trainFilter').value.trim().toLowerCase();
     const shown = training.files.filter(f => f.name.toLowerCase().includes(query));
-    document.getElementById('trainStatus').textContent =
-      query ? `${shown.length} of ${training.files.length} files` : `${training.files.length} files`;
+    if (query) setTrainingStatus('filesFiltered', { n: shown.length, total: training.files.length });
+    else setTrainingStatus(training.files.length === 1 ? 'filesCount_one' : 'filesCount', { n: training.files.length });
     const list = document.getElementById('trainList');
     list.replaceChildren(...shown.map(f => {
       const item = document.createElement('button');
@@ -2530,7 +2897,7 @@
       name.textContent = f.name;
       const date = document.createElement('span');
       date.className = 'train-item-date';
-      date.textContent = new Date(f.modifiedTime).toLocaleDateString(undefined,
+      date.textContent = new Date(f.modifiedTime).toLocaleDateString(LOCALES[lang],
         { year: 'numeric', month: 'short', day: 'numeric' });
       item.append(name, date);
       item.addEventListener('click', () => openTrainingFile(f));
@@ -2563,8 +2930,17 @@
     document.getElementById('trainFilter').addEventListener('input', renderTrainingList);
     document.getElementById('trainRefresh').addEventListener('click', loadTrainingFiles);
     document.getElementById('trainBack').addEventListener('click', () => {
+      exitTrainingFullscreen();
       document.getElementById('trainLayout').classList.remove('doc-open');
     });
+    document.getElementById('trainNewForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('trainNewName').value.trim();
+      if (name) createTrainingDoc(name);
+    });
+    document.getElementById('trainFull').addEventListener('click', toggleTrainingFullscreen);
+    document.addEventListener('fullscreenchange', updateTrainingFullButton);
+    document.addEventListener('webkitfullscreenchange', updateTrainingFullButton);
   }
 
   // Add box for a list: Enter adds one title; pasting several lines adds one per line.
@@ -2592,16 +2968,16 @@
   /* ── Checklists: Viral Videos on Trial, Videos to Edit, Videos to Develop + Notes to-do (independent lists) ── */
 
   const TRIAL = { key: 'trial', listId: 'trialList', countId: 'cntTrial', summaryId: 'trialSummary',
-                  placeholder: 'Video…', empty: 'No videos on trial yet.' };
+                  placeholderKey: 'videoPlaceholder', emptyKey: 'emptyTrial' };
   // Plain rows (no checkbox): the summary is just how many videos are left.
   const EDIT    = { key: 'toEdit', listId: 'editList', countId: 'cntEdit', summaryId: 'editSummary',
-                    placeholder: 'Video…', empty: 'No videos to edit yet.', noCheck: true,
-                    summary: list => `Videos to edit: ${list.length}`, toBacklog: true };
+                    placeholderKey: 'videoPlaceholder', emptyKey: 'emptyEdit', noCheck: true,
+                    summary: list => t('videosToEditCount', { n: list.length }), toBacklog: true };
   const DEVELOP = { key: 'develop', listId: 'developList', countId: 'cntDevelop', summaryId: 'developSummary',
-                    placeholder: 'Video…', empty: 'No videos to develop yet.', noCheck: true,
-                    summary: list => `Videos to develop: ${list.length}` };
+                    placeholderKey: 'videoPlaceholder', emptyKey: 'emptyDevelop', noCheck: true,
+                    summary: list => t('videosToDevelopCount', { n: list.length }) };
   const TODO  = { key: 'todos', listId: 'todoList',  countId: 'cntTodo',  summaryId: 'todoSummary',
-                  placeholder: 'To-do…', empty: 'Nothing to do yet.' };
+                  placeholderKey: 'todoPlaceholder', emptyKey: 'emptyTodo' };
 
   function checkItems(cfg) {
     return Array.isArray(data[cfg.key]) ? data[cfg.key] : [];
@@ -2633,19 +3009,19 @@
     document.getElementById(cfg.countId).textContent = list.length;
     const el = document.getElementById(cfg.listId);
     el.innerHTML = list.length
-      ? list.map(t => `
-          <div class="plan-item trial-item${t.done ? ' done' : ''}" data-tid="${t.id}">
+      ? list.map(item => `
+          <div class="plan-item trial-item${item.done ? ' done' : ''}" data-tid="${item.id}">
             <div class="plan-row">
-              <span class="plan-handle" title="Drag to reorder">⋮⋮</span>
-              ${cfg.noCheck ? '' : `<input type="checkbox" class="trial-check"${t.done ? ' checked' : ''}>`}
-              <input class="plan-input" value="${esc(t.title || '').replace(/"/g, '&quot;')}" placeholder="${cfg.placeholder}">
-              ${cfg.toBacklog ? '<button class="plan-icon-btn to-backlog" data-act="to-backlog" title="Edited — move to Backlog">→ Backlog</button>' : ''}
-              <button class="plan-icon-btn" data-act="delete" title="Delete">✕</button>
+              <span class="plan-handle" title="${t('dragReorder')}">⋮⋮</span>
+              ${cfg.noCheck ? '' : `<input type="checkbox" class="trial-check"${item.done ? ' checked' : ''}>`}
+              <input class="plan-input" value="${esc(item.title || '').replace(/"/g, '&quot;')}" placeholder="${t(cfg.placeholderKey)}">
+              ${cfg.toBacklog ? `<button class="plan-icon-btn to-backlog" data-act="to-backlog" title="${t('moveToBacklogTip')}">${t('moveToBacklog')}</button>` : ''}
+              <button class="plan-icon-btn" data-act="delete" title="${t('delete')}">✕</button>
             </div>
           </div>`).join('')
-      : `<p class="vempty">${cfg.empty}</p>`;
+      : `<p class="vempty">${t(cfg.emptyKey)}</p>`;
     document.getElementById(cfg.summaryId).textContent = !list.length ? ''
-      : cfg.summary ? cfg.summary(list) : `${done} of ${list.length} checked`;
+      : cfg.summary ? cfg.summary(list) : t('checkedSummary', { n: done, total: list.length });
 
     el.querySelectorAll('.trial-item').forEach(row => {
       const id = row.dataset.tid;
@@ -2653,7 +3029,7 @@
         row.classList.toggle('done', this.checked);
         updateCheckItem(cfg, id, { done: this.checked });
         const items = checkItems(cfg), n = items.filter(t => t.done).length;
-        document.getElementById(cfg.summaryId).textContent = `${n} of ${items.length} checked`;
+        document.getElementById(cfg.summaryId).textContent = t('checkedSummary', { n, total: items.length });
       });
       row.querySelector('.plan-input').addEventListener('input', function() {
         updateCheckItem(cfg, id, { title: this.value });
@@ -2851,11 +3227,8 @@
   /* ── Render ── */
 
   function render() {
-    const MONTHS = ['January','February','March','April','May','June',
-                    'July','August','September','October','November','December'];
-
     migratePlans();
-    document.getElementById('monthLabel').textContent = `${MONTHS[mo]} ${yr}`;
+    document.getElementById('monthLabel').textContent = `${t('months')[mo]} ${yr}`;
 
     const today    = new Date();
     const todayKey = dateKey(today.getFullYear(), today.getMonth(), today.getDate());
@@ -2888,7 +3261,7 @@
           cells += `
             <div class="day-cell${isToday ? ' today' : ''}" data-dk="${dk}">
               <span class="day-num">${day}</span>
-              <button class="vid-btn${vids(dk) > 0 ? ' on' : ''}" data-dk="${dk}" title="Videos edited — click +1, right-click −1">${vidLabel(dk)}</button>
+              <button class="vid-btn${vids(dk) > 0 ? ' on' : ''}" data-dk="${dk}" title="${t('vidTip')}">${vidLabel(dk)}</button>
               <div class="x-wrap">${buildXMarks(dk)}</div>
               <div class="note-trigger" tabindex="0" data-dk="${dk}">${esc(noteFirstLine(dk))}</div>
             </div>`;
@@ -2901,12 +3274,12 @@
           <div class="annot-next" id="wn${w}">${nextWeekText(wv)}</div>
           <div class="annot-line vid">
             <span class="annot-num" id="wv${w}">${wv}</span>
-            <span class="annot-unit">vids</span>
+            <span class="annot-unit">${t('unitVids')}</span>
           </div>
           <div class="annot-line">
             <span class="annot-slash">//</span>
             <span class="annot-num" id="wt${w}">${weekTotal}</span>
-            <span class="annot-unit">hrs</span>
+            <span class="annot-unit">${t('unitHrs')}</span>
           </div>
         </div>`;
 
@@ -2999,6 +3372,7 @@
       b.addEventListener('click', () => showSubTab(b.dataset.sub)));
     document.querySelectorAll('.subtab-btn[data-nsub]').forEach(b =>
       b.addEventListener('click', () => showNotesSubTab(b.dataset.nsub)));
+    initLanguage();
     bindTraining();
     let savedTab = 'calendar', savedSub = 'backlog', savedNotesSub = 'text';
     try {
@@ -3038,7 +3412,7 @@
       const toggle = document.getElementById('debugToggle');
       const isHidden = body.hasAttribute('hidden');
       body.toggleAttribute('hidden', !isHidden);
-      toggle.textContent = (isHidden ? '▾' : '▸') + ' Debug info';
+      toggle.textContent = (isHidden ? '▾ ' : '▸ ') + t('debugInfo');
     });
 
     const notePanelTextarea = document.getElementById('notePanelText');
