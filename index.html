@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Comedy Hours Tracker</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎤</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
@@ -192,7 +193,11 @@
     }
 
     .plan-icon-btn:hover { color: var(--text); opacity: 1; }
-    .plan-icon-btn.has-comment { opacity: 1; color: var(--accent); }
+    .plan-icon-btn.comment-btn { color: #9a9aa0; opacity: 1; }
+    .plan-icon-btn.comment-btn:hover { color: var(--text-2); }
+    .plan-icon-btn.comment-btn.has-comment,
+    .plan-icon-btn.comment-btn.has-comment:hover { color: #f57c00; }
+    .comment-icon { display: block; width: 16px; height: 16px; }
     .plan-icon-btn.to-backlog { opacity: 1; color: var(--accent); white-space: nowrap; }
     .plan-icon-btn.to-backlog:hover { background: var(--accent-bg); }
 
@@ -273,6 +278,7 @@
 
     .combo-opt.active { background: var(--accent-bg); color: var(--accent); }
     .combo-opt.create { color: var(--accent); font-weight: 500; }
+    .combo-hint { color: var(--text-3); font-size: 11px; }
     .combo-empty { font-size: 12px; color: var(--text-3); padding: 8px 10px; }
 
     .plan-icon-btn:disabled { visibility: hidden; }
@@ -375,9 +381,13 @@
       padding: 10px 14px;
       cursor: pointer;
     }
-    .train-item:last-child { border-bottom: none; }
     .train-item:hover { background: rgba(255, 255, 255, 0.55); }
     .train-item.active { background: var(--accent-bg); }
+    .train-row { display: flex; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--border); }
+    .train-row:last-child { border-bottom: none; }
+    .train-row .train-item { flex: 1; width: auto; min-width: 0; border-bottom: none; }
+    .train-row .comment-btn { margin-right: 8px; }
+    .train-row .plan-comment { flex: 0 0 calc(100% - 20px); width: auto; margin: 0 10px 10px; }
     .train-item-name { display: block; font-size: 13px; font-weight: 500; overflow-wrap: anywhere; }
     .train-item-date { display: block; font-size: 11px; color: var(--text-2); margin-top: 2px; }
     .train-editor {
@@ -602,13 +612,7 @@
     .badges { display: flex; gap: 12px; flex-shrink: 0; }
 
     .monthly-badge.videos .big-num { color: var(--video); }
-
-    .badge-sub {
-      display: block;
-      font-size: 11px;
-      color: var(--text-3);
-      margin-top: 2px;
-    }
+    .monthly-badge.jokes .big-num { color: #f57c00; }
 
     /* ─── NAV ROW ─── */
 
@@ -783,19 +787,6 @@
     .annot-line.vid .annot-num,
     .annot-line.vid .annot-unit { color: var(--video); }
 
-    .annot-next {
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--video);
-      background: var(--video-bg);
-      border-radius: 6px;
-      padding: 3px 6px;
-      text-align: right;
-      line-height: 1.3;
-    }
-
-    .annot-next:empty { display: none; }
-
     /* ─── VIDEO COUNTER (per day) ─── */
 
     .vid-btn {
@@ -818,8 +809,37 @@
       transition: opacity 0.15s, background 0.15s;
     }
 
+    .cell-btns {
+      position: absolute;
+      top: 11px;
+      right: 38px;
+      display: flex;
+      gap: 4px;
+    }
+    .cell-btns .vid-btn, .cell-btns .joke-btn { position: static; }
+    .joke-btn {
+      height: 22px;
+      min-width: 22px;
+      padding: 0 5px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 20px;
+      color: #b35c00;
+      background: none;
+      border: 1px dashed var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s, background 0.15s;
+    }
+
     .day-cell:not(.empty):hover .vid-btn,
-    .vid-btn.on { opacity: 1; }
+    .vid-btn.on,
+    .day-cell:not(.empty):hover .joke-btn,
+    .joke-btn.on { opacity: 1; }
+
+    .joke-btn.on { background: rgba(255,149,0,.16); border: 1px solid transparent; }
 
     .vid-btn.on {
       color: var(--video);
@@ -869,11 +889,24 @@
 
     .sync-status.visible { opacity: 1; }
 
+    .top-left {
+      position: absolute;
+      top: 14px;
+      left: 22px;
+      z-index: 1100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .lang-select {
       position: absolute;
       top: 14px;
       right: 22px;
       z-index: 1100;
+    }
+
+    .lang-select, .profile-select, .guide-link {
       font-family: inherit;
       font-size: 12px;
       font-weight: 500;
@@ -884,11 +917,16 @@
       padding: 4px 6px;
       cursor: pointer;
     }
-    .lang-select:hover { background: rgba(0,0,0,.45); }
-    .lang-select option { color: #1d1d1f; background: #fff; }
+    .guide-link { display: block; text-decoration: none; line-height: 1.4; }
+    .lang-select:hover, .profile-select:hover, .guide-link:hover { background: rgba(0,0,0,.45); }
+    .lang-select option, .profile-select option { color: #1d1d1f; background: #fff; }
+    .page { transition: opacity 0.15s; }
+    .page.is-loading { opacity: 0.55; pointer-events: none; }
 
     @media (max-width: 767px) {
-      .lang-select { top: 4px; right: 12px; font-size: 11px; padding: 2px 4px; }
+      .lang-select { top: 4px; right: 12px; }
+      .top-left { top: 4px; left: 12px; gap: 6px; }
+      .lang-select, .profile-select, .guide-link { font-size: 11px; padding: 2px 4px; }
     }
 
     /* ─── USERNAME MODAL ─── */
@@ -983,6 +1021,10 @@
       transition: opacity 0.15s, transform 0.1s;
     }
 
+    .modal-choices { display: flex; gap: 10px; }
+    .modal-choices[hidden], .modal-error[hidden] { display: none; }
+    .modal-error { font-size: 13px; color: #d70015; margin: -6px 0 12px; }
+    .modal-btn.secondary { background: var(--hover-bg); color: var(--text); }
     .modal-btn:hover  { opacity: 0.88; }
     .modal-btn:active { transform: scale(0.98); }
     .modal-btn:disabled { opacity: 0.35; cursor: not-allowed; }
@@ -1004,7 +1046,10 @@
 
       .badges { flex-direction: row; }
       .badges .monthly-badge { flex: 1; }
-      .monthly-badge { padding: 12px 20px; text-align: center; }
+      .monthly-badge { text-align: center; }
+      .cell-btns { top: 4px; right: auto; left: 3px; flex-direction: column; align-items: flex-start; gap: 2px; }
+      .joke-btn { height: 16px; min-width: 16px; padding: 0 3px; font-size: 9px; line-height: 14px; opacity: 1; }
+      .monthly-badge { padding: 12px 8px; }
       .vid-btn { top: 4px; right: auto; left: 3px; height: 16px; min-width: 16px; padding: 0 3px; font-size: 9px; line-height: 14px; opacity: 1; }
       .monthly-badge .big-num { font-size: 28px; }
 
@@ -1135,7 +1180,7 @@
     }
 
     .note-trigger:empty::before {
-      content: '+ note';
+      content: var(--add-note, '+ note');
       font-style: italic;
       opacity: 0;
       transition: opacity 0.15s;
@@ -1160,6 +1205,14 @@
       box-shadow: 0 4px 24px rgba(0,0,0,.13), 0 1px 4px rgba(0,0,0,.06);
       padding: 10px 12px;
     }
+
+    .joke-panel { width: 360px; max-height: 60vh; overflow-y: auto; }
+    .joke-panel-head { display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .joke-panel-add { display: flex; gap: 6px; margin-top: 8px; }
+    .joke-panel-add .vadd-input { padding: 8px 10px; font-size: 13px; background: var(--surface); border-color: var(--border); }
+    .joke-panel-add .vadd-btn { padding: 0 12px; font-size: 13px; }
+    .joke-panel .plan-comment { width: calc(100% - 12px); margin: 0 6px 6px; }
+    .joke-sent { flex-shrink: 0; font-size: 11px; color: var(--text-3); white-space: nowrap; }
 
     .note-panel-textarea {
       display: block;
@@ -1332,6 +1385,15 @@
 </head>
 <body>
 
+<div class="top-left">
+  <select id="profileSelect" class="profile-select" data-i18n-aria="profile" data-i18n-title="profile" aria-label="Profile">
+    <option value="juanmo">Juanmo</option>
+    <option value="kike">Kike</option>
+    <option value="gon">Gon</option>
+  </select>
+  <a id="guideLink" class="guide-link" download data-i18n="guideDownload" data-i18n-title="guideTip"></a>
+</div>
+
 <select id="langSelect" class="lang-select" data-i18n-aria="language" data-i18n-title="language" aria-label="Language">
   <option value="en">English</option>
   <option value="es">Español</option>
@@ -1349,17 +1411,24 @@
   <div class="stage-light"></div>
 </div>
 
-<!-- ─── USERNAME MODAL ─── -->
+<!-- ─── PROFILE MODAL ─── -->
 <div id="modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal-card">
-    <h2 class="modal-title" id="modalTitle" data-i18n="modalTitle">What's your name?</h2>
-    <p class="modal-sub" data-i18n="modalSub">We'll use it to sync your writing hours across devices.</p>
-    <input
-      type="text" id="nameInput" class="modal-input"
-      data-i18n-placeholder="modalPlaceholder" placeholder="Your name"
-      autocomplete="off" autocorrect="off" spellcheck="false" maxlength="40"
-    >
-    <button id="confirmBtn" class="modal-btn" disabled data-i18n="modalContinue">Continue</button>
+    <h2 class="modal-title" id="modalTitle"></h2>
+    <p class="modal-sub" id="modalSub"></p>
+    <div class="modal-choices" id="modalChoices">
+      <button type="button" class="modal-btn" data-profile="juanmo">Juanmo</button>
+      <button type="button" class="modal-btn" data-profile="kike">Kike</button>
+      <button type="button" class="modal-btn" data-profile="gon">Gon</button>
+    </div>
+    <form id="passwordForm" hidden>
+      <input type="password" id="passwordInput" class="modal-input" data-i18n-placeholder="passwordPlaceholder" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <p class="modal-error" id="passwordError" data-i18n="passwordWrong" role="alert" hidden></p>
+      <div class="modal-choices">
+        <button type="button" class="modal-btn secondary" id="passwordCancel" data-i18n="cancel"></button>
+        <button type="submit" class="modal-btn" data-i18n="enter"></button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -1383,7 +1452,11 @@
         <span data-i18n="thisMonth">This month</span><br>
         <span class="big-num" id="vidTotalNum">0</span>
         <span data-i18n="videosEdited">videos edited</span>
-        <span class="badge-sub" id="vidAvg"></span>
+      </div>
+      <div class="monthly-badge jokes">
+        <span data-i18n="thisMonth">This month</span><br>
+        <span class="big-num" id="jokeTotalNum">0</span>
+        <span data-i18n="jokesWritten">jokes written</span>
       </div>
     </div>
   </div>
@@ -1396,7 +1469,11 @@
   </div>
 
   <div id="tab-calendar" role="tabpanel">
-  <div class="layout">
+  <div class="subtabs">
+    <button class="subtab-btn active" data-csub="calendar" data-i18n="subCalendar">Calendar</button>
+    <button class="subtab-btn" data-csub="jokes"><span data-i18n="subJokes">Written jokes</span> <span class="subtab-count" id="cntJokes">0</span></button>
+  </div>
+  <div class="layout vpanel" id="csub-calendar">
   <div class="cal-col">
 
   <div class="nav-row">
@@ -1437,13 +1514,23 @@
     <div class="plan-body" id="planBody"></div>
   </aside>
   </div>
+
+  <div id="csub-jokes" class="vpanel" hidden>
+    <div class="nav-row">
+      <button class="nav-btn" id="jokePrevBtn">&#8249;</button>
+      <span class="month-label" id="jokeMonthLabel"></span>
+      <button class="nav-btn" id="jokeNextBtn">&#8250;</button>
+    </div>
+    <p class="trial-summary" id="jokeSummary"></p>
+    <div class="vlist" id="jokeList"></div>
+  </div>
   </div>
 
   <!-- ─── NOTES TAB ─── -->
   <div id="tab-notes" role="tabpanel" hidden>
     <div class="subtabs">
-      <button class="subtab-btn notes-sub-btn active" data-nsub="text" data-i18n="notes">Notes</button>
-      <button class="subtab-btn notes-sub-btn" data-nsub="todo"><span data-i18n="todo">To-do</span> <span class="subtab-count" id="cntTodo">0</span></button>
+      <button class="subtab-btn notes-sub-btn active" data-nsub="todo"><span data-i18n="todo">To-do</span> <span class="subtab-count" id="cntTodo">0</span></button>
+      <button class="subtab-btn notes-sub-btn" data-nsub="text" data-i18n="notes">Notebook</button>
     </div>
 
     <div id="nsub-text" class="vpanel">
@@ -1589,6 +1676,19 @@
     rows="4"></textarea>
 </div>
 
+<!-- ─── JOKES OF A DAY ─── -->
+<div id="jokePanel" class="note-panel joke-panel" hidden>
+  <div class="joke-panel-head">
+    <span id="jokePanelTitle"></span>
+    <button type="button" class="plan-icon-btn" id="jokePanelClose" data-i18n-title="close">✕</button>
+  </div>
+  <div id="jokePanelList"></div>
+  <form class="joke-panel-add" id="jokeAddForm">
+    <input id="jokeAddInput" class="vadd-input" data-i18n-placeholder="jokePlaceholder" autocomplete="off">
+    <button class="vadd-btn" type="submit" data-i18n="add">Add</button>
+  </form>
+</div>
+
 <script>
   // ─────────────────────────────────────────────────────────────────────────────
   //  CLOUD SYNC SETUP  (Supabase — free tier, perfect for personal use)
@@ -1634,14 +1734,21 @@
       language: 'Language',
       siteTitle: "Comedy Hours  - Don't break the chain",
       byline: 'Track the hours you spend writing comedy — one ✕ per hour.',
-      modalTitle: "What's your name?", modalSub: "We'll use it to sync your writing hours across devices.",
-      modalPlaceholder: 'Your name', modalContinue: 'Continue',
+      addNote: '+ note', profile: 'Profile', guideDownload: '📄 Guide (PDF)', guideTip: 'Download the user guide as a PDF',
+      modalTitle: 'Who is using the tracker?', modalSub: 'Choose your profile. This browser will remember it.',
+      passwordTitle: 'Password for {name}', passwordSub: 'You only need it once on each browser, or when changing profile.',
+      passwordPlaceholder: 'Password', passwordWrong: 'Wrong password. Try again.', cancel: 'Cancel', enter: 'Enter',
+      jokesWritten: 'jokes written', subCalendar: 'Calendar', subJokes: 'Written jokes', jokeTip: 'Jokes written — click to add or view them',
+      jokePlaceholder: 'Which joke did you write?', jokeTitlePlaceholder: 'Untitled joke',
+      jokesEmpty: 'No jokes written this month. Add them with 🤣 in the calendar.', jokesCount: '{n} jokes', jokesCount_one: '{n} joke',
+      sendToDevelop: '→ To Develop', sendToDevelopTip: 'Send to Videos to Develop', sentToDevelop: '✓ Sent',
+      moveToEdit: '→ To Edit', moveToEditTip: 'Move to Videos to Edit', close: 'Close',
       thisMonth: 'This month', hrsWritten: 'hrs written', videosEdited: 'videos edited',
       tabCalendar: 'Calendar', tabVideos: 'Videos', tabNotes: 'Notes', tabTrainings: 'Trainings',
       dayMon: 'Mon', dayTue: 'Tue', dayWed: 'Wed', dayThu: 'Thu', dayFri: 'Fri', daySat: 'Sat', daySun: 'Sun', colWeek: '// wk',
       footer: 'Click to add &nbsp;&middot;&nbsp; Right-click or long-press to remove &nbsp;&middot;&nbsp; 🎬 next to the day = videos edited &nbsp;&middot;&nbsp; Data saved automatically',
       uploadPlan: 'Upload plan', legendPending: 'Pending', legendWorked: 'Worked', legendSoSo: 'So-so', legendFlopped: 'Flopped',
-      notes: 'Notes', todo: 'To-do', notesPlaceholder: 'Write anything down — ideas, bits, premises, reminders…',
+      notes: 'Notebook', todo: 'To-do', notesPlaceholder: 'Write anything down — ideas, bits, premises, reminders…',
       todoAddPlaceholder: 'Add a to-do… (paste a list to add several at once)', add: 'Add',
       connectDrive: 'Connect Google Drive', filter: 'Filter…', refreshList: 'Refresh list',
       newDocName: 'New document name', newDoc: 'New', backAll: '‹ All', fullScreen: 'Full screen', exitFullScreen: 'Exit full screen',
@@ -1654,8 +1761,7 @@
       syncNow: '↻ &nbsp;Sync now', debugInfo: 'Debug info', dbgUsername: 'Username', dbgProject: 'Project', dbgLastSync: 'Last sync', dbgApiStatus: 'API status',
       notePlaceholder: 'Write a note for this day…',
       saving: 'Saving…', saved: 'Saved ✓', offlineSaved: 'Offline — saved locally', syncError: 'Sync error',
-      nextWeekUpload: 'next wk: upload {n}', canUpload: 'can upload {n}',
-      avgPerWeek: '≈ {avg}/wk over {n} full wks', avgPerWeek_one: '≈ {avg}/wk over {n} full wk', noFullWeeks: 'no full weeks yet',
+      canUpload: 'can upload {n}',
       statusGray: 'Not uploaded yet', statusGreen: 'Uploaded — worked', statusPurple: 'Worked more or less', statusRed: "Didn't work",
       statusClick: '{label} — click to change', notStartedTip: "Not uploaded yet — this week hasn't started", chooseVideoFirst: 'Choose a video first',
       notUploadedSetResult: 'Not uploaded yet — click to set the result',
@@ -1692,14 +1798,21 @@
       language: 'Idioma',
       siteTitle: 'Comedy Hours  - No rompas la cadena',
       byline: 'Registra las horas que dedicas a escribir comedia: una ✕ por hora.',
-      modalTitle: '¿Cómo te llamas?', modalSub: 'Lo usaremos para sincronizar tus horas de escritura entre dispositivos.',
-      modalPlaceholder: 'Tu nombre', modalContinue: 'Continuar',
+      addNote: '+ nota', profile: 'Perfil', guideDownload: '📄 Guía (PDF)', guideTip: 'Descargar la guía de uso en PDF',
+      modalTitle: '¿Quién usa el tracker?', modalSub: 'Elige tu perfil. Este navegador lo recordará.',
+      passwordTitle: 'Contraseña de {name}', passwordSub: 'Solo la necesitas una vez en cada navegador, o al cambiar de perfil.',
+      passwordPlaceholder: 'Contraseña', passwordWrong: 'Contraseña incorrecta. Vuelve a intentarlo.', cancel: 'Cancelar', enter: 'Entrar',
+      jokesWritten: 'chistes escritos', subCalendar: 'Calendario', subJokes: 'Chistes escritos', jokeTip: 'Chistes escritos: haz clic para añadirlos o verlos',
+      jokePlaceholder: '¿Qué chiste has escrito?', jokeTitlePlaceholder: 'Chiste sin título',
+      jokesEmpty: 'Ningún chiste escrito este mes. Añádelos con 🤣 en el calendario.', jokesCount: '{n} chistes', jokesCount_one: '{n} chiste',
+      sendToDevelop: '→ Por desarrollar', sendToDevelopTip: 'Enviar a Vídeos por desarrollar', sentToDevelop: '✓ Enviado',
+      moveToEdit: '→ Por editar', moveToEditTip: 'Mover a Vídeos por editar', close: 'Cerrar',
       thisMonth: 'Este mes', hrsWritten: 'hrs escritas', videosEdited: 'vídeos editados',
       tabCalendar: 'Calendario', tabVideos: 'Vídeos', tabNotes: 'Notas', tabTrainings: 'Entrenamientos',
       dayMon: 'Lun', dayTue: 'Mar', dayWed: 'Mié', dayThu: 'Jue', dayFri: 'Vie', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
       footer: 'Haz clic para añadir &nbsp;&middot;&nbsp; Clic derecho o pulsación larga para quitar &nbsp;&middot;&nbsp; 🎬 junto al día = vídeos editados &nbsp;&middot;&nbsp; Los datos se guardan automáticamente',
       uploadPlan: 'Plan de subidas', legendPending: 'Pendiente', legendWorked: 'Funcionó', legendSoSo: 'Regular', legendFlopped: 'Fracasó',
-      notes: 'Notas', todo: 'Por hacer', notesPlaceholder: 'Apunta lo que quieras: ideas, chistes, premisas, recordatorios…',
+      notes: 'Libreta', todo: 'Por hacer', notesPlaceholder: 'Apunta lo que quieras: ideas, chistes, premisas, recordatorios…',
       todoAddPlaceholder: 'Añade una tarea… (pega una lista para añadir varias a la vez)', add: 'Añadir',
       connectDrive: 'Conectar Google Drive', filter: 'Filtrar…', refreshList: 'Actualizar lista',
       newDocName: 'Nombre del documento nuevo', newDoc: 'Nuevo', backAll: '‹ Todos', fullScreen: 'Pantalla completa', exitFullScreen: 'Salir de pantalla completa',
@@ -1712,8 +1825,7 @@
       syncNow: '↻ &nbsp;Sincronizar ahora', debugInfo: 'Información de depuración', dbgUsername: 'Usuario', dbgProject: 'Proyecto', dbgLastSync: 'Última sincronización', dbgApiStatus: 'Estado de la API',
       notePlaceholder: 'Escribe una nota para este día…',
       saving: 'Guardando…', saved: 'Guardado ✓', offlineSaved: 'Sin conexión: guardado en este dispositivo', syncError: 'Error de sincronización',
-      nextWeekUpload: 'próx. sem: subir {n}', canUpload: 'puedes subir {n}',
-      avgPerWeek: '≈ {avg}/sem en {n} sem completas', avgPerWeek_one: '≈ {avg}/sem en {n} sem completa', noFullWeeks: 'aún sin semanas completas',
+      canUpload: 'puedes subir {n}',
       statusGray: 'Aún sin subir', statusGreen: 'Subido: funcionó', statusPurple: 'Funcionó más o menos', statusRed: 'No funcionó',
       statusClick: '{label}. Haz clic para cambiar', notStartedTip: 'Aún sin subir: esta semana no ha empezado', chooseVideoFirst: 'Elige primero un vídeo',
       notUploadedSetResult: 'Aún sin subir. Haz clic para poner el resultado',
@@ -1750,14 +1862,21 @@
       language: 'Idioma',
       siteTitle: 'Comedy Hours  - Não quebre a corrente',
       byline: 'Registre as horas que você dedica a escrever comédia: um ✕ por hora.',
-      modalTitle: 'Qual é o seu nome?', modalSub: 'Vamos usá-lo para sincronizar as suas horas de escrita entre dispositivos.',
-      modalPlaceholder: 'O seu nome', modalContinue: 'Continuar',
+      addNote: '+ nota', profile: 'Perfil', guideDownload: '📄 Guia (PDF)', guideTip: 'Baixar o guia de uso em PDF',
+      modalTitle: 'Quem está usando o tracker?', modalSub: 'Escolha o seu perfil. Este navegador vai lembrar dele.',
+      passwordTitle: 'Senha de {name}', passwordSub: 'Você só precisa dela uma vez em cada navegador, ou ao trocar de perfil.',
+      passwordPlaceholder: 'Senha', passwordWrong: 'Senha incorreta. Tente novamente.', cancel: 'Cancelar', enter: 'Entrar',
+      jokesWritten: 'piadas escritas', subCalendar: 'Calendário', subJokes: 'Piadas escritas', jokeTip: 'Piadas escritas: clique para adicioná-las ou vê-las',
+      jokePlaceholder: 'Qual piada você escreveu?', jokeTitlePlaceholder: 'Piada sem título',
+      jokesEmpty: 'Nenhuma piada escrita este mês. Adicione-as com 🤣 no calendário.', jokesCount: '{n} piadas', jokesCount_one: '{n} piada',
+      sendToDevelop: '→ Para desenvolver', sendToDevelopTip: 'Enviar para Vídeos para desenvolver', sentToDevelop: '✓ Enviado',
+      moveToEdit: '→ Para editar', moveToEditTip: 'Mover para Vídeos para editar', close: 'Fechar',
       thisMonth: 'Este mês', hrsWritten: 'hrs escritas', videosEdited: 'vídeos editados',
       tabCalendar: 'Calendário', tabVideos: 'Vídeos', tabNotes: 'Notas', tabTrainings: 'Treinos',
       dayMon: 'Seg', dayTue: 'Ter', dayWed: 'Qua', dayThu: 'Qui', dayFri: 'Sex', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
       footer: 'Clique para adicionar &nbsp;&middot;&nbsp; Clique direito ou toque longo para remover &nbsp;&middot;&nbsp; 🎬 ao lado do dia = vídeos editados &nbsp;&middot;&nbsp; Os dados são salvos automaticamente',
       uploadPlan: 'Plano de publicação', legendPending: 'Pendente', legendWorked: 'Funcionou', legendSoSo: 'Mais ou menos', legendFlopped: 'Fracassou',
-      notes: 'Notas', todo: 'A fazer', notesPlaceholder: 'Anote o que quiser: ideias, piadas, premissas, lembretes…',
+      notes: 'Caderno', todo: 'A fazer', notesPlaceholder: 'Anote o que quiser: ideias, piadas, premissas, lembretes…',
       todoAddPlaceholder: 'Adicione uma tarefa… (cole uma lista para adicionar várias de uma vez)', add: 'Adicionar',
       connectDrive: 'Conectar Google Drive', filter: 'Filtrar…', refreshList: 'Atualizar lista',
       newDocName: 'Nome do novo documento', newDoc: 'Novo', backAll: '‹ Todos', fullScreen: 'Tela cheia', exitFullScreen: 'Sair da tela cheia',
@@ -1770,8 +1889,7 @@
       syncNow: '↻ &nbsp;Sincronizar agora', debugInfo: 'Informações de depuração', dbgUsername: 'Usuário', dbgProject: 'Projeto', dbgLastSync: 'Última sincronização', dbgApiStatus: 'Status da API',
       notePlaceholder: 'Escreva uma nota para este dia…',
       saving: 'Salvando…', saved: 'Salvo ✓', offlineSaved: 'Sem conexão: salvo neste dispositivo', syncError: 'Erro de sincronização',
-      nextWeekUpload: 'próx. sem: publicar {n}', canUpload: 'pode publicar {n}',
-      avgPerWeek: '≈ {avg}/sem em {n} sem completas', avgPerWeek_one: '≈ {avg}/sem em {n} sem completa', noFullWeeks: 'ainda sem semanas completas',
+      canUpload: 'pode publicar {n}',
       statusGray: 'Ainda não publicado', statusGreen: 'Publicado: funcionou', statusPurple: 'Funcionou mais ou menos', statusRed: 'Não funcionou',
       statusClick: '{label}. Clique para alterar', notStartedTip: 'Ainda não publicado: esta semana não começou', chooseVideoFirst: 'Escolha um vídeo primeiro',
       notUploadedSetResult: 'Ainda não publicado. Clique para definir o resultado',
@@ -1830,6 +1948,9 @@
     const debugBody = document.getElementById('debugBody');
     document.getElementById('debugToggle').textContent = (debugBody.hidden ? '▸ ' : '▾ ') + t('debugInfo');
     updateTrainingFullButton();
+    document.getElementById('guideLink').href = GUIDE_FILES[lang];
+    renderProfileModal();
+    document.documentElement.style.setProperty('--add-note', JSON.stringify(t('addNote')));
   }
 
   function changeLanguage(next) {
@@ -1858,6 +1979,20 @@
   const SUBTAB_KEY   = 'comedy-tracker-subtab';
   const NOTES_SUBTAB_KEY = 'comedy-tracker-notes-subtab';
   const USERNAME_KEY = 'comedy-tracker-username';
+  const CAL_SUBTAB_KEY = 'comedy-tracker-cal-subtab';
+
+  // Each profile is its own row in Supabase, keyed by these ids. The password is
+  // the id: it only prevents switching profile by accident, it isn't real security.
+  const PROFILES = {
+    juanmo: { label: 'Juanmo', trainings: true },
+    kike:   { label: 'Kike',   trainings: false },
+    gon:    { label: 'Gon',    trainings: false },
+  };
+  const GUIDE_FILES = {
+    en: 'guide/comedy-hours-guide-en.pdf',
+    es: 'guide/comedy-hours-guia-es.pdf',
+    pt: 'guide/comedy-hours-guia-pt.pdf',
+  };
 
   let data            = {};
   let yr, mo;
@@ -1869,6 +2004,15 @@
   let statusHideTimer     = null;
   let activeDk            = null;
   let notePanelCloseTimer = null;
+  let activeProfile   = null;
+  let loadingProfile  = false;   // while true nothing may be saved: `data` isn't this profile's yet
+  let initSeq         = 0;
+  let savePending     = false;
+  let cloudBlocked    = false;   // no cloud copy loaded and nothing local: don't overwrite the cloud
+  let activeJokeDk    = null;
+  let jokeYm          = null;
+  let calSubTab       = 'calendar';
+  let passwordTarget  = null;    // profile the modal is asking the password for
 
   /* ── Cloud availability ── */
 
@@ -1987,9 +2131,12 @@
     showStatus('saving');
 
     try {
-      const cloud = await cloudLoad(username);
+      const user  = username;
+      const cloud = await cloudLoad(user);
+      if (user !== username) return;
       if (cloud !== null && cloud !== undefined && typeof cloud === 'object') {
         data = cloud;
+        cloudBlocked = false;
         saveLocal();
         render();
         showStatus('saved');
@@ -2009,15 +2156,21 @@
   /* ── save: immediate local + debounced cloud ── */
 
   function save() {
+    if (loadingProfile) return;
     saveLocal();
     updateDebug();
     if (!cloudOn() || !username) return;
+    if (cloudBlocked) { showStatus('offline'); return; }
     const seq = ++saveSeq;
+    // Bound now: by the time the timer fires the profile may have changed.
+    const user = username, snapshot = data;
     clearTimeout(saveDebounce);
+    savePending = true;
     showStatus('saving');
     saveDebounce = setTimeout(async () => {
+      savePending = false;
       try {
-        await cloudSave(username, data);
+        await cloudSave(user, snapshot);
         if (seq === saveSeq) {
           showStatus('saved');
           updateDebug({ status: 200, time: new Date() });
@@ -2035,8 +2188,10 @@
   /* ── User session ── */
 
   async function initUser(rawName) {
+    const seq = ++initSeq;
     username = rawName.trim().toLowerCase();
     localStorage.setItem(USERNAME_KEY, username);
+    setActiveProfile(username);
 
     if (!cloudOn()) {
       loadLocal();
@@ -2044,11 +2199,15 @@
       return;
     }
 
+    loadingProfile = true;
+    cloudBlocked = false;
+    setPageLoading(true);
     showStatus('saving');
     console.log(`[Comedy Tracker] Initialising user: "${username}"`);
 
     try {
       const cloud = await cloudLoad(username);
+      if (seq !== initSeq) return;
 
       if (cloud !== null && cloud !== undefined && typeof cloud === 'object') {
         data = cloud;
@@ -2060,34 +2219,112 @@
       updateDebug({ status: 200, time: new Date() });
       showStatus('idle');
     } catch (err) {
+      if (seq !== initSeq) return;
       console.error('[Comedy Tracker] initUser failed — running in local-only mode:', err);
+      // With no local copy either, this device knows nothing about the profile:
+      // saving to the cloud now would wipe what's there.
+      cloudBlocked = localStorage.getItem(localKey()) === null;
       loadLocal();
       showStatus('offline');
     }
 
+    loadingProfile = false;
+    setPageLoading(false);
     render();
+  }
+
+  function canUseTrainings() {
+    return PROFILES[activeProfile]?.trainings === true;
+  }
+
+  function setPageLoading(on) {
+    document.querySelector('.page').classList.toggle('is-loading', on);
+    document.getElementById('profileSelect').disabled = on;
+  }
+
+  function setActiveProfile(id) {
+    activeProfile = id;
+    document.getElementById('profileSelect').value = id || '';
+    document.querySelector('.tab-btn[data-tab="training"]').hidden = !canUseTrainings();
+    if (!canUseTrainings() && document.querySelector('.tab-btn.active')?.dataset.tab === 'training') {
+      showTab('calendar');
+    }
+  }
+
+  async function switchProfile(id) {
+    if (!PROFILES[id] || id === username) return;
+    closeNotePanel();
+    closeJokePanel();
+    loadingProfile = true;
+    setPageLoading(true);
+    // Whatever is waiting to be saved belongs to the profile we're leaving.
+    if (savePending && username) {
+      clearTimeout(saveDebounce);
+      savePending = false;
+      try {
+        await cloudSave(username, data);
+      } catch (err) {
+        console.error('[Comedy Tracker] Could not save before switching profile:', err);
+        showStatus('error');
+        loadingProfile = false;
+        setPageLoading(false);
+        document.getElementById('profileSelect').value = username;
+        return;
+      }
+    }
+    resetTraining();
+    await initUser(id);
   }
 
   /* ── Modal ── */
 
-  function showModal() {
-    const modal = document.getElementById('modal');
-    const input = document.getElementById('nameInput');
+  function renderProfileModal() {
+    const asking = passwordTarget !== null;
+    document.getElementById('modalTitle').textContent = asking
+      ? t('passwordTitle', { name: PROFILES[passwordTarget].label }) : t('modalTitle');
+    document.getElementById('modalSub').textContent = t(asking ? 'passwordSub' : 'modalSub');
+    document.getElementById('modalChoices').hidden = asking;
+    document.getElementById('passwordForm').hidden = !asking;
+  }
+
+  function showModal(target = null) {
+    passwordTarget = target;
+    renderProfileModal();
+    const input = document.getElementById('passwordInput');
     input.value = '';
-    document.getElementById('confirmBtn').disabled = true;
-    modal.classList.add('visible');
-    requestAnimationFrame(() => input.focus());
+    document.getElementById('passwordError').hidden = true;
+    document.getElementById('profileSelect').disabled = true;
+    document.getElementById('modal').classList.add('visible');
+    if (target) requestAnimationFrame(() => input.focus());
   }
 
   function hideModal() {
+    passwordTarget = null;
+    document.getElementById('profileSelect').disabled = false;
     document.getElementById('modal').classList.remove('visible');
   }
 
-  function confirmName() {
-    const name = document.getElementById('nameInput').value.trim();
-    if (!name) return;
+  function cancelPassword() {
+    if (username) {
+      hideModal();
+      document.getElementById('profileSelect').value = username;
+    } else {
+      showModal();
+    }
+  }
+
+  function submitPassword() {
+    const input = document.getElementById('passwordInput');
+    if (input.value.trim() !== passwordTarget) {
+      document.getElementById('passwordError').hidden = false;
+      input.value = '';
+      input.focus();
+      return;
+    }
+    const target = passwordTarget;
     hideModal();
-    initUser(name); // initUser normalises to lowercase internally
+    if (username) switchProfile(target);
+    else initUser(target);
   }
 
   /* ── Calendar helpers ── */
@@ -2140,49 +2377,27 @@
     return t;
   }
 
-  function nextWeekText(wv) {
-    return wv > 0 ? t('nextWeekUpload', { n: wv - 1 }) : '';
-  }
-
-  // Monthly video total, plus the average per completed week. A week belongs to
-  // the month its Sunday falls in, and counts once that Sunday has passed.
+  // Monthly video total, plus each week's count and what it allows uploading.
   function refreshVideoStats() {
     const daysInMonth = new Date(yr, mo + 1, 0).getDate();
     let offset = new Date(yr, mo, 1).getDay() - 1;
     if (offset < 0) offset = 6;
     const numWeeks = Math.ceil((offset + daysInMonth) / 7);
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     let total = 0;
     for (let d = 1; d <= daysInMonth; d++) total += vids(dateKey(yr, mo, d));
 
-    let doneWeeks = 0, doneVids = 0;
     for (let w = 0; w < numWeeks; w++) {
-      const monday = weekStart(w, offset);
-      const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6);
-      const wv = weekVids(monday);
-
-      const numEl  = document.getElementById(`wv${w}`);
-      const nextEl = document.getElementById(`wn${w}`);
-      if (numEl)  numEl.textContent  = wv;
-      if (nextEl) nextEl.textContent = nextWeekText(wv);
+      const numEl = document.getElementById(`wv${w}`);
+      if (numEl) numEl.textContent = weekVids(weekStart(w, offset));
 
       // Plan allowance for this week comes from the videos edited the week before.
       const allowed = Math.max(0, weekVids(weekStart(w - 1, offset)) - 1);
       const hintEl  = document.getElementById(`ph${w}`);
       if (hintEl) hintEl.textContent = allowed > 0 ? t('canUpload', { n: allowed }) : '';
-
-      if (sunday.getMonth() === mo && sunday < todayStart) {
-        doneWeeks++;
-        doneVids += wv;
-      }
     }
 
     document.getElementById('vidTotalNum').textContent = total;
-    document.getElementById('vidAvg').textContent = doneWeeks > 0
-      ? tn('avgPerWeek', doneWeeks, { avg: (Math.round(doneVids / doneWeeks * 10) / 10).toLocaleString(LOCALES[lang]) })
-      : t('noFullWeeks');
   }
 
   function changeVids(btn, delta) {
@@ -2200,6 +2415,18 @@
 
   const STATUSES = ['gray', 'green', 'purple', 'red'];
   const STATUS_KEY = { gray: 'statusGray', green: 'statusGreen', purple: 'statusPurple', red: 'statusRed' };
+  const COMMENT_ICON = '<svg class="comment-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3C6.5 3 2 6.6 2 11c0 2.2 1.1 4.2 3 5.6V21l4.3-2.4c.9.2 1.8.3 2.7.3 5.5 0 10-3.6 10-7.9S17.5 3 12 3z"/><circle cx="8" cy="11" r="1.3" fill="#fff"/><circle cx="12" cy="11" r="1.3" fill="#fff"/><circle cx="16" cy="11" r="1.3" fill="#fff"/></svg>';
+
+  function commentBtnHtml(comment, disabled) {
+    const label = t('comments');
+    return `<button type="button" class="plan-icon-btn comment-btn${comment ? ' has-comment' : ''}" data-act="comment" title="${label}" aria-label="${label}"${disabled ? ' disabled' : ''}>${COMMENT_ICON}</button>`;
+  }
+
+  // Always starts collapsed: the icon's colour says whether there is something inside.
+  function commentAreaHtml(comment) {
+    return `<textarea class="plan-comment" placeholder="${t('commentsPlaceholder')}" hidden>${esc(comment || '')}</textarea>`;
+  }
+
   const statusClickTip = st => t('statusClick', { label: t(STATUS_KEY[st]) });
 
   function uid() {
@@ -2226,8 +2453,8 @@
     save();
   }
 
-  function addVideo(title) {
-    const v = { id: uid(), title, status: 'gray', comment: '' };
+  function addVideo(title, comment = '') {
+    const v = { id: uid(), title, status: 'gray', comment };
     setVideos([...videos(), v]);
     save();
     return v;
@@ -2342,6 +2569,7 @@
     }
 
     const body = document.getElementById('planBody');
+    document.querySelectorAll('body > .combo-list').forEach(l => l.remove());
     body.innerHTML = html;
     body.querySelectorAll('.plan-item').forEach(bindPlanItem);
     refreshVideoStats();
@@ -2351,9 +2579,15 @@
     return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   }
 
-  // Typeable combobox. Offers videos not scheduled anywhere yet (plus this
-  // entry's own), filtered by what's typed, and a "create" option for new titles.
-  // The list is position:fixed so the plan panel's overflow doesn't clip it.
+  // Published = its week has started and it already has a result colour.
+  function isPublished(v, sched) {
+    return sched[v.id] && !sched[v.id].future && (v.status || 'gray') !== 'gray';
+  }
+
+  // Typeable combobox over the whole backlog, filtered by what's typed, with a
+  // "create" option for new titles. Videos planned elsewhere show where they are,
+  // and picking one moves it here. The open list lives on <body>: the plan panel's
+  // backdrop-filter would otherwise trap position:fixed and clip it.
   function bindCombo(root, vid, onPick) {
     const input = root.querySelector('.combo-input');
     const list  = root.querySelector('.combo-list');
@@ -2361,31 +2595,47 @@
 
     const currentTitle = () => (vid() && video(vid())?.title) || '';
 
+    function close() {
+      list.hidden = true;
+      if (list.parentElement === document.body) root.append(list);
+    }
+
     function open() {
       const typed = input.value.trim();
       const q = input.value === currentTitle() ? '' : norm(typed);
       const sched = schedule();
       opts = videos()
-        .filter(v => (v.id === vid() || !sched[v.id]) && norm(v.title).includes(q))
-        .map(v => ({ id: v.id, label: v.title || t('untitled') }));
+        .filter(v => (v.id === vid() || !isPublished(v, sched)) && norm(v.title).includes(q))
+        .map(v => ({
+          id: v.id,
+          label: v.title || t('untitled'),
+          hint: v.id !== vid() && sched[v.id] ? slotLabel(sched[v.id]) : '',
+        }));
       if (typed && !videos().some(v => norm(v.title) === norm(typed))) {
         opts.push({ id: '__new', label: t('createNamed', { name: typed }), title: typed });
       }
       active = Math.max(0, Math.min(active, opts.length - 1));
 
       list.innerHTML = opts.length
-        ? opts.map((o, i) => `<div class="combo-opt${i === active ? ' active' : ''}${o.id === '__new' ? ' create' : ''}" data-i="${i}">${esc(o.label)}</div>`).join('')
+        ? opts.map((o, i) => `<div class="combo-opt${i === active ? ' active' : ''}${o.id === '__new' ? ' create' : ''}" data-i="${i}">${esc(o.label)}${o.hint ? ` <span class="combo-hint">· ${o.hint}</span>` : ''}</div>`).join('')
         : `<div class="combo-empty">${t('comboEmpty')}</div>`;
+      document.body.append(list);
       const r = input.getBoundingClientRect();
-      list.style.left  = r.left + 'px';
-      list.style.top   = (r.bottom + 4) + 'px';
-      list.style.width = Math.max(r.width, 240) + 'px';
+      const below = window.innerHeight - r.bottom - 12;
+      const above = r.top - 12;
+      const openUp = below < 180 && above > below;
+      const width = Math.max(r.width, 340);
+      list.style.left   = Math.max(8, Math.min(r.left, window.innerWidth - width - 8)) + 'px';
+      list.style.top    = openUp ? 'auto' : (r.bottom + 4) + 'px';
+      list.style.bottom = openUp ? (window.innerHeight - r.top + 4) + 'px' : 'auto';
+      list.style.maxHeight = Math.min(260, openUp ? above : below) + 'px';
+      list.style.width  = width + 'px';
       list.hidden = false;
       list.querySelector('.active')?.scrollIntoView({ block: 'nearest' });
     }
 
     function pick(o) {
-      list.hidden = true;
+      close();
       if (!o) return;
       onPick(o.id === '__new' ? addVideo(o.title).id : o.id);
     }
@@ -2396,10 +2646,10 @@
       if (e.key === 'ArrowDown')    { e.preventDefault(); active = Math.min(active + 1, opts.length - 1); open(); }
       else if (e.key === 'ArrowUp') { e.preventDefault(); active = Math.max(active - 1, 0); open(); }
       else if (e.key === 'Enter')   { e.preventDefault(); pick(opts[active]); input.blur(); }
-      else if (e.key === 'Escape')  { input.value = currentTitle(); list.hidden = true; input.blur(); }
+      else if (e.key === 'Escape')  { input.value = currentTitle(); close(); input.blur(); }
     });
     input.addEventListener('blur', () => setTimeout(() => {
-      list.hidden = true;
+      close();
       input.value = currentTitle();
     }, 150));
     // mousedown + preventDefault keeps focus in the input while choosing.
@@ -2426,11 +2676,20 @@
             <input class="combo-input" value="${esc(v?.title || '').replace(/"/g, '&quot;')}" placeholder="${t('typeOrChoose')}" autocomplete="off" spellcheck="false">
             <div class="combo-list" hidden></div>
           </div>
-          <button class="plan-icon-btn${c ? ' has-comment' : ''}" data-act="comment" title="${t('comments')}"${v ? '' : ' disabled'}>💬</button>
+          ${commentBtnHtml(c, !v)}
           <button class="plan-icon-btn" data-act="delete" title="${t('removeFromWeek')}">✕</button>
         </div>
-        <textarea class="plan-comment" placeholder="${t('commentsPlaceholder')}" ${c ? '' : 'hidden'}>${esc(c)}</textarea>
+        ${commentAreaHtml(c)}
       </div>`;
+  }
+
+  // A video lives in one plan entry at a time, so choosing it here moves it.
+  function removeVideoFromOtherEntries(videoId, keepEntryId) {
+    for (const key of planKeys()) {
+      const left = data[key].filter(it => it.vid !== videoId || it.id === keepEntryId);
+      if (left.length) data[key] = left;
+      else delete data[key];
+    }
   }
 
   function bindPlanItem(el) {
@@ -2442,6 +2701,7 @@
     bindStatusDot(el.querySelector('.plan-dot'), vid, renderVideos);
 
     bindCombo(el.querySelector('.combo'), vid, (val) => {
+      if (val) removeVideoFromOtherEntries(val, id);
       updatePlanItem(id, { vid: val || null });
       if (val && el.closest('.plan-list').hasAttribute('data-future')) updateVideo(val, { status: 'gray' });
       renderPlan();
@@ -2474,16 +2734,22 @@
     });
   }
 
-  function bindComment(btn, ta, vid, after) {
+  function bindCommentToggle(btn, ta, onChange) {
     btn.addEventListener('click', () => {
       const show = ta.hasAttribute('hidden');
       ta.toggleAttribute('hidden', !show);
       if (show) ta.focus();
     });
     ta.addEventListener('input', function() {
-      if (!vid()) return;
       btn.classList.toggle('has-comment', this.value !== '');
-      updateVideo(vid(), { comment: this.value });
+      onChange(this.value);
+    });
+  }
+
+  function bindComment(btn, ta, vid, after) {
+    bindCommentToggle(btn, ta, (comment) => {
+      if (!vid()) return;
+      updateVideo(vid(), { comment });
       after();
     });
   }
@@ -2588,11 +2854,9 @@
   function renderVideos() {
     const sched = schedule();
     const slotSort = s => s.y * 1000 + s.m * 10 + s.w;
-    // Published = its week has started and it already has a result colour.
     // Everything else (unscheduled, future week, or still grey) stays in the backlog.
-    const isPublished = v => sched[v.id] && !sched[v.id].future && (v.status || 'gray') !== 'gray';
-    const backlog   = videos().filter(v => !isPublished(v));
-    const published = videos().filter(isPublished)
+    const backlog   = videos().filter(v => !isPublished(v, sched));
+    const published = videos().filter(v => isPublished(v, sched))
       .sort((a, b) => slotSort(sched[b.id]) - slotSort(sched[a.id]));
 
     const n = backlog.length;
@@ -2644,10 +2908,10 @@
           ${dot}
           <input class="plan-input" value="${esc(v.title || '').replace(/"/g, '&quot;')}" placeholder="${t('videoTitlePlaceholder')}">
           ${slot ? `<span class="vslot${published ? '' : ' scheduled'}">${published ? '' : t('selectedPrefix')}${slotLabel(slot)}</span>` : ''}
-          <button class="plan-icon-btn${c ? ' has-comment' : ''}" data-act="comment" title="${t('comments')}">💬</button>
+          ${commentBtnHtml(c)}
           <button class="plan-icon-btn" data-act="delete" title="${t('deleteVideo')}">✕</button>
         </div>
-        <textarea class="plan-comment" placeholder="${t('commentsPlaceholder')}" ${c ? '' : 'hidden'}>${esc(c)}</textarea>
+        ${commentAreaHtml(c)}
       </div>`;
   }
 
@@ -2680,6 +2944,7 @@
   }
 
   function showTab(name) {
+    if (name === 'training' && !canUseTrainings()) name = 'calendar';
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
     document.getElementById('tab-calendar').hidden = name !== 'calendar';
     document.getElementById('tab-videos').hidden   = name !== 'videos';
@@ -2695,6 +2960,39 @@
     prepared: false, tokenClient: null, token: null,
     files: [], activeId: null, loadSeq: 0, authKey: null, status: null,
   };
+
+  // Leaving a profile drops its Google session and anything it had open.
+  function resetTraining() {
+    training.token = null;
+    training.loadSeq++;
+    training.files = [];
+    training.activeId = null;
+    training.status = null;
+    exitTrainingFullscreen();
+    const frame = document.getElementById('trainFrame');
+    frame.removeAttribute('src');
+    frame.hidden = true;
+    document.getElementById('trainBar').hidden = true;
+    document.getElementById('trainEmpty').hidden = false;
+    document.getElementById('trainLayout').classList.remove('doc-open');
+    document.getElementById('trainFilter').value = '';
+    document.getElementById('trainList').replaceChildren();
+    if (training.tokenClient) trainingAuthMessage('authConnect', true);
+    else training.prepared = false;
+  }
+
+  function trainingComment(fileId) {
+    return data.trainingComments?.[fileId] || '';
+  }
+
+  function setTrainingComment(fileId, comment) {
+    const all = { ...(data.trainingComments || {}) };
+    if (comment) all[fileId] = comment;
+    else delete all[fileId];
+    if (Object.keys(all).length) data.trainingComments = all;
+    else delete data.trainingComments;
+    save();
+  }
 
   function trainingAuthMessage(key, showButton) {
     training.authKey = key;
@@ -2719,7 +3017,7 @@
   // Loaded when the tab is first opened, so the sign-in popup can open straight
   // from the button click instead of being caught by the popup blocker.
   function prepareTraining() {
-    if (training.prepared) return;
+    if (training.prepared || !canUseTrainings()) return;
     if (location.protocol === 'file:') {
       trainingAuthMessage('authFile', false);
       return;
@@ -2901,7 +3199,14 @@
         { year: 'numeric', month: 'short', day: 'numeric' });
       item.append(name, date);
       item.addEventListener('click', () => openTrainingFile(f));
-      return item;
+      const row = document.createElement('div');
+      row.className = 'train-row';
+      row.append(item);
+      const comment = trainingComment(f.id);
+      row.insertAdjacentHTML('beforeend', commentBtnHtml(comment) + commentAreaHtml(comment));
+      bindCommentToggle(row.querySelector('[data-act="comment"]'), row.querySelector('.plan-comment'),
+        value => setTrainingComment(f.id, value));
+      return row;
     }));
   }
 
@@ -2974,7 +3279,7 @@
                     placeholderKey: 'videoPlaceholder', emptyKey: 'emptyEdit', noCheck: true,
                     summary: list => t('videosToEditCount', { n: list.length }), toBacklog: true };
   const DEVELOP = { key: 'develop', listId: 'developList', countId: 'cntDevelop', summaryId: 'developSummary',
-                    placeholderKey: 'videoPlaceholder', emptyKey: 'emptyDevelop', noCheck: true,
+                    placeholderKey: 'videoPlaceholder', emptyKey: 'emptyDevelop', noCheck: true, toEdit: true,
                     summary: list => t('videosToDevelopCount', { n: list.length }) };
   const TODO  = { key: 'todos', listId: 'todoList',  countId: 'cntTodo',  summaryId: 'todoSummary',
                   placeholderKey: 'todoPlaceholder', emptyKey: 'emptyTodo' };
@@ -2988,8 +3293,8 @@
     else delete data[cfg.key];
   }
 
-  function addCheckItem(cfg, title) {
-    setCheckItems(cfg, [...checkItems(cfg), { id: uid(), title, done: false }]);
+  function addCheckItem(cfg, title, comment = '') {
+    setCheckItems(cfg, [...checkItems(cfg), { id: uid(), title, done: false, comment }]);
     save();
   }
 
@@ -3015,9 +3320,12 @@
               <span class="plan-handle" title="${t('dragReorder')}">⋮⋮</span>
               ${cfg.noCheck ? '' : `<input type="checkbox" class="trial-check"${item.done ? ' checked' : ''}>`}
               <input class="plan-input" value="${esc(item.title || '').replace(/"/g, '&quot;')}" placeholder="${t(cfg.placeholderKey)}">
+              ${cfg.toEdit ? `<button class="plan-icon-btn to-backlog" data-act="to-edit" title="${t('moveToEditTip')}">${t('moveToEdit')}</button>` : ''}
               ${cfg.toBacklog ? `<button class="plan-icon-btn to-backlog" data-act="to-backlog" title="${t('moveToBacklogTip')}">${t('moveToBacklog')}</button>` : ''}
+              ${commentBtnHtml(item.comment)}
               <button class="plan-icon-btn" data-act="delete" title="${t('delete')}">✕</button>
             </div>
+            ${commentAreaHtml(item.comment)}
           </div>`).join('')
       : `<p class="vempty">${t(cfg.emptyKey)}</p>`;
     document.getElementById(cfg.summaryId).textContent = !list.length ? ''
@@ -3044,11 +3352,22 @@
         const title = (item?.title || '').trim();
         if (!title) return;
         setCheckItems(cfg, checkItems(cfg).filter(t => t.id !== id));
-        addVideo(title);   // saves
+        addVideo(title, item.comment || '');   // saves
         renderChecklist(cfg);
         renderVideos();
         renderPlan();
       });
+      row.querySelector('[data-act="to-edit"]')?.addEventListener('click', () => {
+        const item = checkItems(cfg).find(t => t.id === id);
+        const title = (item?.title || '').trim();
+        if (!title) return;
+        setCheckItems(cfg, checkItems(cfg).filter(t => t.id !== id));
+        addCheckItem(EDIT, title, item.comment);   // saves
+        renderChecklist(cfg);
+        renderEdit();
+      });
+      bindCommentToggle(row.querySelector('[data-act="comment"]'), row.querySelector('.plan-comment'),
+        comment => updateCheckItem(cfg, id, { comment }));
       makeDraggable(row, `#${cfg.listId}`, () => {
         const byId = Object.fromEntries(checkItems(cfg).map(t => [t.id, t]));
         setCheckItems(cfg, [...el.querySelectorAll('.trial-item')].map(n => byId[n.dataset.tid]).filter(Boolean));
@@ -3170,6 +3489,16 @@
     cell.addEventListener('touchend',  function() { clearTimeout(longPressTimer); });
     cell.addEventListener('touchmove', function() { clearTimeout(longPressTimer); });
 
+    const jokeBtn = cell.querySelector('.joke-btn');
+    jokeBtn.addEventListener('click', (e) => { e.stopPropagation(); openJokePanel(cell, cell.dataset.dk); });
+    jokeBtn.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); });
+    jokeBtn.addEventListener('touchstart', (e) => { e.stopPropagation(); clearTimeout(longPressTimer); }, { passive: true });
+    jokeBtn.addEventListener('touchend', (e) => {
+      e.stopPropagation();
+      e.preventDefault(); // suppress the synthetic click
+      openJokePanel(cell, cell.dataset.dk);
+    });
+
     const vidBtn = cell.querySelector('.vid-btn');
     if (vidBtn) {
       let vidTimer = null, vidLongFired = false;
@@ -3224,6 +3553,185 @@
     }
   }
 
+  /* ── Jokes: written on a given day, listed by month ── */
+
+  function jokes() {
+    return Array.isArray(data.jokes) ? data.jokes : [];
+  }
+
+  function setJokes(list) {
+    if (list.length) data.jokes = list;
+    else delete data.jokes;
+  }
+
+  function jokesOn(dk) {
+    return jokes().filter(j => j.dk === dk);
+  }
+
+  function jokesInMonth(y, m) {
+    const prefix = dateKey(y, m, 1).slice(0, 8);
+    return jokes().filter(j => j.dk.startsWith(prefix));
+  }
+
+  function jokeLabel(dk) {
+    const n = jokesOn(dk).length;
+    return n > 0 ? `🤣 ${n}` : '🤣';
+  }
+
+  function jokeDateLabel(dk) {
+    const [, m, d] = dk.split('-').map(Number);
+    return t('dateOne', { mon: t('monthsShort')[m - 1], a: d });
+  }
+
+  function updateJoke(id, patch) {
+    setJokes(jokes().map(j => j.id === id ? { ...j, ...patch } : j));
+    save();
+  }
+
+  function sendJokeToDevelop(id) {
+    const joke = jokes().find(j => j.id === id);
+    const title = (joke?.title || '').trim();
+    if (!title || joke.sentToDevelop) return;
+    addCheckItem(DEVELOP, title, joke.comment || '');
+    updateJoke(id, { sentToDevelop: true });
+    renderDevelop();
+  }
+
+  function jokeRowHtml(joke, inPanel) {
+    const send = joke.sentToDevelop
+      ? `<span class="joke-sent" title="${t('sendToDevelopTip')}">${t('sentToDevelop')}</span>`
+      : `<button type="button" class="plan-icon-btn to-backlog" data-act="send" title="${t('sendToDevelopTip')}"${(joke.title || '').trim() ? '' : ' disabled'}>${inPanel ? '→' : t('sendToDevelop')}</button>`;
+    return `
+      <div class="plan-item joke-item" data-jid="${joke.id}">
+        <div class="plan-row">
+          ${inPanel ? '' : `<span class="vslot">${jokeDateLabel(joke.dk)}</span>`}
+          <input class="plan-input" value="${esc(joke.title || '').replace(/"/g, '&quot;')}" placeholder="${t('jokeTitlePlaceholder')}">
+          ${send}
+          ${commentBtnHtml(joke.comment)}
+          <button type="button" class="plan-icon-btn" data-act="delete" title="${t('delete')}">✕</button>
+        </div>
+        ${commentAreaHtml(joke.comment)}
+      </div>`;
+  }
+
+  function bindJokeRows(container, rerender) {
+    container.querySelectorAll('.joke-item').forEach(row => {
+      const id = row.dataset.jid;
+      const sendBtn = row.querySelector('[data-act="send"]');
+      row.querySelector('.plan-input').addEventListener('input', function() {
+        updateJoke(id, { title: this.value });
+        if (sendBtn) sendBtn.disabled = !this.value.trim();
+      });
+      sendBtn?.addEventListener('click', () => {
+        sendJokeToDevelop(id);
+        rerender();
+      });
+      bindCommentToggle(row.querySelector('[data-act="comment"]'), row.querySelector('.plan-comment'),
+        comment => updateJoke(id, { comment }));
+      row.querySelector('[data-act="delete"]').addEventListener('click', () => {
+        setJokes(jokes().filter(j => j.id !== id));
+        save();
+        rerender();
+      });
+    });
+  }
+
+  function updateJokeTotals() {
+    document.getElementById('jokeTotalNum').textContent = jokesInMonth(yr, mo).length;
+    document.querySelectorAll('.joke-btn').forEach(btn => {
+      btn.textContent = jokeLabel(btn.dataset.dk);
+      btn.classList.toggle('on', jokesOn(btn.dataset.dk).length > 0);
+    });
+  }
+
+  function renderJokes() {
+    if (!jokeYm) return;
+    const { y, m } = jokeYm;
+    const list = jokesInMonth(y, m).sort((a, b) => a.dk.localeCompare(b.dk));
+    document.getElementById('jokeMonthLabel').textContent = `${t('months')[m]} ${y}`;
+    document.getElementById('cntJokes').textContent = list.length;
+    document.getElementById('jokeSummary').textContent = list.length ? tn('jokesCount', list.length) : '';
+    const el = document.getElementById('jokeList');
+    el.innerHTML = list.length
+      ? list.map(j => jokeRowHtml(j, false)).join('')
+      : `<p class="vempty">${t('jokesEmpty')}</p>`;
+    bindJokeRows(el, () => { renderJokes(); updateJokeTotals(); });
+  }
+
+  function renderJokePanel() {
+    const el = document.getElementById('jokePanelList');
+    el.innerHTML = jokesOn(activeJokeDk).map(j => jokeRowHtml(j, true)).join('');
+    bindJokeRows(el, () => { renderJokePanel(); updateJokeTotals(); });
+  }
+
+  function openJokePanel(cellEl, dk) {
+    closeNotePanel();
+    activeJokeDk = dk;
+    const panel = document.getElementById('jokePanel');
+    document.getElementById('jokePanelTitle').textContent = `🤣 ${jokeDateLabel(dk)}`;
+    renderJokePanel();
+    if (window.innerWidth > 767) {
+      const rect = cellEl.getBoundingClientRect();
+      const panelW = 360;
+      let left = rect.right + 8;
+      if (left + panelW > window.innerWidth - 8) left = rect.left - panelW - 8;
+      panel.style.left = Math.max(8, left) + 'px';
+      panel.style.top  = Math.max(8, Math.min(rect.top, window.innerHeight - 320)) + 'px';
+    }
+    panel.hidden = false;
+    document.getElementById('jokeAddInput').focus();
+  }
+
+  function closeJokePanel() {
+    const panel = document.getElementById('jokePanel');
+    if (panel.hidden) return;
+    panel.hidden = true;
+    activeJokeDk = null;
+    updateJokeTotals();
+    renderJokes();
+  }
+
+  function showCalSubTab(name) {
+    if (name !== 'jokes') name = 'calendar';
+    calSubTab = name;
+    document.querySelectorAll('.subtab-btn[data-csub]').forEach(b => b.classList.toggle('active', b.dataset.csub === name));
+    document.getElementById('csub-calendar').hidden = name !== 'calendar';
+    document.getElementById('csub-jokes').hidden = name !== 'jokes';
+    closeJokePanel();
+    jokeYm = { y: yr, m: mo };   // always opens on the calendar's month
+    renderJokes();
+    try { localStorage.setItem(CAL_SUBTAB_KEY, name); } catch {}
+  }
+
+  function shiftJokeMonth(delta) {
+    const d = new Date(jokeYm.y, jokeYm.m + delta, 1);
+    jokeYm = { y: d.getFullYear(), m: d.getMonth() };
+    renderJokes();
+  }
+
+  function bindJokes() {
+    document.getElementById('jokePrevBtn').addEventListener('click', () => shiftJokeMonth(-1));
+    document.getElementById('jokeNextBtn').addEventListener('click', () => shiftJokeMonth(+1));
+    document.getElementById('jokePanelClose').addEventListener('click', closeJokePanel);
+    document.getElementById('jokeAddForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!activeJokeDk) return;
+      const input = document.getElementById('jokeAddInput');
+      setJokes([...jokes(), { id: uid(), dk: activeJokeDk, title: input.value.trim(), comment: '' }]);
+      save();
+      input.value = '';
+      renderJokePanel();
+      updateJokeTotals();
+      input.focus();
+    });
+    document.getElementById('jokePanel').addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeJokePanel();
+    });
+    document.addEventListener('mousedown', (e) => {
+      if (!e.target.closest('#jokePanel, .joke-btn')) closeJokePanel();
+    });
+  }
+
   /* ── Render ── */
 
   function render() {
@@ -3261,7 +3769,10 @@
           cells += `
             <div class="day-cell${isToday ? ' today' : ''}" data-dk="${dk}">
               <span class="day-num">${day}</span>
-              <button class="vid-btn${vids(dk) > 0 ? ' on' : ''}" data-dk="${dk}" title="${t('vidTip')}">${vidLabel(dk)}</button>
+              <div class="cell-btns">
+                <button class="joke-btn${jokesOn(dk).length ? ' on' : ''}" data-dk="${dk}" title="${t('jokeTip')}">${jokeLabel(dk)}</button>
+                <button class="vid-btn${vids(dk) > 0 ? ' on' : ''}" data-dk="${dk}" title="${t('vidTip')}">${vidLabel(dk)}</button>
+              </div>
               <div class="x-wrap">${buildXMarks(dk)}</div>
               <div class="note-trigger" tabindex="0" data-dk="${dk}">${esc(noteFirstLine(dk))}</div>
             </div>`;
@@ -3271,7 +3782,6 @@
       const wv = weekVids(weekStart(w, offset));
       cells += `
         <div class="week-annot">
-          <div class="annot-next" id="wn${w}">${nextWeekText(wv)}</div>
           <div class="annot-line vid">
             <span class="annot-num" id="wv${w}">${wv}</span>
             <span class="annot-unit">${t('unitVids')}</span>
@@ -3289,6 +3799,9 @@
     document.getElementById('calBody').innerHTML = html;
     document.getElementById('totalNum').textContent = monthTotal;
     document.querySelectorAll('.day-cell:not(.empty)').forEach(bindCell);
+    if (calSubTab !== 'jokes') jokeYm = { y: yr, m: mo };
+    updateJokeTotals();
+    renderJokes();
     renderPlan();
     renderVideos();
     renderTrial();
@@ -3353,16 +3866,19 @@
       render();
     });
 
-    const input   = document.getElementById('nameInput');
-    const confirm = document.getElementById('confirmBtn');
-
-    input.addEventListener('input', () => {
-      confirm.disabled = input.value.trim().length === 0;
+    document.querySelectorAll('.modal-btn[data-profile]').forEach(b =>
+      b.addEventListener('click', () => showModal(b.dataset.profile)));
+    document.getElementById('passwordForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      submitPassword();
     });
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !confirm.disabled) confirmName();
+    document.getElementById('passwordCancel').addEventListener('click', cancelPassword);
+    document.getElementById('passwordInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') cancelPassword();
     });
-    confirm.addEventListener('click', confirmName);
+    document.getElementById('profileSelect').addEventListener('change', function() {
+      if (this.value !== username) showModal(this.value);
+    });
 
     document.getElementById('syncNowBtn')?.addEventListener('click', syncNow);
 
@@ -3370,19 +3886,31 @@
       b.addEventListener('click', () => showTab(b.dataset.tab)));
     document.querySelectorAll('.subtab-btn[data-sub]').forEach(b =>
       b.addEventListener('click', () => showSubTab(b.dataset.sub)));
+    document.querySelectorAll('.subtab-btn[data-csub]').forEach(b =>
+      b.addEventListener('click', () => showCalSubTab(b.dataset.csub)));
     document.querySelectorAll('.subtab-btn[data-nsub]').forEach(b =>
       b.addEventListener('click', () => showNotesSubTab(b.dataset.nsub)));
     initLanguage();
     bindTraining();
-    let savedTab = 'calendar', savedSub = 'backlog', savedNotesSub = 'text';
+    bindJokes();
+    let startProfile = null;
+    try {
+      const savedUser = (localStorage.getItem(USERNAME_KEY) || '').toLowerCase();
+      if (Object.hasOwn(PROFILES, savedUser)) startProfile = savedUser;
+    } catch {}
+    setActiveProfile(startProfile);
+    jokeYm = { y: yr, m: mo };
+    let savedTab = 'calendar', savedSub = 'backlog', savedNotesSub = 'todo', savedCalSub = 'calendar';
     try {
       savedTab = localStorage.getItem(TAB_KEY) || savedTab;
       savedSub = localStorage.getItem(SUBTAB_KEY) || savedSub;
       savedNotesSub = localStorage.getItem(NOTES_SUBTAB_KEY) || savedNotesSub;
+      savedCalSub = localStorage.getItem(CAL_SUBTAB_KEY) || savedCalSub;
     } catch {}
     showTab(savedTab);
     showSubTab(savedSub);
     showNotesSubTab(savedNotesSub);
+    showCalSubTab(savedCalSub);
 
     // Combo lists are position:fixed, so close them when the page scrolls.
     window.addEventListener('scroll', (e) => {
@@ -3447,9 +3975,8 @@
     // Render an empty calendar so layout is stable before cloud loads
     render();
 
-    const saved = localStorage.getItem(USERNAME_KEY);
-    if (saved) {
-      initUser(saved);
+    if (startProfile) {
+      initUser(startProfile);
     } else {
       showModal();
     }
