@@ -431,6 +431,46 @@
     .train-editor:-webkit-full-screen .train-frame { flex: 1; height: auto; min-height: 0; }
     .train-empty { padding: 60px 20px; text-align: center; font-size: 15px; color: var(--text-2); }
 
+    /* Random generator (Trainings › Generator) */
+    .gen-top { margin-bottom: 14px; }
+    .gen-top .vadd-btn { padding: 10px 20px; }
+    .gen-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .gen-card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.8);
+      -webkit-backdrop-filter: blur(12px) saturate(1.2);
+              backdrop-filter: blur(12px) saturate(1.2);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 40px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.2);
+      padding: 18px 20px;
+    }
+    .gen-label { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-2); }
+    .gen-result {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 76px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: 600;
+      line-height: 1.2;
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    .gen-result.empty { color: var(--text-3); font-weight: 400; }
+    .gen-result.pop { animation: genPop .25s ease-out; }
+    @keyframes genPop { from { transform: scale(.85); opacity: .3; } to { transform: scale(1); opacity: 1; } }
+    .gen-range { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+    .gen-range .vadd-input { width: 0; flex: 1; min-width: 0; }
+    .gen-card .vadd-btn { width: 100%; padding: 10px 14px; }
+
     @media (max-width: 767px) {
       .tab-btn { padding: 7px 10px; }
       .train-layout { grid-template-columns: minmax(0, 1fr); }
@@ -1549,6 +1589,56 @@
 
   <!-- ─── TRAININGS TAB ─── -->
   <div id="tab-training" role="tabpanel" hidden>
+    <div class="subtabs">
+      <button class="subtab-btn active" data-tsub="docs" data-i18n="subDocs">Documents</button>
+      <button class="subtab-btn" data-tsub="gen" data-i18n="subGenerator">Generator</button>
+    </div>
+
+    <div id="tsub-gen" class="vpanel" hidden>
+      <div class="gen-top">
+        <button class="vadd-btn" type="button" id="genAll" data-i18n="genAll">🎲 Generate all</button>
+      </div>
+      <div class="gen-grid">
+        <div class="gen-card">
+          <span class="gen-label" data-i18n="genWord">Word</span>
+          <div class="gen-result empty" id="genOut-word" aria-live="polite">—</div>
+          <button class="vadd-btn" type="button" data-gen="word" data-i18n="genWordBtn">Random word</button>
+        </div>
+        <div class="gen-card">
+          <span class="gen-label" data-i18n="genNumber">Number</span>
+          <div class="gen-result empty" id="genOut-number" aria-live="polite">—</div>
+          <div class="gen-range">
+            <span data-i18n="genFrom">From</span>
+            <input id="genMin" class="vadd-input" type="number" value="1" step="1" data-i18n-aria="genFrom" aria-label="From">
+            <span data-i18n="genTo">to</span>
+            <input id="genMax" class="vadd-input" type="number" value="100" step="1" data-i18n-aria="genTo" aria-label="to">
+          </div>
+          <button class="vadd-btn" type="button" data-gen="number" data-i18n="genNumberBtn">Random number</button>
+        </div>
+        <div class="gen-card">
+          <span class="gen-label" data-i18n="genProfession">Profession</span>
+          <div class="gen-result empty" id="genOut-profession" aria-live="polite">—</div>
+          <button class="vadd-btn" type="button" data-gen="profession" data-i18n="genProfessionBtn">Random profession</button>
+        </div>
+        <div class="gen-card">
+          <span class="gen-label" data-i18n="genCity">City</span>
+          <div class="gen-result empty" id="genOut-city" aria-live="polite">—</div>
+          <button class="vadd-btn" type="button" data-gen="city" data-i18n="genCityBtn">Random city</button>
+        </div>
+        <div class="gen-card">
+          <span class="gen-label" data-i18n="genCountry">Country</span>
+          <div class="gen-result empty" id="genOut-country" aria-live="polite">—</div>
+          <button class="vadd-btn" type="button" data-gen="country" data-i18n="genCountryBtn">Random country</button>
+        </div>
+        <div class="gen-card">
+          <span class="gen-label" data-i18n="genFamous">Famous person</span>
+          <div class="gen-result empty" id="genOut-famous" aria-live="polite">—</div>
+          <button class="vadd-btn" type="button" data-gen="famous" data-i18n="genFamousBtn">Random famous person</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tsub-docs">
     <div class="train-auth" id="trainAuth">
       <p id="trainAuthMsg"></p>
       <button class="vadd-btn" type="button" id="trainSignIn" hidden data-i18n="connectDrive">Connect Google Drive</button>
@@ -1579,6 +1669,7 @@
         <iframe class="train-frame" id="trainFrame" data-i18n-title="docEditor" title="Document editor" hidden></iframe>
       </div>
     </div>
+    </div>
   </div>
 
   <!-- ─── VIDEOS TAB ─── -->
@@ -1588,9 +1679,9 @@
     <div class="subtabs">
       <button class="subtab-btn active" data-sub="backlog"><span data-i18n="subBacklog">Backlog</span> <span class="subtab-count" id="cntBacklog">0</span></button>
       <button class="subtab-btn" data-sub="published"><span data-i18n="subPublished">Published</span> <span class="subtab-count" id="cntPublished">0</span></button>
-      <button class="subtab-btn" data-sub="trial"><span data-i18n="subTrial">Viral Videos on Trial</span> <span class="subtab-count" id="cntTrial">0</span></button>
       <button class="subtab-btn" data-sub="edit"><span data-i18n="subEdit">Videos to Edit</span> <span class="subtab-count" id="cntEdit">0</span></button>
       <button class="subtab-btn" data-sub="develop"><span data-i18n="subDevelop">Videos to Develop</span> <span class="subtab-count" id="cntDevelop">0</span></button>
+      <button class="subtab-btn" data-sub="trial"><span data-i18n="subTrial">Viral Videos on Trial</span> <span class="subtab-count" id="cntTrial">0</span></button>
     </div>
 
     <div id="sub-trial" class="vpanel" hidden>
@@ -1745,6 +1836,10 @@
       moveToEdit: '→ To Edit', moveToEditTip: 'Move to Videos to Edit', close: 'Close',
       thisMonth: 'This month', hrsWritten: 'hrs written', videosEdited: 'videos edited',
       tabCalendar: 'Calendar', tabVideos: 'Videos', tabNotes: 'Notes', tabTrainings: 'Trainings',
+      subDocs: 'Documents', subGenerator: 'Generator', genAll: '🎲 Generate all', genFrom: 'From', genTo: 'to',
+      genWord: 'Word', genWordBtn: 'Random word', genNumber: 'Number', genNumberBtn: 'Random number',
+      genProfession: 'Profession', genProfessionBtn: 'Random profession', genCity: 'City', genCityBtn: 'Random city',
+      genCountry: 'Country', genCountryBtn: 'Random country', genFamous: 'Famous person', genFamousBtn: 'Random famous person',
       dayMon: 'Mon', dayTue: 'Tue', dayWed: 'Wed', dayThu: 'Thu', dayFri: 'Fri', daySat: 'Sat', daySun: 'Sun', colWeek: '// wk',
       footer: 'Click to add &nbsp;&middot;&nbsp; Right-click or long-press to remove &nbsp;&middot;&nbsp; 🎬 next to the day = videos edited &nbsp;&middot;&nbsp; Data saved automatically',
       uploadPlan: 'Upload plan', legendPending: 'Pending', legendWorked: 'Worked', legendSoSo: 'So-so', legendFlopped: 'Flopped',
@@ -1809,6 +1904,10 @@
       moveToEdit: '→ Por editar', moveToEditTip: 'Mover a Vídeos por editar', close: 'Cerrar',
       thisMonth: 'Este mes', hrsWritten: 'hrs escritas', videosEdited: 'vídeos editados',
       tabCalendar: 'Calendario', tabVideos: 'Vídeos', tabNotes: 'Notas', tabTrainings: 'Entrenamientos',
+      subDocs: 'Documentos', subGenerator: 'Generador', genAll: '🎲 Generar todo', genFrom: 'De', genTo: 'a',
+      genWord: 'Palabra', genWordBtn: 'Palabra aleatoria', genNumber: 'Número', genNumberBtn: 'Número aleatorio',
+      genProfession: 'Profesión', genProfessionBtn: 'Profesión aleatoria', genCity: 'Ciudad', genCityBtn: 'Ciudad aleatoria',
+      genCountry: 'País', genCountryBtn: 'País aleatorio', genFamous: 'Famoso', genFamousBtn: 'Famoso aleatorio',
       dayMon: 'Lun', dayTue: 'Mar', dayWed: 'Mié', dayThu: 'Jue', dayFri: 'Vie', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
       footer: 'Haz clic para añadir &nbsp;&middot;&nbsp; Clic derecho o pulsación larga para quitar &nbsp;&middot;&nbsp; 🎬 junto al día = vídeos editados &nbsp;&middot;&nbsp; Los datos se guardan automáticamente',
       uploadPlan: 'Plan de subidas', legendPending: 'Pendiente', legendWorked: 'Funcionó', legendSoSo: 'Regular', legendFlopped: 'Fracasó',
@@ -1873,6 +1972,10 @@
       moveToEdit: '→ Para editar', moveToEditTip: 'Mover para Vídeos para editar', close: 'Fechar',
       thisMonth: 'Este mês', hrsWritten: 'hrs escritas', videosEdited: 'vídeos editados',
       tabCalendar: 'Calendário', tabVideos: 'Vídeos', tabNotes: 'Notas', tabTrainings: 'Treinos',
+      subDocs: 'Documentos', subGenerator: 'Gerador', genAll: '🎲 Gerar tudo', genFrom: 'De', genTo: 'a',
+      genWord: 'Palavra', genWordBtn: 'Palavra aleatória', genNumber: 'Número', genNumberBtn: 'Número aleatório',
+      genProfession: 'Profissão', genProfessionBtn: 'Profissão aleatória', genCity: 'Cidade', genCityBtn: 'Cidade aleatória',
+      genCountry: 'País', genCountryBtn: 'País aleatório', genFamous: 'Famoso', genFamousBtn: 'Famoso aleatório',
       dayMon: 'Seg', dayTue: 'Ter', dayWed: 'Qua', dayThu: 'Qui', dayFri: 'Sex', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
       footer: 'Clique para adicionar &nbsp;&middot;&nbsp; Clique direito ou toque longo para remover &nbsp;&middot;&nbsp; 🎬 ao lado do dia = vídeos editados &nbsp;&middot;&nbsp; Os dados são salvos automaticamente',
       uploadPlan: 'Plano de publicação', legendPending: 'Pendente', legendWorked: 'Funcionou', legendSoSo: 'Mais ou menos', legendFlopped: 'Fracassou',
@@ -1960,6 +2063,7 @@
     render();
     renderVideos();
     refreshTrainingLanguage();
+    renderGen();
   }
 
   function initLanguage() {
@@ -1980,6 +2084,7 @@
   const NOTES_SUBTAB_KEY = 'comedy-tracker-notes-subtab';
   const USERNAME_KEY = 'comedy-tracker-username';
   const CAL_SUBTAB_KEY = 'comedy-tracker-cal-subtab';
+  const TRAIN_SUBTAB_KEY = 'comedy-tracker-train-subtab';
 
   // Each profile is its own row in Supabase, keyed by these ids. The password is
   // the id: it only prevents switching profile by accident, it isn't real security.
@@ -3228,6 +3333,134 @@
     renderTrainingList();
   }
 
+  /* ── Trainings › Generator: random prompts for writing exercises ── */
+  // Each entry is "English|Español|Português" so a result survives a language change.
+  const GEN_WORDS = `umbrella|paraguas|guarda-chuva;toaster|tostadora|torradeira;grandmother|abuela|avó;wedding|boda|casamento;funeral|funeral|funeral;elevator|ascensor|elevador;gym|gimnasio|academia;airport|aeropuerto|aeroporto;pigeon|paloma|pombo;mortgage|hipoteca|hipoteca;sock|calcetín|meia;password|contraseña|senha;dinosaur|dinosaurio|dinossauro;neighbor|vecino|vizinho;diet|dieta|dieta;selfie|selfie|selfie;pizza|pizza|pizza;hangover|resaca|ressaca;family WhatsApp group|grupo de WhatsApp familiar|grupo da família no WhatsApp;mother-in-law|suegra|sogra;traffic jam|atasco|engarrafamento;first date|primera cita|primeiro encontro;alarm clock|despertador|despertador;supermarket|supermercado|supermercado;vacation|vacaciones|férias;tattoo|tatuaje|tatuagem;cat|gato|gato;dog|perro|cachorro;hospital|hospital|hospital;church|iglesia|igreja;karaoke|karaoke|karaoke;mustache|bigote|bigode;bald spot|calva|careca;cousin|primo|primo;ex|ex|ex;job interview|entrevista de trabajo|entrevista de emprego;haircut|corte de pelo|corte de cabelo;Christmas|Navidad|Natal;birthday|cumpleaños|aniversário;mosquito|mosquito|mosquito;remote control|mando a distancia|controle remoto;microwave|microondas|micro-ondas;coffee|café|café;hotel|hotel|hotel;taxi|taxi|táxi;bus|autobús|ônibus;plane|avión|avião;beach|playa|praia;mountain|montaña|montanha;ghost|fantasma|fantasma;robot|robot|robô;zombie|zombi|zumbi;baby|bebé|bebê;teenager|adolescente|adolescente;retirement|jubilación|aposentadoria;therapy|terapia|terapia;horoscope|horóscopo|horóscopo;lottery|lotería|loteria;football|fútbol|futebol;gas station|gasolinera|posto de gasolina;pharmacy|farmacia|farmácia;fridge|nevera|geladeira;shower|ducha|chuveiro;toilet paper|papel higiénico|papel higiênico;lice|piojos|piolhos;condom|condón|camisinha;divorce|divorcio|divórcio;inheritance|herencia|herança;school|colegio|escola;exam|examen|prova;homework|deberes|lição de casa;dating app|app de citas|app de namoro;influencer|influencer|influenciador;podcast|pódcast|podcast;phone|móvil|celular;charger|cargador|carregador;wi-fi|wifi|wi-fi;printer|impresora|impressora;spider|araña|aranha;cockroach|cucaracha|barata;cow|vaca|vaca;horse|caballo|cavalo;penguin|pingüino|pinguim;shark|tiburón|tubarão;avocado|aguacate|abacate;garlic|ajo|alho;ham|jamón|presunto;paella|paella|paella;sushi|sushi|sushi;vegan|vegano|vegano;marathon|maratón|maratona;yoga|yoga|ioga;sauna|sauna|sauna;camping|camping|acampamento;cruise|crucero|cruzeiro;passport|pasaporte|passaporte;suitcase|maleta|mala;customs|aduana|alfândega;bank|banco|banco;taxes|impuestos|impostos;landlord|casero|senhorio;roommate|compañero de piso|colega de quarto;couch|sofá|sofá;bed|cama|cama;snoring|ronquidos|ronco;nightmare|pesadilla|pesadelo;wig|peluca|peruca;glasses|gafas|óculos;dentures|dentadura postiza|dentadura;Botox|bótox|botox;pajamas|pijama|pijama;underwear|calzoncillos|cueca;flip-flops|chanclas|chinelos;mirror|espejo|espelho;candle|vela|vela;circus|circo|circo;prison|cárcel|prisão;alien|extraterrestre|alienígena;moon|luna|lua;volcano|volcán|vulcão;storm|tormenta|tempestade;sunburn|quemadura solar|queimadura de sol;bicycle|bicicleta|bicicleta;scooter|patinete|patinete;gluten|gluten|glúten;wine|vino|vinho;beer|cerveza|cerveja;ice cream|helado|sorvete;sandwich|bocadillo|sanduíche;bathroom scale|báscula|balança;hammer|martillo|martelo;ladder|escalera|escada;balloon|globo|balão;clown|payaso|palhaço;bride|novia|noiva;twins|gemelos|gêmeos;IKEA furniture|mueble de montar|móvel de montar;queue|cola|fila;tip|propina|gorjeta;receipt|ticket de compra|recibo;voicemail|mensaje de voz|mensagem de voz;emoji|emoji|emoji;sneeze|estornudo|espirro;hiccups|hipo|soluço;fart|pedo|pum`;
+  const GEN_PROFESSIONS = `plumber|fontanero|encanador;dentist|dentista|dentista;lawyer|abogado|advogado;psychologist|psicólogo|psicólogo;butcher|carnicero|açougueiro;firefighter|bombero|bombeiro;nurse|enfermero|enfermeiro;surgeon|cirujano|cirurgião;pilot|piloto|piloto;flight attendant|azafato|comissário de bordo;taxi driver|taxista|taxista;priest|cura|padre;nun|monja|freira;magician|mago|mágico;clown|payaso|palhaço;astronaut|astronauta|astronauta;politician|político|político;accountant|contable|contador;real estate agent|agente inmobiliario|corretor de imóveis;hairdresser|peluquero|cabeleireiro;waiter|camarero|garçom;chef|cocinero|cozinheiro;baker|panadero|padeiro;farmer|agricultor|agricultor;fisherman|pescador|pescador;teacher|profesor|professor;kindergarten teacher|maestro de infantil|professor de educação infantil;lifeguard|socorrista|salva-vidas;personal trainer|entrenador personal|personal trainer;yoga instructor|profesor de yoga|instrutor de ioga;influencer|influencer|influenciador;youtuber|youtuber|youtuber;DJ|DJ|DJ;security guard|vigilante de seguridad|segurança;bouncer|portero de discoteca|leão de chácara;mechanic|mecánico|mecânico;electrician|electricista|eletricista;architect|arquitecto|arquiteto;veterinarian|veterinario|veterinário;pharmacist|farmacéutico|farmacêutico;judge|juez|juiz;police officer|policía|policial;detective|detective|detetive;spy|espía|espião;soldier|soldado|soldado;journalist|periodista|jornalista;weather presenter|hombre del tiempo|apresentador do tempo;actor|actor|ator;opera singer|cantante de ópera|cantor de ópera;mime|mimo|mímico;tattoo artist|tatuador|tatuador;gynecologist|ginecólogo|ginecologista;proctologist|proctólogo|proctologista;funeral director|empleado de funeraria|agente funerário;gravedigger|sepulturero|coveiro;postman|cartero|carteiro;delivery rider|repartidor|entregador;cashier|cajero|caixa;programmer|programador|programador;scientist|científico|cientista;archaeologist|arqueólogo|arqueólogo;librarian|bibliotecario|bibliotecário;zookeeper|cuidador del zoo|tratador de zoológico;bullfighter|torero|toureiro;football player|futbolista|jogador de futebol;referee|árbitro|árbitro;wedding planner|organizador de bodas|cerimonialista;life coach|coach de vida|coach de vida;fortune teller|vidente|vidente;tour guide|guía turístico|guia turístico;locksmith|cerrajero|chaveiro;gardener|jardinero|jardineiro;cleaner|limpiador|faxineiro;sommelier|sumiller|sommelier;stripper|stripper|stripper;monk|monje|monge;babysitter|canguro|babá;dog walker|paseador de perros|passeador de cães;driving instructor|profesor de autoescuela|instrutor de autoescola;notary|notario|tabelião;sailor|marinero|marinheiro;miner|minero|mineiro;dancer|bailarín|bailarino;hitman|sicario|matador de aluguel`;
+  const GEN_CITIES = `London|Londres|Londres;Paris|París|Paris;New York|Nueva York|Nova York;Tokyo|Tokio|Tóquio;Madrid|Madrid|Madri;Barcelona|Barcelona|Barcelona;Lisbon|Lisboa|Lisboa;Porto|Oporto|Porto;Rome|Roma|Roma;Berlin|Berlín|Berlim;Moscow|Moscú|Moscou;Beijing|Pekín|Pequim;Mumbai|Bombay|Mumbai;Cairo|El Cairo|Cairo;Mexico City|Ciudad de México|Cidade do México;Buenos Aires|Buenos Aires|Buenos Aires;São Paulo|São Paulo|São Paulo;Rio de Janeiro|Río de Janeiro|Rio de Janeiro;Bogotá|Bogotá|Bogotá;Lima|Lima|Lima;Havana|La Habana|Havana;Los Angeles|Los Ángeles|Los Angeles;Las Vegas|Las Vegas|Las Vegas;Miami|Miami|Miami;Chicago|Chicago|Chicago;Toronto|Toronto|Toronto;Sydney|Sídney|Sydney;Dubai|Dubái|Dubai;Istanbul|Estambul|Istambul;Athens|Atenas|Atenas;Venice|Venecia|Veneza;Amsterdam|Ámsterdam|Amsterdã;Brussels|Bruselas|Bruxelas;Vienna|Viena|Viena;Prague|Praga|Praga;Stockholm|Estocolmo|Estocolmo;Copenhagen|Copenhague|Copenhague;Dublin|Dublín|Dublin;Edinburgh|Edimburgo|Edimburgo;Marrakesh|Marrakech|Marrakech;Bangkok|Bangkok|Bangkok;Seoul|Seúl|Seul;Hong Kong|Hong Kong|Hong Kong;Singapore|Singapur|Singapura;Jerusalem|Jerusalén|Jerusalém;Reykjavík|Reikiavik|Reykjavík;Seville|Sevilla|Sevilha;Valencia|Valencia|Valência;Bilbao|Bilbao|Bilbau;Granada|Granada|Granada;Benidorm|Benidorm|Benidorm;Ibiza|Ibiza|Ibiza;Cuenca|Cuenca|Cuenca;Salamanca|Salamanca|Salamanca;Murcia|Murcia|Múrcia;Zaragoza|Zaragoza|Saragoça;Santiago de Compostela|Santiago de Compostela|Santiago de Compostela;Torremolinos|Torremolinos|Torremolinos;Montevideo|Montevideo|Montevidéu;Caracas|Caracas|Caracas;Cancún|Cancún|Cancún;Nairobi|Nairobi|Nairóbi;Cape Town|Ciudad del Cabo|Cidade do Cabo;Kyiv|Kiev|Kiev;Warsaw|Varsovia|Varsóvia;Budapest|Budapest|Budapeste;Naples|Nápoles|Nápoles;Milan|Milán|Milão;Munich|Múnich|Munique;Geneva|Ginebra|Genebra;Salvador|Salvador de Bahía|Salvador;Luanda|Luanda|Luanda;Pyongyang|Pionyang|Pyongyang;Vatican City|Ciudad del Vaticano|Cidade do Vaticano;Andorra la Vella|Andorra la Vieja|Andorra-a-Velha;Mecca|La Meca|Meca;Kathmandu|Katmandú|Katmandu;Honolulu|Honolulu|Honolulu`;
+  const GEN_COUNTRIES = 'AF AL DZ AD AO AR AM AU AT AZ BS BH BD BB BY BE BZ BJ BT BO BA BW BR BN BG BF BI KH CM CA CV CF TD CL CN CO KM CG CD CR CI HR CU CY CZ DK DJ DM DO EC EG SV GQ ER EE SZ ET FJ FI FR GA GM GE DE GH GR GD GT GN GW GY HT HN HU IS IN ID IR IQ IE IL IT JM JP JO KZ KE KI KW KG LA LV LB LS LR LY LI LT LU MG MW MY MV ML MT MH MR MU MX FM MD MC MN ME MA MZ MM NA NR NP NL NZ NI NE NG KP MK NO OM PK PW PA PG PY PE PH PL PT QA RO RU RW KN LC VC WS SM ST SA SN RS SC SL SG SK SI SB SO ZA KR SS ES LK SD SR SE CH SY TJ TZ TH TL TG TO TT TN TR TM TV UG UA AE GB US UY UZ VU VA VE VN YE ZM ZW'.split(' ');
+  const GEN_FAMOUS = `Shakira;Rosalía;Julio Iglesias;Enrique Iglesias;Isabel Preysler;Rafa Nadal;Fernando Alonso;Penélope Cruz;Antonio Banderas;Javier Bardem;Belén Esteban;Paquirrín;Isabel Pantoja;Raphael;Camilo Sesto;Lola Flores;Rocío Jurado;Alaska;Mario Vaquerizo;Bertín Osborne;Pedro Almodóvar;Iker Casillas;Sergio Ramos;Andrés Iniesta;Gerard Piqué;Pau Gasol;Chiquito de la Calzada;Karlos Arguiñano;Jesús Calleja;Iker Jiménez;Pablo Motos;Broncano;Ibai Llanos;El Rubius;Jordi Hurtado;Ana Obregón;Tamara Falcó;Georgina Rodríguez;Bad Bunny;Luis Miguel;Messi;Cristiano Ronaldo;Maradona;Pelé;Neymar;Ronaldinho;José Mourinho;Ibrahimović;Usain Bolt;Michael Jordan;Serena Williams;Tiger Woods;Mike Tyson;Muhammad Ali;Beyoncé;Taylor Swift;Madonna;Michael Jackson;Elvis Presley;Freddie Mercury;Lady Gaga;Rihanna;Justin Bieber;Kim Kardashian;Paris Hilton;Britney Spears;Celine Dion;Elton John;Mick Jagger;Ozzy Osbourne;Snoop Dogg;Eminem;Kanye West;Leonardo DiCaprio;Brad Pitt;Tom Cruise;Arnold Schwarzenegger;Sylvester Stallone;Keanu Reeves;Nicolas Cage;Johnny Depp;Will Smith;Meryl Streep;Angelina Jolie;Jennifer Lopez;Danny DeVito;Mr. Bean;Charlie Chaplin;Jim Carrey;Tom Hanks;Marilyn Monroe;Morgan Freeman;Chuck Norris;Jackie Chan;Bruce Lee;Steven Spielberg;Quentin Tarantino;Elon Musk;Mark Zuckerberg;Bill Gates;Steve Jobs;Jeff Bezos;Donald Trump;Barack Obama;Vladimir Putin;Kim Jong-un;Queen Elizabeth II|Isabel II de Inglaterra|Rainha Elizabeth II;King Charles III|Carlos III de Inglaterra|Rei Charles III;Prince Harry|El príncipe Harry|Príncipe Harry;The Pope|El Papa|O Papa;Albert Einstein;Stephen Hawking;Isaac Newton;Leonardo da Vinci;Picasso;Salvador Dalí;Frida Kahlo;Van Gogh;Shakespeare;Cervantes;Napoleon|Napoleón|Napoleão;Julius Caesar|Julio César|Júlio César;Cleopatra|Cleopatra|Cleópatra;Christopher Columbus|Cristóbal Colón|Cristóvão Colombo;Che Guevara;Gandhi;Dalai Lama;Mother Teresa|La Madre Teresa|Madre Teresa;Oprah Winfrey;Gordon Ramsay;MrBeast;Greta Thunberg;Dwayne Johnson;Hulk Hogan;David Beckham;Victoria Beckham;Zinedine Zidane;Ayrton Senna;Roberto Carlos;Anitta;Gisele Bündchen;Xuxa;Paulo Coelho;Amália Rodrigues;Eusébio`;
+  const GEN_LISTS = {
+    word: GEN_WORDS.split(';').map(x => x.split('|')),
+    profession: GEN_PROFESSIONS.split(';').map(x => x.split('|')),
+    city: GEN_CITIES.split(';').map(x => x.split('|')),
+    famous: GEN_FAMOUS.split(';').map(x => x.split('|')),
+  };
+  const GEN_LANG_INDEX = { en: 0, es: 1, pt: 2 };
+  const GEN_KEY = 'comedy-tracker-generator';
+  let genState = {};   // { word: index, profession: index, city: index, country: code, number: n, min, max }
+
+  function genRandomInt(min, max) {
+    const buf = new Uint32Array(1);
+    crypto.getRandomValues(buf);
+    return min + (buf[0] % (max - min + 1));
+  }
+
+  // A different pick than last time, so pressing twice always changes the result.
+  function genPick(length, previous) {
+    if (length < 2) return 0;
+    let i;
+    do { i = genRandomInt(0, length - 1); } while (i === previous);
+    return i;
+  }
+
+  function genCountryName(code) {
+    let name = code;
+    try { name = new Intl.DisplayNames([LOCALES[lang]], { type: 'region' }).of(code) || code; } catch {}
+    const flag = String.fromCodePoint(...[...code].map(c => 0x1F1E6 + c.charCodeAt(0) - 65));
+    return `${flag} ${name}`;
+  }
+
+  function genText(kind) {
+    const v = genState[kind];
+    if (v === undefined || v === null) return null;
+    if (kind === 'number') return Number(v).toLocaleString(LOCALES[lang]);
+    if (kind === 'country') return GEN_COUNTRIES.includes(v) ? genCountryName(v) : null;
+    const entry = GEN_LISTS[kind]?.[v];
+    return entry ? (entry[GEN_LANG_INDEX[lang]] || entry[0]) : null;
+  }
+
+  function renderGen(animateKind) {
+    ['word', 'number', 'profession', 'city', 'country', 'famous'].forEach(kind => {
+      const out = document.getElementById(`genOut-${kind}`);
+      const text = genText(kind);
+      out.textContent = text ?? '—';
+      out.classList.toggle('empty', text === null);
+      if (kind === animateKind || animateKind === 'all') {
+        out.classList.remove('pop');
+        void out.offsetWidth;
+        out.classList.add('pop');
+      }
+    });
+  }
+
+  function saveGen() {
+    try { localStorage.setItem(GEN_KEY, JSON.stringify(genState)); } catch {}
+  }
+
+  function readGenRange() {
+    const minEl = document.getElementById('genMin');
+    const maxEl = document.getElementById('genMax');
+    let min = Math.round(Number(minEl.value));
+    let max = Math.round(Number(maxEl.value));
+    if (!Number.isFinite(min)) min = 1;
+    if (!Number.isFinite(max)) max = 100;
+    if (min > max) [min, max] = [max, min];
+    // Keep inside the range crypto.getRandomValues can cover evenly enough.
+    min = Math.max(min, -1e9); max = Math.min(max, 1e9);
+    minEl.value = min; maxEl.value = max;
+    genState.min = min; genState.max = max;
+    return [min, max];
+  }
+
+  function generate(kind) {
+    if (kind === 'number') {
+      const [min, max] = readGenRange();
+      genState.number = min === max ? min : (() => {
+        let n; do { n = genRandomInt(min, max); } while (n === genState.number && max > min); return n;
+      })();
+    } else if (kind === 'country') {
+      const prev = GEN_COUNTRIES.indexOf(genState.country);
+      genState.country = GEN_COUNTRIES[genPick(GEN_COUNTRIES.length, prev)];
+    } else {
+      genState[kind] = genPick(GEN_LISTS[kind].length, genState[kind]);
+    }
+  }
+
+  function showTrainingSubTab(name) {
+    if (name !== 'gen') name = 'docs';
+    document.querySelectorAll('.subtab-btn[data-tsub]').forEach(b => b.classList.toggle('active', b.dataset.tsub === name));
+    document.getElementById('tsub-docs').hidden = name !== 'docs';
+    document.getElementById('tsub-gen').hidden = name !== 'gen';
+    try { localStorage.setItem(TRAIN_SUBTAB_KEY, name); } catch {}
+  }
+
+  function bindGenerator() {
+    try { genState = JSON.parse(localStorage.getItem(GEN_KEY) || '{}') || {}; } catch { genState = {}; }
+    if (Number.isFinite(genState.min)) document.getElementById('genMin').value = genState.min;
+    if (Number.isFinite(genState.max)) document.getElementById('genMax').value = genState.max;
+    document.querySelectorAll('[data-gen]').forEach(b => b.addEventListener('click', () => {
+      generate(b.dataset.gen);
+      saveGen();
+      renderGen(b.dataset.gen);
+    }));
+    document.getElementById('genAll').addEventListener('click', () => {
+      ['word', 'number', 'profession', 'city', 'country', 'famous'].forEach(generate);
+      saveGen();
+      renderGen('all');
+    });
+    ['genMin', 'genMax'].forEach(id => document.getElementById(id).addEventListener('change', () => {
+      readGenRange();
+      saveGen();
+    }));
+    document.querySelectorAll('.subtab-btn[data-tsub]').forEach(b =>
+      b.addEventListener('click', () => showTrainingSubTab(b.dataset.tsub)));
+    let saved = 'docs';
+    try { saved = localStorage.getItem(TRAIN_SUBTAB_KEY) || saved; } catch {}
+    showTrainingSubTab(saved);
+    renderGen();
+  }
+
   function bindTraining() {
     document.getElementById('trainSignIn').addEventListener('click', () => {
       training.tokenClient?.requestAccessToken({ prompt: '' });
@@ -3892,6 +4125,7 @@
       b.addEventListener('click', () => showNotesSubTab(b.dataset.nsub)));
     initLanguage();
     bindTraining();
+    bindGenerator();
     bindJokes();
     let startProfile = null;
     try {
