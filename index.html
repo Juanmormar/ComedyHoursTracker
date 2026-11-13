@@ -214,11 +214,16 @@
       border-radius: 6px;
       padding: 6px 8px;
       outline: none;
-      resize: vertical;
       min-height: 48px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      cursor: text;
+      text-align: left;
     }
 
     .plan-comment:focus { border-color: var(--accent); }
+    .plan-comment:empty::before { content: attr(data-placeholder); color: var(--text-3); pointer-events: none; }
+    .plan-comment b, .plan-comment strong { font-weight: 700; color: var(--text); }
     .plan-comment[hidden] { display: none; }
 
     .plan-add {
@@ -2528,8 +2533,39 @@
   }
 
   // Always starts collapsed: the icon's colour says whether there is something inside.
+  // Comments are an editable box that grows with its text; Cmd/Ctrl+B toggles bold.
   function commentAreaHtml(comment) {
-    return `<textarea class="plan-comment" placeholder="${t('commentsPlaceholder')}" hidden>${esc(comment || '')}</textarea>`;
+    const ph = esc(t('commentsPlaceholder')).replace(/"/g, '&quot;');
+    return `<div class="plan-comment" contenteditable="true" role="textbox" aria-multiline="true" spellcheck="true" data-placeholder="${ph}" aria-label="${ph}" hidden>${cleanComment(comment)}</div>`;
+  }
+
+  // Stored comments are plain text (older ones) or a tiny HTML subset: <b>, <br>, <div>.
+  // Anything else is stripped, so nothing from the synced data can run as code.
+  const COMMENT_HTML_RE = /<(b|strong|br|div|p|span)\b/i;
+  function cleanComment(value) {
+    if (!value) return '';
+    if (!COMMENT_HTML_RE.test(value)) return esc(value).replace(/\n/g, '<br>');
+    const tpl = document.createElement('template');
+    tpl.innerHTML = value;
+    const walk = (node) => [...node.childNodes].map(n => {
+      if (n.nodeType === 3) return esc(n.nodeValue);
+      if (n.nodeType !== 1) return '';
+      const tag = n.tagName.toLowerCase();
+      if (['script', 'style', 'template', 'textarea', 'iframe', 'object'].includes(tag)) return '';
+      const inner = walk(n);
+      if (tag === 'br') return '<br>';
+      const weight = n.style?.fontWeight;
+      if (tag === 'b' || tag === 'strong' || weight === 'bold' || Number(weight) >= 600) return inner ? `<b>${inner}</b>` : '';
+      if (tag === 'div' || tag === 'p') return `<div>${inner || '<br>'}</div>`;
+      return inner;
+    }).join('');
+    return walk(tpl.content);
+  }
+
+  // The saved value for a comment box: '' when it has no text at all.
+  function commentValue(box) {
+    if (box.textContent === '' && !box.querySelector('br + br, div + div')) return '';
+    return cleanComment(box.innerHTML);
   }
 
   const statusClickTip = st => t('statusClick', { label: t(STATUS_KEY[st]) });
@@ -2845,9 +2881,29 @@
       ta.toggleAttribute('hidden', !show);
       if (show) ta.focus();
     });
+    ta.addEventListener('keydown', (e) => {
+      if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+      const key = e.key.toLowerCase();
+      if (key === 'b') {
+        e.preventDefault();
+        document.execCommand('styleWithCSS', false, false);
+        document.execCommand('bold');
+      } else if (key === 'i' || key === 'u') {
+        e.preventDefault();   // only bold is kept, so don't offer formats that would vanish
+      }
+    });
+    // Paste as plain text so formatting from other apps doesn't come along.
+    ta.addEventListener('paste', (e) => {
+      const text = e.clipboardData?.getData('text/plain');
+      if (text === undefined) return;
+      e.preventDefault();
+      document.execCommand('insertText', false, text);
+    });
     ta.addEventListener('input', function() {
-      btn.classList.toggle('has-comment', this.value !== '');
-      onChange(this.value);
+      const value = commentValue(this);
+      if (value === '' && this.innerHTML !== '') this.innerHTML = '';   // shows the placeholder again
+      btn.classList.toggle('has-comment', value !== '');
+      onChange(value);
     });
   }
 
