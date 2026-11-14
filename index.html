@@ -224,6 +224,53 @@
     .plan-comment:focus { border-color: var(--accent); }
     .plan-comment:empty::before { content: attr(data-placeholder); color: var(--text-3); pointer-events: none; }
     .plan-comment b, .plan-comment strong { font-weight: 700; color: var(--text); }
+    .comment-tools { display: flex; justify-content: flex-end; flex: 0 0 100%; width: 100%; padding: 0 8px 6px; }
+    .comment-tools[hidden] { display: none; }
+    .bold-btn {
+      min-width: 36px; height: 30px;
+      font: 700 14px/1 Georgia, serif;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      -webkit-user-select: none; user-select: none;
+      touch-action: manipulation;
+    }
+    .bold-btn.on { color: #fff; background: var(--accent); border-color: var(--accent); }
+
+    /* Delete confirmation */
+    .confirm-msg { font-size: 15px; line-height: 1.5; color: var(--text-2); margin-bottom: 20px; overflow-wrap: anywhere; }
+    .modal-btn.danger { background: #d70015; color: #fff; }
+
+    /* Notes › Gigs */
+    .gig-add .gig-date { flex: 0 0 auto; width: auto; }
+    @media (max-width: 600px) {
+      .gig-add { flex-wrap: wrap; }
+      .gig-add #gigAddInput { flex: 1 1 100%; order: 3; }
+      .gig-add .gig-date { flex: 1; }
+    }
+    .gig-head {
+      display: flex; align-items: baseline; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+      color: rgba(255,255,255,.8);
+      margin: 20px 0 8px;
+    }
+    .gig-head[hidden], .gig-section[hidden] { display: none; }
+    #gigsEmpty { color: rgba(255,255,255,.8); padding: 12px 0; }
+    #gigsEmpty[hidden] { display: none; }
+    .gig-date-input {
+      flex: 0 0 auto;
+      font: inherit; font-size: 12px;
+      color: var(--text-2);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 3px 4px;
+    }
+    .gig-date-input:hover, .gig-date-input:focus { border-color: var(--border); outline: none; }
+    .gig-today { flex: 0 0 auto; font-size: 11px; font-weight: 600; color: #fff; background: #f57c00; border-radius: 6px; padding: 2px 7px; }
+    .gig-item.past .gig-date-input { color: var(--text-3); }
     .plan-comment[hidden] { display: none; }
 
     .plan-add {
@@ -1477,6 +1524,17 @@
   </div>
 </div>
 
+<div id="confirmModal" class="modal-overlay" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMsg">
+  <div class="modal-card">
+    <h2 class="modal-title" id="confirmTitle" data-i18n="confirmTitle">Are you sure?</h2>
+    <p class="confirm-msg" id="confirmMsg"></p>
+    <div class="modal-choices">
+      <button type="button" class="modal-btn secondary" id="confirmNo" data-i18n="cancel">Cancel</button>
+      <button type="button" class="modal-btn danger" id="confirmYes" data-i18n="delete">Delete</button>
+    </div>
+  </div>
+</div>
+
 <!-- ─── SYNC STATUS (fixed top-right) ─── -->
 <div id="syncStatus" class="sync-status" role="status" aria-live="polite"></div>
 
@@ -1576,6 +1634,20 @@
     <div class="subtabs">
       <button class="subtab-btn notes-sub-btn active" data-nsub="todo"><span data-i18n="todo">To-do</span> <span class="subtab-count" id="cntTodo">0</span></button>
       <button class="subtab-btn notes-sub-btn" data-nsub="text" data-i18n="notes">Notebook</button>
+      <button class="subtab-btn notes-sub-btn" data-nsub="gigs"><span data-i18n="subGigs">Gigs</span> <span class="subtab-count" id="cntGigs">0</span></button>
+    </div>
+
+    <div id="nsub-gigs" class="vpanel" hidden>
+      <form class="vadd gig-add" id="gigAddForm">
+        <input id="gigAddDate" class="vadd-input gig-date" type="date" required data-i18n-aria="gigDate" aria-label="Date">
+        <input id="gigAddInput" class="vadd-input" data-i18n-placeholder="gigPlacePlaceholder" placeholder="Where are you performing?" autocomplete="off">
+        <button class="vadd-btn" type="submit" data-i18n="add">Add</button>
+      </form>
+      <p class="vempty" id="gigsEmpty" data-i18n="gigsEmpty" hidden></p>
+      <h3 class="gig-head" id="gigUpcomingHead"><span data-i18n="gigsUpcoming">Upcoming</span> <span class="subtab-count" id="cntGigUpcoming"></span></h3>
+      <div class="vlist gig-section" id="gigUpcoming"></div>
+      <h3 class="gig-head" id="gigPastHead"><span data-i18n="gigsPast">Past</span> <span class="subtab-count" id="cntGigPast"></span></h3>
+      <div class="vlist gig-section" id="gigPast"></div>
     </div>
 
     <div id="nsub-text" class="vpanel">
@@ -1845,6 +1917,8 @@
       genWord: 'Word', genWordBtn: 'Random word', genNumber: 'Number', genNumberBtn: 'Random number',
       genProfession: 'Profession', genProfessionBtn: 'Random profession', genCity: 'City', genCityBtn: 'Random city',
       genCountry: 'Country', genCountryBtn: 'Random country', genFamous: 'Famous person', genFamousBtn: 'Random famous person',
+      subGigs: 'Gigs', gigDate: 'Date', gigPlacePlaceholder: 'Where are you performing? (venue, open mic…)', gigLearnPlaceholder: 'What did you learn? What worked and what didn’t?', gigsUpcoming: 'Upcoming', gigsPast: 'Past', gigsEmpty: 'No gigs yet. Add your next one above.', gigToday: 'Today', gigUntitled: 'this gig',
+      confirmTitle: 'Are you sure?', confirmDeleteItem: 'Delete "{title}"? This can’t be undone.', thisItem: 'this item', confirmRemoveWeek: 'Remove "{title}" from this week? The video stays in your backlog.', boldTip: 'Bold (Cmd+B)',
       dayMon: 'Mon', dayTue: 'Tue', dayWed: 'Wed', dayThu: 'Thu', dayFri: 'Fri', daySat: 'Sat', daySun: 'Sun', colWeek: '// wk',
       footer: 'Click to add &nbsp;&middot;&nbsp; Right-click or long-press to remove &nbsp;&middot;&nbsp; 🎬 next to the day = videos edited &nbsp;&middot;&nbsp; Data saved automatically',
       uploadPlan: 'Upload plan', legendPending: 'Pending', legendWorked: 'Worked', legendSoSo: 'So-so', legendFlopped: 'Flopped',
@@ -1913,6 +1987,8 @@
       genWord: 'Palabra', genWordBtn: 'Palabra aleatoria', genNumber: 'Número', genNumberBtn: 'Número aleatorio',
       genProfession: 'Profesión', genProfessionBtn: 'Profesión aleatoria', genCity: 'Ciudad', genCityBtn: 'Ciudad aleatoria',
       genCountry: 'País', genCountryBtn: 'País aleatorio', genFamous: 'Famoso', genFamousBtn: 'Famoso aleatorio',
+      subGigs: 'Actuaciones', gigDate: 'Fecha', gigPlacePlaceholder: '¿Dónde actúas? (sala, micro abierto…)', gigLearnPlaceholder: '¿Qué has aprendido? ¿Qué funcionó y qué no?', gigsUpcoming: 'Próximas', gigsPast: 'Pasadas', gigsEmpty: 'Aún no hay actuaciones. Añade la próxima arriba.', gigToday: 'Hoy', gigUntitled: 'esta actuación',
+      confirmTitle: '¿Seguro?', confirmDeleteItem: '¿Eliminar "{title}"? No se puede deshacer.', thisItem: 'este elemento', confirmRemoveWeek: '¿Quitar "{title}" de esta semana? El vídeo seguirá en el backlog.', boldTip: 'Negrita (Cmd+B)',
       dayMon: 'Lun', dayTue: 'Mar', dayWed: 'Mié', dayThu: 'Jue', dayFri: 'Vie', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
       footer: 'Haz clic para añadir &nbsp;&middot;&nbsp; Clic derecho o pulsación larga para quitar &nbsp;&middot;&nbsp; 🎬 junto al día = vídeos editados &nbsp;&middot;&nbsp; Los datos se guardan automáticamente',
       uploadPlan: 'Plan de subidas', legendPending: 'Pendiente', legendWorked: 'Funcionó', legendSoSo: 'Regular', legendFlopped: 'Fracasó',
@@ -1981,6 +2057,8 @@
       genWord: 'Palavra', genWordBtn: 'Palavra aleatória', genNumber: 'Número', genNumberBtn: 'Número aleatório',
       genProfession: 'Profissão', genProfessionBtn: 'Profissão aleatória', genCity: 'Cidade', genCityBtn: 'Cidade aleatória',
       genCountry: 'País', genCountryBtn: 'País aleatório', genFamous: 'Famoso', genFamousBtn: 'Famoso aleatório',
+      subGigs: 'Apresentações', gigDate: 'Data', gigPlacePlaceholder: 'Onde você vai se apresentar? (casa, open mic…)', gigLearnPlaceholder: 'O que você aprendeu? O que funcionou e o que não?', gigsUpcoming: 'Próximas', gigsPast: 'Passadas', gigsEmpty: 'Ainda não há apresentações. Adicione a próxima acima.', gigToday: 'Hoje', gigUntitled: 'esta apresentação',
+      confirmTitle: 'Tem certeza?', confirmDeleteItem: 'Excluir "{title}"? Não dá para desfazer.', thisItem: 'este item', confirmRemoveWeek: 'Tirar "{title}" desta semana? O vídeo continua no backlog.', boldTip: 'Negrito (Cmd+B)',
       dayMon: 'Seg', dayTue: 'Ter', dayWed: 'Qua', dayThu: 'Qui', dayFri: 'Sex', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
       footer: 'Clique para adicionar &nbsp;&middot;&nbsp; Clique direito ou toque longo para remover &nbsp;&middot;&nbsp; 🎬 ao lado do dia = vídeos editados &nbsp;&middot;&nbsp; Os dados são salvos automaticamente',
       uploadPlan: 'Plano de publicação', legendPending: 'Pendente', legendWorked: 'Funcionou', legendSoSo: 'Mais ou menos', legendFlopped: 'Fracassou',
@@ -2534,9 +2612,86 @@
 
   // Always starts collapsed: the icon's colour says whether there is something inside.
   // Comments are an editable box that grows with its text; Cmd/Ctrl+B toggles bold.
-  function commentAreaHtml(comment) {
-    const ph = esc(t('commentsPlaceholder')).replace(/"/g, '&quot;');
-    return `<div class="plan-comment" contenteditable="true" role="textbox" aria-multiline="true" spellcheck="true" data-placeholder="${ph}" aria-label="${ph}" hidden>${cleanComment(comment)}</div>`;
+  function commentAreaHtml(comment, opts = {}) {
+    const ph = esc(opts.placeholder || t('commentsPlaceholder')).replace(/"/g, '&quot;');
+    return `<div class="plan-comment" contenteditable="true" role="textbox" aria-multiline="true" spellcheck="true" data-placeholder="${ph}" aria-label="${ph}"${opts.open ? '' : ' hidden'}>${cleanComment(comment)}</div>`;
+  }
+
+  /* ── Bold button under the comment being edited (phones have no Cmd+B) ── */
+  let boldTools = null;
+  function commentBold() {
+    document.execCommand('styleWithCSS', false, false);
+    document.execCommand('bold');
+  }
+  function refreshBoldState() {
+    if (!boldTools || boldTools.hidden) return;
+    let on = false;
+    try { on = document.queryCommandState('bold'); } catch {}
+    boldTools.firstElementChild.classList.toggle('on', on);
+  }
+  function initBoldTools() {
+    boldTools = document.createElement('div');
+    boldTools.className = 'comment-tools';
+    boldTools.hidden = true;
+    boldTools.innerHTML = '<button type="button" class="bold-btn" tabindex="-1">B</button>';
+    const btn = boldTools.firstElementChild;
+    // Act on pointerdown and cancel it, so the text keeps focus and selection (and the phone keyboard stays up).
+    const press = (e) => {
+      e.preventDefault();
+      const box = document.activeElement;
+      if (!box?.classList?.contains('plan-comment')) return;
+      commentBold();
+      box.dispatchEvent(new Event('input', { bubbles: true }));
+      refreshBoldState();
+    };
+    btn.addEventListener('pointerdown', press);
+    btn.addEventListener('mousedown', e => e.preventDefault());
+    btn.addEventListener('click', e => e.preventDefault());
+    document.addEventListener('focusin', (e) => {
+      const box = e.target;
+      if (!box.classList?.contains('plan-comment')) return;
+      btn.title = t('boldTip');
+      btn.setAttribute('aria-label', t('boldTip'));
+      box.after(boldTools);
+      boldTools.hidden = false;
+      refreshBoldState();
+    });
+    document.addEventListener('focusout', (e) => {
+      if (e.target.classList?.contains('plan-comment')) boldTools.hidden = true;
+    });
+    document.addEventListener('selectionchange', refreshBoldState);
+  }
+
+  /* ── "Are you sure?" before deleting anything ── */
+  let confirmResolve = null;
+  function askConfirm(message) {
+    if (confirmResolve) confirmResolve(false);
+    document.getElementById('confirmMsg').textContent = message;
+    document.getElementById('confirmModal').classList.add('visible');
+    requestAnimationFrame(() => document.getElementById('confirmNo').focus());
+    return new Promise(resolve => { confirmResolve = resolve; });
+  }
+  function closeConfirm(answer) {
+    document.getElementById('confirmModal').classList.remove('visible');
+    const resolve = confirmResolve;
+    confirmResolve = null;
+    resolve?.(answer);
+  }
+  function initConfirm() {
+    const modal = document.getElementById('confirmModal');
+    document.getElementById('confirmYes').addEventListener('click', () => closeConfirm(true));
+    document.getElementById('confirmNo').addEventListener('click', () => closeConfirm(false));
+    modal.addEventListener('mousedown', (e) => { if (e.target === modal) closeConfirm(false); });
+    document.addEventListener('keydown', (e) => {
+      if (!confirmResolve) return;
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeConfirm(false); }
+    }, true);
+  }
+  // Deleting an empty row needs no question: nothing would be lost.
+  async function confirmDelete(title, hasContent = true, key = 'confirmDeleteItem') {
+    const name = (title || '').trim();
+    if (!name && !hasContent) return true;
+    return askConfirm(t(key, { title: name || t('thisItem') }));
   }
 
   // Stored comments are plain text (older ones) or a tiny HTML subset: <b>, <br>, <div>.
@@ -2851,7 +3006,9 @@
 
     bindComment(commentBtn, ta, vid, renderVideos);
 
-    el.querySelector('[data-act="delete"]').addEventListener('click', () => {
+    el.querySelector('[data-act="delete"]').addEventListener('click', async () => {
+      const v = vid() && video(vid());
+      if (v && !(await confirmDelete(v.title, true, 'confirmRemoveWeek'))) return;
       setPlanItems(planItems().filter(x => x.id !== id));
       save();
       renderPlan();
@@ -2886,8 +3043,8 @@
       const key = e.key.toLowerCase();
       if (key === 'b') {
         e.preventDefault();
-        document.execCommand('styleWithCSS', false, false);
-        document.execCommand('bold');
+        commentBold();
+        refreshBoldState();
       } else if (key === 'i' || key === 'u') {
         e.preventDefault();   // only bold is kept, so don't offer formats that would vanish
       }
@@ -3087,9 +3244,9 @@
       renderPlan();
     });
 
-    el.querySelector('[data-act="delete"]').addEventListener('click', () => {
+    el.querySelector('[data-act="delete"]').addEventListener('click', async () => {
       const v = video(id);
-      if (!confirm(t('confirmDelete', { title: v?.title || t('thisVideo') }))) return;
+      if (!(await askConfirm(t('confirmDelete', { title: (v?.title || '').trim() || t('thisVideo') })))) return;
       deleteVideo(id);
       renderVideos();
       renderPlan();
@@ -3631,7 +3788,9 @@
       row.querySelector('.plan-input').addEventListener('input', function() {
         updateCheckItem(cfg, id, { title: this.value });
       });
-      row.querySelector('[data-act="delete"]').addEventListener('click', () => {
+      row.querySelector('[data-act="delete"]').addEventListener('click', async () => {
+        const item = checkItems(cfg).find(x => x.id === id);
+        if (!(await confirmDelete(item?.title, !!item?.comment))) return;
         setCheckItems(cfg, checkItems(cfg).filter(t => t.id !== id));
         save();
         renderChecklist(cfg);
@@ -3680,6 +3839,7 @@
   function showNotesSubTab(name) {
     document.querySelectorAll('.subtab-btn[data-nsub]').forEach(b => b.classList.toggle('active', b.dataset.nsub === name));
     document.getElementById('nsub-text').hidden = name !== 'text';
+    document.getElementById('nsub-gigs').hidden = name !== 'gigs';
     document.getElementById('nsub-todo').hidden = name !== 'todo';
     try { localStorage.setItem(NOTES_SUBTAB_KEY, name); } catch {}
   }
@@ -3842,6 +4002,99 @@
     }
   }
 
+  /* ── Notes › Gigs: upcoming (soonest first) and past (latest first), with what you learned ── */
+
+  function gigs() {
+    return Array.isArray(data.gigs) ? data.gigs : [];
+  }
+
+  function setGigs(list) {
+    if (list.length) data.gigs = list;
+    else delete data.gigs;
+  }
+
+  function updateGig(id, patch) {
+    setGigs(gigs().map(g => g.id === id ? { ...g, ...patch } : g));
+    save();
+  }
+
+  function localTodayKey() {
+    const d = new Date();
+    return dateKey(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
+  function gigRowHtml(gig, today) {
+    const past = gig.date < today;
+    return `
+      <div class="plan-item gig-item${past ? ' past' : ''}" data-gid="${gig.id}">
+        <div class="plan-row">
+          <input type="date" class="gig-date-input" value="${esc(gig.date || '')}" aria-label="${t('gigDate')}">
+          ${gig.date === today ? `<span class="gig-today">${t('gigToday')}</span>` : ''}
+          <input class="plan-input" value="${esc(gig.title || '').replace(/"/g, '&quot;')}" placeholder="${t('gigPlacePlaceholder')}">
+          ${commentBtnHtml(gig.notes)}
+          <button type="button" class="plan-icon-btn" data-act="delete" title="${t('delete')}">✕</button>
+        </div>
+        ${commentAreaHtml(gig.notes, { placeholder: t('gigLearnPlaceholder'), open: past || !!gig.notes })}
+      </div>`;
+  }
+
+  function renderGigs() {
+    const today = localTodayKey();
+    const all = gigs();
+    const upcoming = all.filter(g => g.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+    const past = all.filter(g => !(g.date >= today)).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    document.getElementById('cntGigs').textContent = all.length;
+    document.getElementById('gigsEmpty').hidden = all.length > 0;
+    [['gigUpcoming', 'gigUpcomingHead', 'cntGigUpcoming', upcoming], ['gigPast', 'gigPastHead', 'cntGigPast', past]]
+      .forEach(([listId, headId, cntId, list]) => {
+        const el = document.getElementById(listId);
+        el.hidden = document.getElementById(headId).hidden = !list.length;
+        document.getElementById(cntId).textContent = list.length;
+        el.innerHTML = list.map(g => gigRowHtml(g, today)).join('');
+        bindGigRows(el);
+      });
+  }
+
+  function bindGigRows(container) {
+    container.querySelectorAll('.gig-item').forEach(row => {
+      const id = row.dataset.gid;
+      row.querySelector('.gig-date-input').addEventListener('change', function() {
+        if (!this.value) { this.value = gigs().find(g => g.id === id)?.date || ''; return; }
+        updateGig(id, { date: this.value });
+        renderGigs();   // re-sorts it into place
+      });
+      row.querySelector('.plan-input').addEventListener('input', function() {
+        updateGig(id, { title: this.value });
+      });
+      bindCommentToggle(row.querySelector('[data-act="comment"]'), row.querySelector('.plan-comment'),
+        notes => updateGig(id, { notes }));
+      row.querySelector('[data-act="delete"]').addEventListener('click', async () => {
+        const gig = gigs().find(g => g.id === id);
+        if (!(await confirmDelete(gig?.title || t('gigUntitled'), true))) return;
+        setGigs(gigs().filter(g => g.id !== id));
+        save();
+        renderGigs();
+      });
+    });
+  }
+
+  function bindGigs() {
+    const dateEl = document.getElementById('gigAddDate');
+    dateEl.value = localTodayKey();
+    document.getElementById('gigAddForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('gigAddInput');
+      const date = dateEl.value || localTodayKey();
+      const gig = { id: uid(), date, title: input.value.trim(), notes: '' };
+      setGigs([...gigs(), gig]);
+      save();
+      input.value = '';
+      renderGigs();
+      // Past gig: jump straight to writing what you learned.
+      if (date < localTodayKey()) document.querySelector(`.gig-item[data-gid="${gig.id}"] .plan-comment`)?.focus();
+    });
+  }
+
   /* ── Jokes: written on a given day, listed by month ── */
 
   function jokes() {
@@ -3917,7 +4170,9 @@
       });
       bindCommentToggle(row.querySelector('[data-act="comment"]'), row.querySelector('.plan-comment'),
         comment => updateJoke(id, { comment }));
-      row.querySelector('[data-act="delete"]').addEventListener('click', () => {
+      row.querySelector('[data-act="delete"]').addEventListener('click', async () => {
+        const joke = jokes().find(j => j.id === id);
+        if (!(await confirmDelete(joke?.title, !!joke?.comment))) return;
         setJokes(jokes().filter(j => j.id !== id));
         save();
         rerender();
@@ -4017,7 +4272,7 @@
       if (e.key === 'Escape') closeJokePanel();
     });
     document.addEventListener('mousedown', (e) => {
-      if (!e.target.closest('#jokePanel, .joke-btn')) closeJokePanel();
+      if (!e.target.closest('#jokePanel, .joke-btn, #confirmModal')) closeJokePanel();
     });
   }
 
@@ -4097,6 +4352,7 @@
     renderEdit();
     renderDevelop();
     renderTodo();
+    renderGigs();
 
     // Don't clobber the notes while they're being typed in.
     const notesEl = document.getElementById('notesText');
@@ -4183,6 +4439,9 @@
     bindTraining();
     bindGenerator();
     bindJokes();
+    bindGigs();
+    initConfirm();
+    initBoldTools();
     let startProfile = null;
     try {
       const savedUser = (localStorage.getItem(USERNAME_KEY) || '').toLowerCase();
