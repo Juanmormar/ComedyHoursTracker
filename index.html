@@ -271,6 +271,46 @@
     .gig-date-input:hover, .gig-date-input:focus { border-color: var(--border); outline: none; }
     .gig-today { flex: 0 0 auto; font-size: 11px; font-weight: 600; color: #fff; background: #f57c00; border-radius: 6px; padding: 2px 7px; }
     .gig-item.past .gig-date-input { color: var(--text-3); }
+    .gig-code {
+      flex: 0 0 auto;
+      font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: var(--text-2);
+      background: var(--hover-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 7px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .gig-code:hover { color: var(--text); border-color: var(--text-3); }
+    .gig-code.copied { color: #fff; background: #2e9d4a; border-color: #2e9d4a; }
+    .gig-videos { flex: 0 0 auto; font-size: 11px; color: var(--text-2); white-space: nowrap; }
+
+    /* Recordings linked to a video (gig codes) */
+    .plan-icon-btn.rec-btn { color: #9a9aa0; opacity: 1; }
+    .plan-icon-btn.rec-btn:hover { color: var(--text-2); }
+    .plan-icon-btn.rec-btn.has-rec, .plan-icon-btn.rec-btn.has-rec:hover { color: var(--accent); }
+    .rec-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 6px 8px 22px; }
+    .rec-line[hidden] { display: none; }
+    .rec-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: var(--accent);
+      background: var(--accent-bg);
+      border-radius: 6px;
+      padding: 3px 4px 3px 7px;
+    }
+    .rec-chip button { font: inherit; font-size: 13px; color: inherit; background: none; border: none; cursor: pointer; padding: 0 3px; opacity: .7; }
+    .rec-chip button:hover { opacity: 1; }
+    .rec-select {
+      font: inherit; font-size: 12px;
+      color: var(--text-2);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 6px;
+      max-width: 100%;
+    }
     .plan-comment[hidden] { display: none; }
 
     .plan-add {
@@ -1919,6 +1959,7 @@
       genCountry: 'Country', genCountryBtn: 'Random country', genFamous: 'Famous person', genFamousBtn: 'Random famous person',
       subGigs: 'Gigs', gigDate: 'Date', gigPlacePlaceholder: 'Where are you performing? (venue, open mic…)', gigLearnPlaceholder: 'What did you learn? What worked and what didn’t?', gigsUpcoming: 'Upcoming', gigsPast: 'Past', gigsEmpty: 'No gigs yet. Add your next one above.', gigToday: 'Today', gigUntitled: 'this gig',
       confirmTitle: 'Are you sure?', confirmDeleteItem: 'Delete "{title}"? This can’t be undone.', thisItem: 'this item', confirmRemoveWeek: 'Remove "{title}" from this week? The video stays in your backlog.', boldTip: 'Bold (Cmd+B)',
+      gigCodeCopy: 'Copy code', copied: '✓ Copied', recordings: 'Recordings (gigs where it was recorded)', recAdd: '+ Add recording…', recNone: 'No gigs yet (Notes › Gigs)', recRemove: 'Remove', gigVideosTip: 'Videos recorded here: {list}',
       dayMon: 'Mon', dayTue: 'Tue', dayWed: 'Wed', dayThu: 'Thu', dayFri: 'Fri', daySat: 'Sat', daySun: 'Sun', colWeek: '// wk',
       footer: 'Click to add &nbsp;&middot;&nbsp; Right-click or long-press to remove &nbsp;&middot;&nbsp; 🎬 next to the day = videos edited &nbsp;&middot;&nbsp; Data saved automatically',
       uploadPlan: 'Upload plan', legendPending: 'Pending', legendWorked: 'Worked', legendSoSo: 'So-so', legendFlopped: 'Flopped',
@@ -1989,6 +2030,7 @@
       genCountry: 'País', genCountryBtn: 'País aleatorio', genFamous: 'Famoso', genFamousBtn: 'Famoso aleatorio',
       subGigs: 'Actuaciones', gigDate: 'Fecha', gigPlacePlaceholder: '¿Dónde actúas? (sala, micro abierto…)', gigLearnPlaceholder: '¿Qué has aprendido? ¿Qué funcionó y qué no?', gigsUpcoming: 'Próximas', gigsPast: 'Pasadas', gigsEmpty: 'Aún no hay actuaciones. Añade la próxima arriba.', gigToday: 'Hoy', gigUntitled: 'esta actuación',
       confirmTitle: '¿Seguro?', confirmDeleteItem: '¿Eliminar "{title}"? No se puede deshacer.', thisItem: 'este elemento', confirmRemoveWeek: '¿Quitar "{title}" de esta semana? El vídeo seguirá en el backlog.', boldTip: 'Negrita (Cmd+B)',
+      gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Grabaciones (actuaciones donde se grabó)', recAdd: '+ Añadir grabación…', recNone: 'Aún no hay actuaciones (Notas › Actuaciones)', recRemove: 'Quitar', gigVideosTip: 'Vídeos grabados aquí: {list}',
       dayMon: 'Lun', dayTue: 'Mar', dayWed: 'Mié', dayThu: 'Jue', dayFri: 'Vie', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
       footer: 'Haz clic para añadir &nbsp;&middot;&nbsp; Clic derecho o pulsación larga para quitar &nbsp;&middot;&nbsp; 🎬 junto al día = vídeos editados &nbsp;&middot;&nbsp; Los datos se guardan automáticamente',
       uploadPlan: 'Plan de subidas', legendPending: 'Pendiente', legendWorked: 'Funcionó', legendSoSo: 'Regular', legendFlopped: 'Fracasó',
@@ -2059,6 +2101,7 @@
       genCountry: 'País', genCountryBtn: 'País aleatório', genFamous: 'Famoso', genFamousBtn: 'Famoso aleatório',
       subGigs: 'Apresentações', gigDate: 'Data', gigPlacePlaceholder: 'Onde você vai se apresentar? (casa, open mic…)', gigLearnPlaceholder: 'O que você aprendeu? O que funcionou e o que não?', gigsUpcoming: 'Próximas', gigsPast: 'Passadas', gigsEmpty: 'Ainda não há apresentações. Adicione a próxima acima.', gigToday: 'Hoje', gigUntitled: 'esta apresentação',
       confirmTitle: 'Tem certeza?', confirmDeleteItem: 'Excluir "{title}"? Não dá para desfazer.', thisItem: 'este item', confirmRemoveWeek: 'Tirar "{title}" desta semana? O vídeo continua no backlog.', boldTip: 'Negrito (Cmd+B)',
+      gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Gravações (apresentações onde foi gravado)', recAdd: '+ Adicionar gravação…', recNone: 'Ainda não há apresentações (Notas › Apresentações)', recRemove: 'Remover', gigVideosTip: 'Vídeos gravados aqui: {list}',
       dayMon: 'Seg', dayTue: 'Ter', dayWed: 'Qua', dayThu: 'Qui', dayFri: 'Sex', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
       footer: 'Clique para adicionar &nbsp;&middot;&nbsp; Clique direito ou toque longo para remover &nbsp;&middot;&nbsp; 🎬 ao lado do dia = vídeos editados &nbsp;&middot;&nbsp; Os dados são salvos automaticamente',
       uploadPlan: 'Plano de publicação', legendPending: 'Pendente', legendWorked: 'Funcionou', legendSoSo: 'Mais ou menos', legendFlopped: 'Fracassou',
@@ -2749,8 +2792,8 @@
     save();
   }
 
-  function addVideo(title, comment = '') {
-    const v = { id: uid(), title, status: 'gray', comment };
+  function addVideo(title, comment = '', extra = {}) {
+    const v = { id: uid(), title, status: 'gray', comment, ...extra };
     setVideos([...videos(), v]);
     save();
     return v;
@@ -3226,9 +3269,11 @@
           ${dot}
           <input class="plan-input" value="${esc(v.title || '').replace(/"/g, '&quot;')}" placeholder="${t('videoTitlePlaceholder')}">
           ${slot ? `<span class="vslot${published ? '' : ' scheduled'}">${published ? '' : t('selectedPrefix')}${slotLabel(slot)}</span>` : ''}
+          ${recBtnHtml(v.gigs)}
           ${commentBtnHtml(c)}
           <button class="plan-icon-btn" data-act="delete" title="${t('deleteVideo')}">✕</button>
         </div>
+        ${recLineHtml(v.gigs)}
         ${commentAreaHtml(c)}
       </div>`;
   }
@@ -3238,6 +3283,7 @@
     // Re-render this tab too: a colour moves it to Published, grey moves it back.
     bindStatusDot(el.querySelector('.plan-dot'), () => id, () => { renderPlan(); renderVideos(); });
     bindComment(el.querySelector('[data-act="comment"]'), el.querySelector('.plan-comment'), () => id, renderPlan);
+    bindRec(el, () => video(id)?.gigs, gigs => updateVideo(id, { gigs }));
 
     el.querySelector('.plan-input').addEventListener('input', function() {
       updateVideo(id, { title: this.value });
@@ -3719,13 +3765,13 @@
   /* ── Checklists: Viral Videos on Trial, Videos to Edit, Videos to Develop + Notes to-do (independent lists) ── */
 
   const TRIAL = { key: 'trial', listId: 'trialList', countId: 'cntTrial', summaryId: 'trialSummary',
-                  placeholderKey: 'videoPlaceholder', emptyKey: 'emptyTrial' };
+                  placeholderKey: 'videoPlaceholder', emptyKey: 'emptyTrial', recordings: true };
   // Plain rows (no checkbox): the summary is just how many videos are left.
   const EDIT    = { key: 'toEdit', listId: 'editList', countId: 'cntEdit', summaryId: 'editSummary',
-                    placeholderKey: 'videoPlaceholder', emptyKey: 'emptyEdit', noCheck: true,
+                    placeholderKey: 'videoPlaceholder', emptyKey: 'emptyEdit', noCheck: true, recordings: true,
                     summary: list => t('videosToEditCount', { n: list.length }), toBacklog: true };
   const DEVELOP = { key: 'develop', listId: 'developList', countId: 'cntDevelop', summaryId: 'developSummary',
-                    placeholderKey: 'videoPlaceholder', emptyKey: 'emptyDevelop', noCheck: true, toEdit: true,
+                    placeholderKey: 'videoPlaceholder', emptyKey: 'emptyDevelop', noCheck: true, toEdit: true, recordings: true,
                     summary: list => t('videosToDevelopCount', { n: list.length }) };
   const TODO  = { key: 'todos', listId: 'todoList',  countId: 'cntTodo',  summaryId: 'todoSummary',
                   placeholderKey: 'todoPlaceholder', emptyKey: 'emptyTodo' };
@@ -3739,8 +3785,8 @@
     else delete data[cfg.key];
   }
 
-  function addCheckItem(cfg, title, comment = '') {
-    setCheckItems(cfg, [...checkItems(cfg), { id: uid(), title, done: false, comment }]);
+  function addCheckItem(cfg, title, comment = '', extra = {}) {
+    setCheckItems(cfg, [...checkItems(cfg), { id: uid(), title, done: false, comment, ...extra }]);
     save();
   }
 
@@ -3768,9 +3814,11 @@
               <input class="plan-input" value="${esc(item.title || '').replace(/"/g, '&quot;')}" placeholder="${t(cfg.placeholderKey)}">
               ${cfg.toEdit ? `<button class="plan-icon-btn to-backlog" data-act="to-edit" title="${t('moveToEditTip')}">${t('moveToEdit')}</button>` : ''}
               ${cfg.toBacklog ? `<button class="plan-icon-btn to-backlog" data-act="to-backlog" title="${t('moveToBacklogTip')}">${t('moveToBacklog')}</button>` : ''}
+              ${cfg.recordings ? recBtnHtml(item.gigs) : ''}
               ${commentBtnHtml(item.comment)}
               <button class="plan-icon-btn" data-act="delete" title="${t('delete')}">✕</button>
             </div>
+            ${cfg.recordings ? recLineHtml(item.gigs) : ''}
             ${commentAreaHtml(item.comment)}
           </div>`).join('')
       : `<p class="vempty">${t(cfg.emptyKey)}</p>`;
@@ -3800,7 +3848,7 @@
         const title = (item?.title || '').trim();
         if (!title) return;
         setCheckItems(cfg, checkItems(cfg).filter(t => t.id !== id));
-        addVideo(title, item.comment || '');   // saves
+        addVideo(title, item.comment || '', item.gigs?.length ? { gigs: item.gigs } : {});   // saves
         renderChecklist(cfg);
         renderVideos();
         renderPlan();
@@ -3810,12 +3858,13 @@
         const title = (item?.title || '').trim();
         if (!title) return;
         setCheckItems(cfg, checkItems(cfg).filter(t => t.id !== id));
-        addCheckItem(EDIT, title, item.comment);   // saves
+        addCheckItem(EDIT, title, item.comment, item.gigs?.length ? { gigs: item.gigs } : {});   // saves
         renderChecklist(cfg);
         renderEdit();
       });
       bindCommentToggle(row.querySelector('[data-act="comment"]'), row.querySelector('.plan-comment'),
         comment => updateCheckItem(cfg, id, { comment }));
+      if (cfg.recordings) bindRec(row, () => checkItems(cfg).find(x => x.id === id)?.gigs, gigs => updateCheckItem(cfg, id, { gigs }));
       makeDraggable(row, `#${cfg.listId}`, () => {
         const byId = Object.fromEntries(checkItems(cfg).map(t => [t.id, t]));
         setCheckItems(cfg, [...el.querySelectorAll('.trial-item')].map(n => byId[n.dataset.tid]).filter(Boolean));
@@ -3840,6 +3889,7 @@
     document.querySelectorAll('.subtab-btn[data-nsub]').forEach(b => b.classList.toggle('active', b.dataset.nsub === name));
     document.getElementById('nsub-text').hidden = name !== 'text';
     document.getElementById('nsub-gigs').hidden = name !== 'gigs';
+    if (name === 'gigs') renderGigs();
     document.getElementById('nsub-todo').hidden = name !== 'todo';
     try { localStorage.setItem(NOTES_SUBTAB_KEY, name); } catch {}
   }
@@ -4023,7 +4073,7 @@
     return dateKey(d.getFullYear(), d.getMonth(), d.getDate());
   }
 
-  function gigRowHtml(gig, today) {
+  function gigRowHtml(gig, today, codes) {
     const past = gig.date < today;
     return `
       <div class="plan-item gig-item${past ? ' past' : ''}" data-gid="${gig.id}">
@@ -4031,6 +4081,8 @@
           <input type="date" class="gig-date-input" value="${esc(gig.date || '')}" aria-label="${t('gigDate')}">
           ${gig.date === today ? `<span class="gig-today">${t('gigToday')}</span>` : ''}
           <input class="plan-input" value="${esc(gig.title || '').replace(/"/g, '&quot;')}" placeholder="${t('gigPlacePlaceholder')}">
+          ${gigVideosHtml(gig.id)}
+          <button type="button" class="gig-code" data-act="code" title="${t('gigCodeCopy')}">${esc(codes[gig.id] || '')}</button>
           ${commentBtnHtml(gig.notes)}
           <button type="button" class="plan-icon-btn" data-act="delete" title="${t('delete')}">✕</button>
         </div>
@@ -4050,7 +4102,8 @@
         const el = document.getElementById(listId);
         el.hidden = document.getElementById(headId).hidden = !list.length;
         document.getElementById(cntId).textContent = list.length;
-        el.innerHTML = list.map(g => gigRowHtml(g, today)).join('');
+        const codes = gigCodes();
+        el.innerHTML = list.map(g => gigRowHtml(g, today, codes)).join('');
         bindGigRows(el);
       });
   }
@@ -4065,6 +4118,15 @@
       });
       row.querySelector('.plan-input').addEventListener('input', function() {
         updateGig(id, { title: this.value });
+        refreshGigCodes();
+      });
+      const codeBtn = row.querySelector('[data-act="code"]');
+      codeBtn.addEventListener('click', async () => {
+        const code = gigCodes()[id];
+        try { await navigator.clipboard.writeText(code); } catch { return; }
+        codeBtn.textContent = t('copied');
+        codeBtn.classList.add('copied');
+        setTimeout(() => { codeBtn.textContent = gigCodes()[id] || ''; codeBtn.classList.remove('copied'); }, 1200);
       });
       bindCommentToggle(row.querySelector('[data-act="comment"]'), row.querySelector('.plan-comment'),
         notes => updateGig(id, { notes }));
@@ -4075,6 +4137,105 @@
         save();
         renderGigs();
       });
+    });
+  }
+
+  // Gig code: YYMMDD_Place, e.g. 261117_Terraza. Same day and place more than once → _1, _2… in the order they were added.
+  function gigBaseCode(gig) {
+    const [y, m, d] = (gig.date || '').split('-');
+    const day = y && m && d ? y.slice(-2) + m + d : '000000';
+    const place = (gig.title || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .split(/[^A-Za-z0-9]+/).filter(Boolean)
+      .map(w => w[0].toUpperCase() + w.slice(1)).join('');
+    return `${day}_${place || 'Show'}`;
+  }
+
+  function gigCodes() {
+    const groups = {};
+    gigs().forEach(g => { (groups[gigBaseCode(g)] ||= []).push(g.id); });
+    const codes = {};
+    Object.entries(groups).forEach(([base, ids]) => {
+      ids.forEach((id, i) => { codes[id] = ids.length > 1 ? `${base}_${i + 1}` : base; });
+    });
+    return codes;
+  }
+
+  function refreshGigCodes() {
+    const codes = gigCodes();
+    document.querySelectorAll('.gig-item').forEach(row => {
+      const btn = row.querySelector('[data-act="code"]');
+      if (btn && !btn.classList.contains('copied')) btn.textContent = codes[row.dataset.gid] || '';
+    });
+  }
+
+  // Titles of everything (library videos and video lists) that lists this gig as a recording.
+  function videosRecordedAt(gigId) {
+    const lists = [videos(), checkItems(TRIAL), checkItems(EDIT), checkItems(DEVELOP)];
+    return lists.flat().filter(v => (v.gigs || []).includes(gigId)).map(v => (v.title || '').trim() || '—');
+  }
+
+  function gigVideosHtml(gigId) {
+    const titles = videosRecordedAt(gigId);
+    if (!titles.length) return '';
+    const tip = esc(t('gigVideosTip', { list: titles.join(', ') })).replace(/"/g, '&quot;');
+    return `<span class="gig-videos" title="${tip}">🎬 ${titles.length}</span>`;
+  }
+
+  /* ── Recordings on videos: which gigs each joke was recorded at ── */
+  const MIC_ICON = '<svg class="comment-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>';
+
+  function liveGigIds(ids) {
+    const known = new Set(gigs().map(g => g.id));
+    return (ids || []).filter(id => known.has(id));
+  }
+
+  function recBtnHtml(ids) {
+    const label = t('recordings');
+    return `<button type="button" class="plan-icon-btn rec-btn${liveGigIds(ids).length ? ' has-rec' : ''}" data-act="rec" title="${label}" aria-label="${label}">${MIC_ICON}</button>`;
+  }
+
+  function recLineInner(ids) {
+    const codes = gigCodes();
+    const live = liveGigIds(ids);
+    const chips = live.map(id => `<span class="rec-chip">${esc(codes[id])}<button type="button" data-rm="${id}" title="${t('recRemove')}" aria-label="${t('recRemove')}">×</button></span>`).join('');
+    const options = gigs().filter(g => !live.includes(g.id))
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+      .map(g => `<option value="${g.id}">${esc(codes[g.id])}</option>`).join('');
+    const select = gigs().length
+      ? `<select class="rec-select" aria-label="${t('recAdd')}"><option value="">${t('recAdd')}</option>${options}</select>`
+      : `<select class="rec-select" disabled><option>${t('recNone')}</option></select>`;
+    return chips + select;
+  }
+
+  function recLineHtml(ids) {
+    return `<div class="rec-line"${liveGigIds(ids).length ? '' : ' hidden'}>${recLineInner(ids)}</div>`;
+  }
+
+  function bindRec(row, getIds, setIds) {
+    const btn = row.querySelector('[data-act="rec"]');
+    const line = row.querySelector('.rec-line');
+    if (!btn || !line) return;
+    const refresh = () => {
+      line.innerHTML = recLineInner(getIds());
+      btn.classList.toggle('has-rec', liveGigIds(getIds()).length > 0);
+    };
+    btn.addEventListener('click', () => {
+      const show = line.hidden;
+      line.hidden = !show;
+      if (show) line.querySelector('.rec-select:not([disabled])')?.focus();
+    });
+    line.addEventListener('change', (e) => {
+      if (!e.target.matches('.rec-select') || !e.target.value) return;
+      setIds([...liveGigIds(getIds()), e.target.value]);
+      refresh();
+    });
+    line.addEventListener('click', (e) => {
+      const rm = e.target.closest('[data-rm]');
+      if (!rm) return;
+      const left = liveGigIds(getIds()).filter(id => id !== rm.dataset.rm);
+      if (left.length) setIds(left);
+      else setIds(undefined);
+      refresh();
     });
   }
 
