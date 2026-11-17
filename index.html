@@ -302,6 +302,9 @@
     }
     .rec-chip button { font: inherit; font-size: 13px; color: inherit; background: none; border: none; cursor: pointer; padding: 0 3px; opacity: .7; }
     .rec-chip button:hover { opacity: 1; }
+    .rec-chip.joke-chip { font-family: inherit; font-size: 12px; font-weight: 500; line-height: 1.2; color: #b35900; background: rgba(245,124,0,.14); }
+    .plan-icon-btn.joke-link-btn { font-size: 14px; opacity: .35; filter: grayscale(1); }
+    .plan-icon-btn.joke-link-btn.has-jokes, .plan-icon-btn.joke-link-btn:hover { opacity: 1; filter: none; }
     .rec-select {
       font: inherit; font-size: 12px;
       color: var(--text-2);
@@ -1960,6 +1963,7 @@
       subGigs: 'Gigs', gigDate: 'Date', gigPlacePlaceholder: 'Where are you performing? (venue, open mic…)', gigLearnPlaceholder: 'What did you learn? What worked and what didn’t?', gigsUpcoming: 'Upcoming', gigsPast: 'Past', gigsEmpty: 'No gigs yet. Add your next one above.', gigToday: 'Today', gigUntitled: 'this gig',
       confirmTitle: 'Are you sure?', confirmDeleteItem: 'Delete "{title}"? This can’t be undone.', thisItem: 'this item', confirmRemoveWeek: 'Remove "{title}" from this week? The video stays in your backlog.', boldTip: 'Bold (Cmd+B)',
       gigCodeCopy: 'Copy code', copied: '✓ Copied', recordings: 'Recordings (gigs where it was recorded)', recAdd: '+ Add recording…', recNone: 'No gigs yet (Notes › Gigs)', recRemove: 'Remove', gigVideosTip: 'Videos recorded here: {list}',
+      gigJokes: 'Jokes performed at this gig', jokeAdd: '+ Add joke…', jokeNone: 'No jokes yet (Calendar › Written jokes)',
       dayMon: 'Mon', dayTue: 'Tue', dayWed: 'Wed', dayThu: 'Thu', dayFri: 'Fri', daySat: 'Sat', daySun: 'Sun', colWeek: '// wk',
       footer: 'Click to add &nbsp;&middot;&nbsp; Right-click or long-press to remove &nbsp;&middot;&nbsp; 🎬 next to the day = videos edited &nbsp;&middot;&nbsp; Data saved automatically',
       uploadPlan: 'Upload plan', legendPending: 'Pending', legendWorked: 'Worked', legendSoSo: 'So-so', legendFlopped: 'Flopped',
@@ -2031,6 +2035,7 @@
       subGigs: 'Actuaciones', gigDate: 'Fecha', gigPlacePlaceholder: '¿Dónde actúas? (sala, micro abierto…)', gigLearnPlaceholder: '¿Qué has aprendido? ¿Qué funcionó y qué no?', gigsUpcoming: 'Próximas', gigsPast: 'Pasadas', gigsEmpty: 'Aún no hay actuaciones. Añade la próxima arriba.', gigToday: 'Hoy', gigUntitled: 'esta actuación',
       confirmTitle: '¿Seguro?', confirmDeleteItem: '¿Eliminar "{title}"? No se puede deshacer.', thisItem: 'este elemento', confirmRemoveWeek: '¿Quitar "{title}" de esta semana? El vídeo seguirá en el backlog.', boldTip: 'Negrita (Cmd+B)',
       gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Grabaciones (actuaciones donde se grabó)', recAdd: '+ Añadir grabación…', recNone: 'Aún no hay actuaciones (Notas › Actuaciones)', recRemove: 'Quitar', gigVideosTip: 'Vídeos grabados aquí: {list}',
+      gigJokes: 'Chistes de esta actuación', jokeAdd: '+ Añadir chiste…', jokeNone: 'Aún no hay chistes (Calendario › Chistes escritos)',
       dayMon: 'Lun', dayTue: 'Mar', dayWed: 'Mié', dayThu: 'Jue', dayFri: 'Vie', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
       footer: 'Haz clic para añadir &nbsp;&middot;&nbsp; Clic derecho o pulsación larga para quitar &nbsp;&middot;&nbsp; 🎬 junto al día = vídeos editados &nbsp;&middot;&nbsp; Los datos se guardan automáticamente',
       uploadPlan: 'Plan de subidas', legendPending: 'Pendiente', legendWorked: 'Funcionó', legendSoSo: 'Regular', legendFlopped: 'Fracasó',
@@ -2102,6 +2107,7 @@
       subGigs: 'Apresentações', gigDate: 'Data', gigPlacePlaceholder: 'Onde você vai se apresentar? (casa, open mic…)', gigLearnPlaceholder: 'O que você aprendeu? O que funcionou e o que não?', gigsUpcoming: 'Próximas', gigsPast: 'Passadas', gigsEmpty: 'Ainda não há apresentações. Adicione a próxima acima.', gigToday: 'Hoje', gigUntitled: 'esta apresentação',
       confirmTitle: 'Tem certeza?', confirmDeleteItem: 'Excluir "{title}"? Não dá para desfazer.', thisItem: 'este item', confirmRemoveWeek: 'Tirar "{title}" desta semana? O vídeo continua no backlog.', boldTip: 'Negrito (Cmd+B)',
       gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Gravações (apresentações onde foi gravado)', recAdd: '+ Adicionar gravação…', recNone: 'Ainda não há apresentações (Notas › Apresentações)', recRemove: 'Remover', gigVideosTip: 'Vídeos gravados aqui: {list}',
+      gigJokes: 'Piadas desta apresentação', jokeAdd: '+ Adicionar piada…', jokeNone: 'Ainda não há piadas (Calendário › Piadas escritas)',
       dayMon: 'Seg', dayTue: 'Ter', dayWed: 'Qua', dayThu: 'Qui', dayFri: 'Sex', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
       footer: 'Clique para adicionar &nbsp;&middot;&nbsp; Clique direito ou toque longo para remover &nbsp;&middot;&nbsp; 🎬 ao lado do dia = vídeos editados &nbsp;&middot;&nbsp; Os dados são salvos automaticamente',
       uploadPlan: 'Plano de publicação', legendPending: 'Pendente', legendWorked: 'Funcionou', legendSoSo: 'Mais ou menos', legendFlopped: 'Fracassou',
@@ -4083,9 +4089,11 @@
           <input class="plan-input" value="${esc(gig.title || '').replace(/"/g, '&quot;')}" placeholder="${t('gigPlacePlaceholder')}">
           ${gigVideosHtml(gig.id)}
           <button type="button" class="gig-code" data-act="code" title="${t('gigCodeCopy')}">${esc(codes[gig.id] || '')}</button>
+          <button type="button" class="plan-icon-btn joke-link-btn${liveJokeIds(gig.jokes).length ? ' has-jokes' : ''}" data-act="jokes" title="${t('gigJokes')}" aria-label="${t('gigJokes')}">🤣</button>
           ${commentBtnHtml(gig.notes)}
           <button type="button" class="plan-icon-btn" data-act="delete" title="${t('delete')}">✕</button>
         </div>
+        <div class="rec-line joke-line"${liveJokeIds(gig.jokes).length ? '' : ' hidden'}>${jokeLineInner(gig.jokes)}</div>
         ${commentAreaHtml(gig.notes, { placeholder: t('gigLearnPlaceholder'), open: past || !!gig.notes })}
       </div>`;
   }
@@ -4130,6 +4138,7 @@
       });
       bindCommentToggle(row.querySelector('[data-act="comment"]'), row.querySelector('.plan-comment'),
         notes => updateGig(id, { notes }));
+      bindGigJokes(row, id);
       row.querySelector('[data-act="delete"]').addEventListener('click', async () => {
         const gig = gigs().find(g => g.id === id);
         if (!(await confirmDelete(gig?.title || t('gigUntitled'), true))) return;
@@ -4235,6 +4244,56 @@
       const left = liveGigIds(getIds()).filter(id => id !== rm.dataset.rm);
       if (left.length) setIds(left);
       else setIds(undefined);
+      refresh();
+    });
+  }
+
+  /* ── Jokes performed at a gig ── */
+  function liveJokeIds(ids) {
+    const known = new Set(jokes().map(j => j.id));
+    return (ids || []).filter(id => known.has(id));
+  }
+
+  function jokeLinkLabel(j) {
+    return `${(j.title || '').trim() || t('jokeTitlePlaceholder')} · ${jokeDateLabel(j.dk)}`;
+  }
+
+  function jokeLineInner(ids) {
+    const live = liveJokeIds(ids);
+    const byId = Object.fromEntries(jokes().map(j => [j.id, j]));
+    const chips = live.map(id => `<span class="rec-chip joke-chip">${esc((byId[id].title || '').trim() || t('jokeTitlePlaceholder'))}<button type="button" data-rm="${id}" title="${t('recRemove')}" aria-label="${t('recRemove')}">×</button></span>`).join('');
+    const options = jokes().filter(j => !live.includes(j.id))
+      .sort((a, b) => b.dk.localeCompare(a.dk))
+      .map(j => `<option value="${j.id}">${esc(jokeLinkLabel(j))}</option>`).join('');
+    const select = jokes().length
+      ? `<select class="rec-select" aria-label="${t('jokeAdd')}"><option value="">${t('jokeAdd')}</option>${options}</select>`
+      : `<select class="rec-select" disabled><option>${t('jokeNone')}</option></select>`;
+    return chips + select;
+  }
+
+  function bindGigJokes(row, gigId) {
+    const btn = row.querySelector('[data-act="jokes"]');
+    const line = row.querySelector('.joke-line');
+    const get = () => gigs().find(g => g.id === gigId)?.jokes;
+    const set = (ids) => updateGig(gigId, { jokes: ids.length ? ids : undefined });
+    const refresh = () => {
+      line.innerHTML = jokeLineInner(get());
+      btn.classList.toggle('has-jokes', liveJokeIds(get()).length > 0);
+    };
+    btn.addEventListener('click', () => {
+      const show = line.hidden;
+      line.hidden = !show;
+      if (show) line.querySelector('.rec-select:not([disabled])')?.focus();
+    });
+    line.addEventListener('change', (e) => {
+      if (!e.target.matches('.rec-select') || !e.target.value) return;
+      set([...liveJokeIds(get()), e.target.value]);
+      refresh();
+    });
+    line.addEventListener('click', (e) => {
+      const rm = e.target.closest('[data-rm]');
+      if (!rm) return;
+      set(liveJokeIds(get()).filter(id => id !== rm.dataset.rm));
       refresh();
     });
   }
