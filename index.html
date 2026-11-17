@@ -4256,6 +4256,8 @@
     ['develop', 'subDevelop'], ['edit', 'subEdit'], ['backlog', 'subBacklog'],
     ['published', 'subPublished'], ['trial', 'subTrial'], ['written', 'subJokes'],
   ];
+  // Written jokes are first drafts: not offered here, but older links to them still show.
+  const JOKE_PICK_SOURCES = JOKE_SOURCES.filter(([k]) => k !== 'written');
 
   function jokeSourceItems(src) {
     const sched = schedule();
@@ -4291,7 +4293,7 @@
       const tip = esc(srcName(idx[id].src)).replace(/"/g, '&quot;');
       return `<span class="rec-chip joke-chip" title="${tip}">${esc(idx[id].title || t('jokeTitlePlaceholder'))}<button type="button" data-rm="${id}" title="${t('recRemove')}" aria-label="${t('recRemove')}">×</button></span>`;
     }).join('');
-    const sources = JOKE_SOURCES.map(([k, key]) =>
+    const sources = JOKE_PICK_SOURCES.map(([k, key]) =>
       `<option value="${k}"${k === src ? ' selected' : ''}>${t(key)} (${jokeSourceItems(k).length})</option>`).join('');
     const items = jokeSourceItems(src).filter(it => !live.includes(it.id));
     const options = items.map(it => {
