@@ -1964,6 +1964,7 @@
       confirmTitle: 'Are you sure?', confirmDeleteItem: 'Delete "{title}"? This can’t be undone.', thisItem: 'this item', confirmRemoveWeek: 'Remove "{title}" from this week? The video stays in your backlog.', boldTip: 'Bold (Cmd+B)',
       gigCodeCopy: 'Copy code', copied: '✓ Copied', recordings: 'Recordings (gigs where it was recorded)', recAdd: '+ Add recording…', recNone: 'No gigs yet (Notes › Gigs)', recRemove: 'Remove', gigVideosTip: 'Videos recorded here: {list}',
       gigJokes: 'Jokes performed at this gig', jokeAdd: '+ Add joke…', jokeNone: 'No jokes yet (Calendar › Written jokes)',
+      jokeFrom: 'Pick from list', jokeNoneInList: 'Nothing left in this list',
       dayMon: 'Mon', dayTue: 'Tue', dayWed: 'Wed', dayThu: 'Thu', dayFri: 'Fri', daySat: 'Sat', daySun: 'Sun', colWeek: '// wk',
       footer: 'Click to add &nbsp;&middot;&nbsp; Right-click or long-press to remove &nbsp;&middot;&nbsp; 🎬 next to the day = videos edited &nbsp;&middot;&nbsp; Data saved automatically',
       uploadPlan: 'Upload plan', legendPending: 'Pending', legendWorked: 'Worked', legendSoSo: 'So-so', legendFlopped: 'Flopped',
@@ -2036,6 +2037,7 @@
       confirmTitle: '¿Seguro?', confirmDeleteItem: '¿Eliminar "{title}"? No se puede deshacer.', thisItem: 'este elemento', confirmRemoveWeek: '¿Quitar "{title}" de esta semana? El vídeo seguirá en el backlog.', boldTip: 'Negrita (Cmd+B)',
       gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Grabaciones (actuaciones donde se grabó)', recAdd: '+ Añadir grabación…', recNone: 'Aún no hay actuaciones (Notas › Actuaciones)', recRemove: 'Quitar', gigVideosTip: 'Vídeos grabados aquí: {list}',
       gigJokes: 'Chistes de esta actuación', jokeAdd: '+ Añadir chiste…', jokeNone: 'Aún no hay chistes (Calendario › Chistes escritos)',
+      jokeFrom: 'Elegir de la lista', jokeNoneInList: 'No queda nada en esta lista',
       dayMon: 'Lun', dayTue: 'Mar', dayWed: 'Mié', dayThu: 'Jue', dayFri: 'Vie', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
       footer: 'Haz clic para añadir &nbsp;&middot;&nbsp; Clic derecho o pulsación larga para quitar &nbsp;&middot;&nbsp; 🎬 junto al día = vídeos editados &nbsp;&middot;&nbsp; Los datos se guardan automáticamente',
       uploadPlan: 'Plan de subidas', legendPending: 'Pendiente', legendWorked: 'Funcionó', legendSoSo: 'Regular', legendFlopped: 'Fracasó',
@@ -2108,6 +2110,7 @@
       confirmTitle: 'Tem certeza?', confirmDeleteItem: 'Excluir "{title}"? Não dá para desfazer.', thisItem: 'este item', confirmRemoveWeek: 'Tirar "{title}" desta semana? O vídeo continua no backlog.', boldTip: 'Negrito (Cmd+B)',
       gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Gravações (apresentações onde foi gravado)', recAdd: '+ Adicionar gravação…', recNone: 'Ainda não há apresentações (Notas › Apresentações)', recRemove: 'Remover', gigVideosTip: 'Vídeos gravados aqui: {list}',
       gigJokes: 'Piadas desta apresentação', jokeAdd: '+ Adicionar piada…', jokeNone: 'Ainda não há piadas (Calendário › Piadas escritas)',
+      jokeFrom: 'Escolher da lista', jokeNoneInList: 'Não sobrou nada nesta lista',
       dayMon: 'Seg', dayTue: 'Ter', dayWed: 'Qua', dayThu: 'Qui', dayFri: 'Sex', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
       footer: 'Clique para adicionar &nbsp;&middot;&nbsp; Clique direito ou toque longo para remover &nbsp;&middot;&nbsp; 🎬 ao lado do dia = vídeos editados &nbsp;&middot;&nbsp; Os dados são salvos automaticamente',
       uploadPlan: 'Plano de publicação', legendPending: 'Pendente', legendWorked: 'Funcionou', legendSoSo: 'Mais ou menos', legendFlopped: 'Fracassou',
@@ -3854,7 +3857,7 @@
         const title = (item?.title || '').trim();
         if (!title) return;
         setCheckItems(cfg, checkItems(cfg).filter(t => t.id !== id));
-        addVideo(title, item.comment || '', item.gigs?.length ? { gigs: item.gigs } : {});   // saves
+        addVideo(title, item.comment || '', { id: item.id, ...(item.gigs?.length ? { gigs: item.gigs } : {}) });   // saves (same id keeps gig links)
         renderChecklist(cfg);
         renderVideos();
         renderPlan();
@@ -3864,7 +3867,7 @@
         const title = (item?.title || '').trim();
         if (!title) return;
         setCheckItems(cfg, checkItems(cfg).filter(t => t.id !== id));
-        addCheckItem(EDIT, title, item.comment, item.gigs?.length ? { gigs: item.gigs } : {});   // saves
+        addCheckItem(EDIT, title, item.comment, { id: item.id, ...(item.gigs?.length ? { gigs: item.gigs } : {}) });   // saves (same id keeps gig links)
         renderChecklist(cfg);
         renderEdit();
       });
@@ -4093,7 +4096,7 @@
           ${commentBtnHtml(gig.notes)}
           <button type="button" class="plan-icon-btn" data-act="delete" title="${t('delete')}">✕</button>
         </div>
-        <div class="rec-line joke-line"${liveJokeIds(gig.jokes).length ? '' : ' hidden'}>${jokeLineInner(gig.jokes)}</div>
+        <div class="rec-line joke-line"${liveJokeIds(gig.jokes).length ? '' : ' hidden'}>${jokeLineInner(gig.jokes, 'develop')}</div>
         ${commentAreaHtml(gig.notes, { placeholder: t('gigLearnPlaceholder'), open: past || !!gig.notes })}
       </div>`;
   }
@@ -4248,45 +4251,82 @@
     });
   }
 
-  /* ── Jokes performed at a gig ── */
-  function liveJokeIds(ids) {
-    const known = new Set(jokes().map(j => j.id));
-    return (ids || []).filter(id => known.has(id));
+  /* ── Jokes performed at a gig: picked from the Videos lists (default: To Develop) ── */
+  const JOKE_SOURCES = [
+    ['develop', 'subDevelop'], ['edit', 'subEdit'], ['backlog', 'subBacklog'],
+    ['published', 'subPublished'], ['trial', 'subTrial'], ['written', 'subJokes'],
+  ];
+
+  function jokeSourceItems(src) {
+    const sched = schedule();
+    switch (src) {
+      case 'develop':   return checkItems(DEVELOP);
+      case 'edit':      return checkItems(EDIT);
+      case 'trial':     return checkItems(TRIAL);
+      case 'backlog':   return videos().filter(v => !isPublished(v, sched));
+      case 'published': return videos().filter(v => isPublished(v, sched));
+      case 'written':   return [...jokes()].sort((a, b) => b.dk.localeCompare(a.dk));
+      default:          return [];
+    }
   }
 
-  function jokeLinkLabel(j) {
-    return `${(j.title || '').trim() || t('jokeTitlePlaceholder')} · ${jokeDateLabel(j.dk)}`;
+  // id → { title, src } across every list; links survive moves because moved items keep their id.
+  function jokeIndex() {
+    const idx = {};
+    JOKE_SOURCES.forEach(([src]) => jokeSourceItems(src).forEach(it => {
+      if (!idx[it.id]) idx[it.id] = { title: (it.title || '').trim(), src };
+    }));
+    return idx;
   }
 
-  function jokeLineInner(ids) {
-    const live = liveJokeIds(ids);
-    const byId = Object.fromEntries(jokes().map(j => [j.id, j]));
-    const chips = live.map(id => `<span class="rec-chip joke-chip">${esc((byId[id].title || '').trim() || t('jokeTitlePlaceholder'))}<button type="button" data-rm="${id}" title="${t('recRemove')}" aria-label="${t('recRemove')}">×</button></span>`).join('');
-    const options = jokes().filter(j => !live.includes(j.id))
-      .sort((a, b) => b.dk.localeCompare(a.dk))
-      .map(j => `<option value="${j.id}">${esc(jokeLinkLabel(j))}</option>`).join('');
-    const select = jokes().length
-      ? `<select class="rec-select" aria-label="${t('jokeAdd')}"><option value="">${t('jokeAdd')}</option>${options}</select>`
-      : `<select class="rec-select" disabled><option>${t('jokeNone')}</option></select>`;
-    return chips + select;
+  function liveJokeIds(ids, idx = jokeIndex()) {
+    return (ids || []).filter(id => idx[id]);
+  }
+
+  function jokeLineInner(ids, src) {
+    const idx = jokeIndex();
+    const live = liveJokeIds(ids, idx);
+    const srcName = key => t(JOKE_SOURCES.find(([k]) => k === key)?.[1] || 'subDevelop');
+    const chips = live.map(id => {
+      const tip = esc(srcName(idx[id].src)).replace(/"/g, '&quot;');
+      return `<span class="rec-chip joke-chip" title="${tip}">${esc(idx[id].title || t('jokeTitlePlaceholder'))}<button type="button" data-rm="${id}" title="${t('recRemove')}" aria-label="${t('recRemove')}">×</button></span>`;
+    }).join('');
+    const sources = JOKE_SOURCES.map(([k, key]) =>
+      `<option value="${k}"${k === src ? ' selected' : ''}>${t(key)} (${jokeSourceItems(k).length})</option>`).join('');
+    const items = jokeSourceItems(src).filter(it => !live.includes(it.id));
+    const options = items.map(it => {
+      const label = (it.title || '').trim() || t('jokeTitlePlaceholder');
+      return `<option value="${it.id}">${esc(src === 'written' ? `${label} · ${jokeDateLabel(it.dk)}` : label)}</option>`;
+    }).join('');
+    const pick = items.length
+      ? `<select class="rec-select" data-pick aria-label="${t('jokeAdd')}"><option value="">${t('jokeAdd')}</option>${options}</select>`
+      : `<select class="rec-select" data-pick disabled><option>${t('jokeNoneInList')}</option></select>`;
+    return `${chips}<select class="rec-select" data-src aria-label="${t('jokeFrom')}">${sources}</select>${pick}`;
   }
 
   function bindGigJokes(row, gigId) {
     const btn = row.querySelector('[data-act="jokes"]');
     const line = row.querySelector('.joke-line');
+    let src = 'develop';
     const get = () => gigs().find(g => g.id === gigId)?.jokes;
     const set = (ids) => updateGig(gigId, { jokes: ids.length ? ids : undefined });
     const refresh = () => {
-      line.innerHTML = jokeLineInner(get());
+      line.innerHTML = jokeLineInner(get(), src);
       btn.classList.toggle('has-jokes', liveJokeIds(get()).length > 0);
     };
     btn.addEventListener('click', () => {
       const show = line.hidden;
       line.hidden = !show;
-      if (show) line.querySelector('.rec-select:not([disabled])')?.focus();
+      if (show) line.querySelector('[data-pick]:not([disabled])')?.focus();
     });
     line.addEventListener('change', (e) => {
-      if (!e.target.matches('.rec-select') || !e.target.value) return;
+      if (e.target.matches('[data-src]')) {
+        src = e.target.value;
+        refresh();
+        line.querySelector('[data-pick]:not([disabled])')?.focus();
+        return;
+      }
+      if (!e.target.matches('[data-pick]') || !e.target.value) return;
       set([...liveJokeIds(get()), e.target.value]);
       refresh();
     });
