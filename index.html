@@ -75,7 +75,7 @@
       color: var(--text-2);
     }
 
-    .plan-legend span { display: flex; align-items: center; gap: 4px; }
+    .plan-legend span { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
 
     .plan-body {
       background: var(--surface);
@@ -302,6 +302,10 @@
     }
     .rec-chip button { font: inherit; font-size: 13px; color: inherit; background: none; border: none; cursor: pointer; padding: 0 3px; opacity: .7; }
     .rec-chip button:hover { opacity: 1; }
+    .rec-chip .rec-rate { font: inherit; font-size: inherit; padding: 0; opacity: 1; border-radius: 3px; }
+    .rec-chip .rec-rate:hover { text-decoration: underline; }
+    .rec-chip.rate-green  { color: #1e7d36; background: rgba(52,199,89,.2); }
+    .rec-chip.rate-orange { color: #b35900; background: rgba(245,124,0,.18); }
     .rec-chip.joke-chip { font-family: inherit; font-size: 12px; font-weight: 500; line-height: 1.2; color: #b35900; background: rgba(245,124,0,.14); }
     .plan-icon-btn.joke-link-btn { font-size: 14px; opacity: .35; filter: grayscale(1); }
     .plan-icon-btn.joke-link-btn.has-jokes, .plan-icon-btn.joke-link-btn:hover { opacity: 1; filter: none; }
@@ -1471,6 +1475,42 @@
     .vstats b { color: #fff; }
     .vstats-sub { color: #ffd27a; }
 
+    /* Published tally */
+    .pstats {
+      color: #fff;
+      background: rgba(0,0,0,.28);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin: 14px 0 12px;
+      font-size: 13px;
+      -webkit-backdrop-filter: blur(6px);
+              backdrop-filter: blur(6px);
+    }
+    .pstats[hidden] { display: none; }
+    .plan-pstats { margin-top: -10px; }
+    .pstats-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
+    .pstats-from { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,.75); }
+    .pstats-from input {
+      font: inherit; font-size: 12px; color: #fff; color-scheme: dark;
+      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25);
+      border-radius: 6px; padding: 2px 6px;
+    }
+    .pstats-reset { font: inherit; color: rgba(255,255,255,.75); background: none; border: none; cursor: pointer; padding: 0 2px; }
+    .pstats-reset:hover { color: #fff; }
+    .pstats-total { font-weight: 600; }
+    .pstats-bar { display: flex; height: 6px; gap: 2px; margin: 10px 0 8px; border-radius: 3px; overflow: hidden; }
+    .pstats-bar i { display: block; min-width: 4px; }
+    .pstats-bar i.green  { background: var(--st-green); }
+    .pstats-bar i.purple { background: var(--st-purple); }
+    .pstats-bar i.red    { background: var(--st-red); }
+    .pstats-parts { display: flex; flex-wrap: wrap; gap: 4px 14px; color: rgba(255,255,255,.85); }
+    .pstats-parts span { display: inline-flex; align-items: center; gap: 5px; }
+    .pstats-parts .plan-dot { width: 9px; height: 9px; cursor: default; }
+    .pstats-parts .plan-dot:hover { transform: none; }
+    .pstats-parts b { color: #fff; }
+    .pstats-parts em { font-style: normal; color: rgba(255,255,255,.55); font-size: 12px; }
+
     .subtabs { border-bottom-color: rgba(255,255,255,.25); }
     .subtab-btn { color: rgba(255,255,255,.7); }
     .subtab-btn:hover { color: #fff; }
@@ -1533,6 +1573,7 @@
   <option value="en">English</option>
   <option value="es">Español</option>
   <option value="pt">Português</option>
+  <option value="fr">Français</option>
 </select>
 
 <!-- ─── STAGE BACKDROP (curtain + comedian photos) ─── -->
@@ -1657,6 +1698,7 @@
         <span><i class="plan-dot red"></i><span data-i18n="legendFlopped">Flopped</span></span>
       </div>
     </div>
+    <div class="pstats plan-pstats" id="planStats" hidden></div>
     <div class="plan-body" id="planBody"></div>
   </aside>
   </div>
@@ -1840,6 +1882,7 @@
     </div>
 
     <div id="sub-published" class="vpanel" hidden>
+      <div class="pstats" id="pubStats" hidden></div>
       <div class="plan-legend vlegend">
         <span><i class="plan-dot"></i><span data-i18n="legendPending">Pending</span></span>
         <span><i class="plan-dot green"></i><span data-i18n="legendWorked">Worked</span></span>
@@ -2013,6 +2056,8 @@
       emptyDevelop: 'No videos to develop yet.', emptyTodo: 'Nothing to do yet.', videosToEditCount: 'Videos to edit: {n}', videosToDevelopCount: 'Videos to develop: {n}',
       checkedSummary: '{n} of {total} checked', moveToBacklogTip: 'Edited — move to Backlog', moveToBacklog: '→ Backlog',
       vidTip: 'Videos edited — click +1, right-click −1', unitVids: 'vids', unitHrs: 'hrs',
+      recRateTip: '{label} — click to change', recRateNone: 'Not rated', recRateGreen: 'Went well', recRateOrange: 'So-so',
+      statsSince: 'Since', statsPublished: '{n} videos published', statsPublished_one: '{n} video published', statsWorked: 'worked', statsSoSo: 'so-so', statsFlopped: 'flopped', statsResetTip: 'Count from the first published video',
     },
     es: {
       language: 'Idioma',
@@ -2086,6 +2131,8 @@
       emptyDevelop: 'Aún no hay vídeos por desarrollar.', emptyTodo: 'Aún no hay nada por hacer.', videosToEditCount: 'Vídeos por editar: {n}', videosToDevelopCount: 'Vídeos por desarrollar: {n}',
       checkedSummary: '{n} de {total} marcados', moveToBacklogTip: 'Editado: mover al backlog', moveToBacklog: '→ Backlog',
       vidTip: 'Vídeos editados: clic +1, clic derecho −1', unitVids: 'vídeos', unitHrs: 'hrs',
+      recRateTip: '{label}. Haz clic para cambiar', recRateNone: 'Sin valorar', recRateGreen: 'Fue bien', recRateOrange: 'Regular',
+      statsSince: 'Desde', statsPublished: '{n} vídeos publicados', statsPublished_one: '{n} vídeo publicado', statsWorked: 'funcionaron', statsSoSo: 'regular', statsFlopped: 'no funcionaron', statsResetTip: 'Contar desde el primer vídeo publicado',
     },
     pt: {
       language: 'Idioma',
@@ -2159,9 +2206,86 @@
       emptyDevelop: 'Ainda não há vídeos para desenvolver.', emptyTodo: 'Ainda não há nada a fazer.', videosToEditCount: 'Vídeos para editar: {n}', videosToDevelopCount: 'Vídeos para desenvolver: {n}',
       checkedSummary: '{n} de {total} marcados', moveToBacklogTip: 'Editado: mover para o backlog', moveToBacklog: '→ Backlog',
       vidTip: 'Vídeos editados: clique +1, clique direito −1', unitVids: 'vídeos', unitHrs: 'hrs',
+      recRateTip: '{label}. Clique para mudar', recRateNone: 'Sem avaliação', recRateGreen: 'Foi bem', recRateOrange: 'Mais ou menos',
+      statsSince: 'Desde', statsPublished: '{n} vídeos publicados', statsPublished_one: '{n} vídeo publicado', statsWorked: 'funcionaram', statsSoSo: 'mais ou menos', statsFlopped: 'não funcionaram', statsResetTip: 'Contar desde o primeiro vídeo publicado',
+    },
+    fr: {
+      language: 'Langue',
+      siteTitle: 'Comedy Hours  - Ne brise pas la chaîne',
+      byline: 'Note les heures que tu passes à écrire de la comédie : une ✕ par heure.',
+      addNote: '+ note', profile: 'Profil', guideDownload: '📄 Guide (PDF, en anglais)', guideTip: 'Télécharger le guide d’utilisation en PDF (en anglais)',
+      modalTitle: 'Qui utilise le tracker ?', modalSub: 'Choisis ton profil. Ce navigateur s’en souviendra.',
+      passwordTitle: 'Mot de passe de {name}', passwordSub: 'Il ne te sera demandé qu’une fois par navigateur, ou en changeant de profil.',
+      passwordPlaceholder: 'Mot de passe', passwordWrong: 'Mot de passe incorrect. Réessaie.', cancel: 'Annuler', enter: 'Entrer',
+      jokesWritten: 'blagues écrites', subCalendar: 'Calendrier', subJokes: 'Blagues écrites', jokeTip: 'Blagues écrites : clique pour les ajouter ou les voir',
+      jokePlaceholder: 'Quelle blague as-tu écrite ?', jokeTitlePlaceholder: 'Blague sans titre',
+      jokesEmpty: 'Aucune blague écrite ce mois-ci. Ajoute-les avec 🤣 dans le calendrier.', jokesCount: '{n} blagues', jokesCount_one: '{n} blague',
+      sendToDevelop: '→ À développer', sendToDevelopTip: 'Envoyer vers Vidéos à développer', sentToDevelop: '✓ Envoyé',
+      moveToEdit: '→ À monter', moveToEditTip: 'Déplacer vers Vidéos à monter', close: 'Fermer',
+      thisMonth: 'Ce mois-ci', hrsWritten: 'h écrites', videosEdited: 'vidéos montées',
+      tabCalendar: 'Calendrier', tabVideos: 'Vidéos', tabNotes: 'Notes', tabTrainings: 'Entraînements',
+      subDocs: 'Documents', subGenerator: 'Générateur', genAll: '🎲 Tout générer', genFrom: 'De', genTo: 'à',
+      genWord: 'Mot', genWordBtn: 'Mot au hasard', genNumber: 'Nombre', genNumberBtn: 'Nombre au hasard',
+      genProfession: 'Métier', genProfessionBtn: 'Métier au hasard', genCity: 'Ville', genCityBtn: 'Ville au hasard',
+      genCountry: 'Pays', genCountryBtn: 'Pays au hasard', genFamous: 'Célébrité', genFamousBtn: 'Célébrité au hasard',
+      subGigs: 'Scènes', gigDate: 'Date', gigPlacePlaceholder: 'Où joues-tu ? (salle, open mic…)', gigLearnPlaceholder: 'Qu’as-tu appris ? Qu’est-ce qui a marché, ou pas ?', gigsUpcoming: 'À venir', gigsPast: 'Passées', gigsEmpty: 'Aucune scène pour l’instant. Ajoute la prochaine ci-dessus.', gigToday: 'Aujourd’hui', gigUntitled: 'cette scène',
+      confirmTitle: 'Tu es sûr ?', confirmDeleteItem: 'Supprimer « {title} » ? C’est irréversible.', thisItem: 'cet élément', confirmRemoveWeek: 'Retirer « {title} » de cette semaine ? La vidéo reste dans le backlog.', boldTip: 'Gras (Cmd+B)',
+      gigCodeCopy: 'Copier le code', copied: '✓ Copié', recordings: 'Enregistrements (scènes où elle a été filmée)', recAdd: '+ Ajouter un enregistrement…', recNone: 'Aucune scène pour l’instant (Notes › Scènes)', recRemove: 'Retirer', gigVideosTip: 'Vidéos filmées ici : {list}',
+      gigJokes: 'Blagues jouées sur cette scène', jokeAdd: '+ Ajouter une blague…', jokeNone: 'Aucune blague pour l’instant (Calendrier › Blagues écrites)',
+      jokeFrom: 'Choisir dans la liste', jokeNoneInList: 'Plus rien dans cette liste',
+      dayMon: 'Lun', dayTue: 'Mar', dayWed: 'Mer', dayThu: 'Jeu', dayFri: 'Ven', daySat: 'Sam', daySun: 'Dim', colWeek: '// sem',
+      footer: 'Clique pour ajouter &nbsp;&middot;&nbsp; Clic droit ou appui long pour retirer &nbsp;&middot;&nbsp; 🎬 à côté du jour = vidéos montées &nbsp;&middot;&nbsp; Données enregistrées automatiquement',
+      uploadPlan: 'Plan de publication', legendPending: 'En attente', legendWorked: 'A marché', legendSoSo: 'Moyen', legendFlopped: 'Raté',
+      notes: 'Carnet', todo: 'À faire', notesPlaceholder: 'Note ce que tu veux : idées, vannes, prémisses, rappels…',
+      todoAddPlaceholder: 'Ajoute une tâche… (colle une liste pour en ajouter plusieurs)', add: 'Ajouter',
+      connectDrive: 'Connecter Google Drive', filter: 'Filtrer…', refreshList: 'Actualiser la liste',
+      newDocName: 'Nom du nouveau document', newDoc: 'Nouveau', backAll: '‹ Tous', fullScreen: 'Plein écran', exitFullScreen: 'Quitter le plein écran',
+      openNewTab: 'Ouvrir dans un nouvel onglet ↗', pickDoc: 'Choisis un document pour le modifier ici.', docEditor: 'Éditeur de documents',
+      subBacklog: 'Backlog', subPublished: 'Publiées', subTrial: 'Vidéos virales à l’essai', subEdit: 'Vidéos à monter', subDevelop: 'Vidéos à développer',
+      trialAddPlaceholder: 'Ajoute une vidéo… (colle une liste pour en ajouter plusieurs)',
+      editAddPlaceholder: 'Ajoute une vidéo à monter… (colle une liste pour en ajouter plusieurs)',
+      developAddPlaceholder: 'Ajoute une vidéo à développer… (colle une liste pour en ajouter plusieurs)',
+      backlogAddPlaceholder: 'Titre de la nouvelle vidéo… (colle une liste pour en ajouter plusieurs)',
+      syncNow: '↻ &nbsp;Synchroniser', debugInfo: 'Infos de débogage', dbgUsername: 'Utilisateur', dbgProject: 'Projet', dbgLastSync: 'Dernière synchro', dbgApiStatus: 'État de l’API',
+      notePlaceholder: 'Écris une note pour ce jour…',
+      saving: 'Enregistrement…', saved: 'Enregistré ✓', offlineSaved: 'Hors ligne : enregistré sur cet appareil', syncError: 'Erreur de synchronisation',
+      canUpload: 'tu peux en publier {n}',
+      statusGray: 'Pas encore publiée', statusGreen: 'Publiée : a marché', statusPurple: 'A plus ou moins marché', statusRed: 'N’a pas marché',
+      statusClick: '{label}. Clique pour changer', notStartedTip: 'Pas encore publiée : cette semaine n’a pas commencé', chooseVideoFirst: 'Choisis d’abord une vidéo',
+      notUploadedSetResult: 'Pas encore publiée. Clique pour indiquer le résultat',
+      monthsShort: ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'],
+      months: ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
+      slotLabel: '{mon} {y} · Semaine {w}', weekRange: 'Semaine {w} · {range}', dateOne: '{a} {mon}', dateRange: '{a}–{b} {mon}', addVideo: '+ Ajouter une vidéo',
+      untitled: 'Sans titre', createNamed: '＋ Créer « {name} »', comboEmpty: 'Plus de vidéos dans le backlog : tape un titre pour en créer une',
+      dragMove: 'Glisser pour déplacer', dragReorder: 'Glisser pour réordonner', comments: 'Commentaires', commentsPlaceholder: 'Commentaires…',
+      removeFromWeek: 'Retirer de cette semaine', typeOrChoose: 'Tape ou choisis une vidéo…',
+      weeksCount: '{n} semaines', weeksCount_one: '{n} semaine',
+      backlogStats: 'Tu as <b>{n}</b> vidéos dans le backlog : ça fait <b>{w2}</b> à 2 par semaine, ou <b>{w3}</b> à 3 par semaine.',
+      backlogStats_one: 'Tu as <b>{n}</b> vidéo dans le backlog : ça fait <b>{w2}</b> à 2 par semaine, ou <b>{w3}</b> à 3 par semaine.',
+      alreadySelected: '{n} déjà sélectionnées dans le calendrier.', backlogEmptyStats: 'Ton backlog est vide : ajoute ci-dessous les vidéos prêtes.',
+      noBacklog: 'Aucune vidéo dans le backlog.', noPublished: 'Rien de publié pour l’instant. Les vidéos apparaissent ici quand leur semaine commence dans le calendrier.',
+      selectedPrefix: '✓ Sélectionnée · ', videoTitlePlaceholder: 'Titre de la vidéo…', deleteVideo: 'Supprimer la vidéo', delete: 'Supprimer',
+      thisVideo: 'cette vidéo', confirmDelete: 'Supprimer « {title} » ? Elle sera aussi retirée du calendrier.',
+      authFile: 'La connexion Google ne fonctionne pas si index.html est ouvert directement. Lance un serveur local et ouvre http://localhost:8000.',
+      authNoClient: 'Google Drive n’est pas encore configuré : DRIVE_CLIENT_ID est vide dans index.html.',
+      authLoading: 'Chargement de la connexion Google…', authPopupBlocked: 'Le navigateur a bloqué la fenêtre de connexion Google. Autorise les pop-ups pour ce site et réessaie.',
+      authIncomplete: 'La connexion Google n’a pas abouti. Réessaie quand tu veux.', authConnect: 'Connecte ton compte Google pour voir tes documents d’entraînement.',
+      authLoadFail: 'Impossible de charger la connexion Google. Vérifie ta connexion et rouvre cet onglet.',
+      authDenied: 'Google n’a pas accordé les autorisations Drive. Reconnecte-toi et coche les deux cases.',
+      authExpiredList: 'Ta session Google a expiré. Reconnecte-toi pour actualiser la liste.',
+      authExpiredCreate: 'Ta session Google a expiré. Reconnecte-toi, puis crée le document.',
+      loading: 'Chargement…', creating: 'Création…', listFail: 'Impossible de charger la liste ({error}).',
+      createFailStatus: 'Impossible de créer le document (Drive {status}). Rien n’a été créé.', createFail: 'Impossible de créer le document ({error}).',
+      filesCount: '{n} fichiers', filesCount_one: '{n} fichier', filesFiltered: '{n} sur {total} fichiers',
+      videoPlaceholder: 'Vidéo…', todoPlaceholder: 'Tâche…', emptyTrial: 'Aucune vidéo à l’essai pour l’instant.', emptyEdit: 'Aucune vidéo à monter pour l’instant.',
+      emptyDevelop: 'Aucune vidéo à développer pour l’instant.', emptyTodo: 'Rien à faire pour l’instant.', videosToEditCount: 'Vidéos à monter : {n}', videosToDevelopCount: 'Vidéos à développer : {n}',
+      checkedSummary: '{n} sur {total} cochées', moveToBacklogTip: 'Montée : déplacer vers le backlog', moveToBacklog: '→ Backlog',
+      vidTip: 'Vidéos montées : clic +1, clic droit −1', unitVids: 'vidéos', unitHrs: 'h',
+      recRateTip: '{label}. Clique pour changer', recRateNone: 'Pas évalué', recRateGreen: 'A bien marché', recRateOrange: 'Moyen',
+      statsSince: 'Depuis le', statsPublished: '{n} vidéos publiées', statsPublished_one: '{n} vidéo publiée', statsWorked: 'ont marché', statsSoSo: 'moyennes', statsFlopped: 'ratées', statsResetTip: 'Compter depuis la première vidéo publiée',
     },
   };
-  const LOCALES  = { en: 'en', es: 'es', pt: 'pt' };
+  const LOCALES  = { en: 'en', es: 'es', pt: 'pt', fr: 'fr' };
   const LANG_KEY = 'comedy-tracker-lang';
   let lang = 'en';
 
@@ -2232,6 +2356,7 @@
     en: 'guide/comedy-hours-guide-en.pdf',
     es: 'guide/comedy-hours-guia-es.pdf',
     pt: 'guide/comedy-hours-guia-pt.pdf',
+    fr: 'guide/comedy-hours-guide-en.pdf',   // no French guide yet
   };
 
   let data            = {};
@@ -2921,6 +3046,7 @@
     body.innerHTML = html;
     body.querySelectorAll('.plan-item').forEach(bindPlanItem);
     refreshVideoStats();
+    renderPubStats();
   }
 
   function norm(s) {
@@ -3219,6 +3345,78 @@
     el.querySelector('.combo-input').focus();
   }
 
+  /* ── Published tally: since a date, how many worked / so-so / flopped ── */
+
+  function slotDate(s) {
+    return new Date(s.y, s.m, Math.max(1, s.w * 7 - monthOffset(s.y, s.m) + 1));
+  }
+
+  function isoDay(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  function pubStatsHtml() {
+    const sched = schedule();
+    const pub = videos().filter(v => isPublished(v, sched));
+    if (!pub.length) return '';
+    const firstDay = pub.map(v => isoDay(slotDate(sched[v.id]))).sort()[0];
+    const from = /^\d{4}-\d{2}-\d{2}$/.test(data.statsFrom || '') ? data.statsFrom : firstDay;
+    const inRange = pub.filter(v => isoDay(slotDate(sched[v.id])) >= from);
+    const total = inRange.length;
+    const count = st => inRange.filter(v => v.status === st).length;
+    const parts = [['green', 'statsWorked'], ['purple', 'statsSoSo'], ['red', 'statsFlopped']]
+      .map(([st, key]) => ({ st, key, n: count(st) }));
+    const pct = n => total ? Math.round(n / total * 100) : 0;
+    const bar = total
+      ? `<div class="pstats-bar" aria-hidden="true">${parts.filter(p => p.n).map(p => `<i class="${p.st}" style="flex:${p.n}"></i>`).join('')}</div>`
+      : '';
+    const reset = data.statsFrom
+      ? ` <button type="button" class="pstats-reset" data-act="stats-reset" title="${t('statsResetTip')}" aria-label="${t('statsResetTip')}">↺</button>`
+      : '';
+    return `
+      <div class="pstats-head">
+        <label class="pstats-from"><span>${t('statsSince')}</span>
+          <input type="date" class="stats-from" value="${from}" aria-label="${t('statsSince')}">${reset}</label>
+        <span class="pstats-total">${tn('statsPublished', total)}</span>
+      </div>
+      ${bar}
+      <div class="pstats-parts">
+        ${parts.map(p => `<span><i class="plan-dot ${p.st}"></i><b>${p.n}</b> ${t(p.key)}${total ? ` <em>${pct(p.n)}%</em>` : ''}</span>`).join('')}
+      </div>`;
+  }
+
+  function renderPubStats() {
+    const html = pubStatsHtml();
+    for (const id of ['pubStats', 'planStats']) {
+      const el = document.getElementById(id);
+      if (!el) continue;
+      // Don't redraw under a date picker that is being used.
+      if (el.contains(document.activeElement) && document.activeElement.matches('.stats-from')) continue;
+      el.innerHTML = html;
+      el.hidden = !html;
+    }
+  }
+
+  function bindPubStats() {
+    for (const id of ['pubStats', 'planStats']) {
+      const el = document.getElementById(id);
+      el.addEventListener('change', (e) => {
+        if (!e.target.matches('.stats-from')) return;
+        if (e.target.value) data.statsFrom = e.target.value;
+        else delete data.statsFrom;
+        save();
+        e.target.blur();
+        renderPubStats();
+      });
+      el.addEventListener('click', (e) => {
+        if (!e.target.closest('[data-act="stats-reset"]')) return;
+        delete data.statsFrom;
+        save();
+        renderPubStats();
+      });
+    }
+  }
+
   /* ── Videos tab ── */
 
   function renderVideos() {
@@ -3256,6 +3454,7 @@
       makeDraggable(el, '#backlogList', onBacklogDrop);
     });
     publishedEl.querySelectorAll('.plan-item').forEach(bindVideoRow);
+    renderPubStats();
   }
 
   function videoRowHtml(v, slot, published) {
@@ -3282,7 +3481,7 @@
           ${commentBtnHtml(c)}
           <button class="plan-icon-btn" data-act="delete" title="${t('deleteVideo')}">✕</button>
         </div>
-        ${recLineHtml(v.gigs)}
+        ${recLineHtml(v)}
         ${commentAreaHtml(c)}
       </div>`;
   }
@@ -3292,7 +3491,7 @@
     // Re-render this tab too: a colour moves it to Published, grey moves it back.
     bindStatusDot(el.querySelector('.plan-dot'), () => id, () => { renderPlan(); renderVideos(); });
     bindComment(el.querySelector('[data-act="comment"]'), el.querySelector('.plan-comment'), () => id, renderPlan);
-    bindRec(el, () => video(id)?.gigs, gigs => updateVideo(id, { gigs }));
+    bindRec(el, () => video(id), p => updateVideo(id, p));
 
     el.querySelector('.plan-input').addEventListener('input', function() {
       updateVideo(id, { title: this.value });
@@ -3614,7 +3813,7 @@
     city: GEN_CITIES.split(';').map(x => x.split('|')),
     famous: GEN_FAMOUS.split(';').map(x => x.split('|')),
   };
-  const GEN_LANG_INDEX = { en: 0, es: 1, pt: 2 };
+  const GEN_LANG_INDEX = { en: 0, es: 1, pt: 2, fr: 0 };   // no French word lists: English
   const GEN_KEY = 'comedy-tracker-generator';
   let genState = {};   // { word: index, profession: index, city: index, country: code, number: n, min, max }
 
@@ -3827,7 +4026,7 @@
               ${commentBtnHtml(item.comment)}
               <button class="plan-icon-btn" data-act="delete" title="${t('delete')}">✕</button>
             </div>
-            ${cfg.recordings ? recLineHtml(item.gigs) : ''}
+            ${cfg.recordings ? recLineHtml(item) : ''}
             ${commentAreaHtml(item.comment)}
           </div>`).join('')
       : `<p class="vempty">${t(cfg.emptyKey)}</p>`;
@@ -3857,7 +4056,7 @@
         const title = (item?.title || '').trim();
         if (!title) return;
         setCheckItems(cfg, checkItems(cfg).filter(t => t.id !== id));
-        addVideo(title, item.comment || '', { id: item.id, ...(item.gigs?.length ? { gigs: item.gigs } : {}) });   // saves (same id keeps gig links)
+        addVideo(title, item.comment || '', { id: item.id, ...(item.gigs?.length ? { gigs: item.gigs } : {}), ...(item.gigRates ? { gigRates: item.gigRates } : {}) });   // saves (same id keeps gig links)
         renderChecklist(cfg);
         renderVideos();
         renderPlan();
@@ -3867,13 +4066,13 @@
         const title = (item?.title || '').trim();
         if (!title) return;
         setCheckItems(cfg, checkItems(cfg).filter(t => t.id !== id));
-        addCheckItem(EDIT, title, item.comment, { id: item.id, ...(item.gigs?.length ? { gigs: item.gigs } : {}) });   // saves (same id keeps gig links)
+        addCheckItem(EDIT, title, item.comment, { id: item.id, ...(item.gigs?.length ? { gigs: item.gigs } : {}), ...(item.gigRates ? { gigRates: item.gigRates } : {}) });   // saves (same id keeps gig links)
         renderChecklist(cfg);
         renderEdit();
       });
       bindCommentToggle(row.querySelector('[data-act="comment"]'), row.querySelector('.plan-comment'),
         comment => updateCheckItem(cfg, id, { comment }));
-      if (cfg.recordings) bindRec(row, () => checkItems(cfg).find(x => x.id === id)?.gigs, gigs => updateCheckItem(cfg, id, { gigs }));
+      if (cfg.recordings) bindRec(row, () => checkItems(cfg).find(x => x.id === id), p => updateCheckItem(cfg, id, p));
       makeDraggable(row, `#${cfg.listId}`, () => {
         const byId = Object.fromEntries(checkItems(cfg).map(t => [t.id, t]));
         setCheckItems(cfg, [...el.querySelectorAll('.trial-item')].map(n => byId[n.dataset.tid]).filter(Boolean));
@@ -4206,10 +4405,19 @@
     return `<button type="button" class="plan-icon-btn rec-btn${liveGigIds(ids).length ? ' has-rec' : ''}" data-act="rec" title="${label}" aria-label="${label}">${MIC_ICON}</button>`;
   }
 
-  function recLineInner(ids) {
+  // How a joke went at each recording: unrated (blue) → went well (green) → so-so (orange) → back.
+  const REC_RATES = ['', 'green', 'orange'];
+  const REC_RATE_KEY = { '': 'recRateNone', green: 'recRateGreen', orange: 'recRateOrange' };
+
+  function recLineInner(item) {
     const codes = gigCodes();
-    const live = liveGigIds(ids);
-    const chips = live.map(id => `<span class="rec-chip">${esc(codes[id])}<button type="button" data-rm="${id}" title="${t('recRemove')}" aria-label="${t('recRemove')}">×</button></span>`).join('');
+    const live = liveGigIds(item?.gigs);
+    const rates = item?.gigRates || {};
+    const chips = live.map(id => {
+      const r = REC_RATES.includes(rates[id]) ? rates[id] : '';
+      const tip = esc(t('recRateTip', { label: t(REC_RATE_KEY[r]) })).replace(/"/g, '&quot;');
+      return `<span class="rec-chip${r ? ` rate-${r}` : ''}"><button type="button" class="rec-rate" data-rate="${id}" title="${tip}" aria-label="${esc(codes[id])}: ${tip}">${esc(codes[id])}</button><button type="button" data-rm="${id}" title="${t('recRemove')}" aria-label="${t('recRemove')}">×</button></span>`;
+    }).join('');
     const options = gigs().filter(g => !live.includes(g.id))
       .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
       .map(g => `<option value="${g.id}">${esc(codes[g.id])}</option>`).join('');
@@ -4219,16 +4427,25 @@
     return chips + select;
   }
 
-  function recLineHtml(ids) {
-    return `<div class="rec-line"${liveGigIds(ids).length ? '' : ' hidden'}>${recLineInner(ids)}</div>`;
+  function recLineHtml(item) {
+    return `<div class="rec-line"${liveGigIds(item?.gigs).length ? '' : ' hidden'}>${recLineInner(item)}</div>`;
   }
 
-  function bindRec(row, getIds, setIds) {
+  // Ratings only for gigs still linked; undefined when nothing is left (keeps stored data tidy).
+  function cleanRates(rates, ids) {
+    const out = {};
+    for (const id of ids || []) if (rates?.[id]) out[id] = rates[id];
+    return Object.keys(out).length ? out : undefined;
+  }
+
+  // getItem() returns the video/list item; patch(obj) saves fields on it.
+  function bindRec(row, getItem, patch) {
     const btn = row.querySelector('[data-act="rec"]');
     const line = row.querySelector('.rec-line');
     if (!btn || !line) return;
+    const getIds = () => getItem()?.gigs;
     const refresh = () => {
-      line.innerHTML = recLineInner(getIds());
+      line.innerHTML = recLineInner(getItem());
       btn.classList.toggle('has-rec', liveGigIds(getIds()).length > 0);
     };
     btn.addEventListener('click', () => {
@@ -4238,15 +4455,25 @@
     });
     line.addEventListener('change', (e) => {
       if (!e.target.matches('.rec-select') || !e.target.value) return;
-      setIds([...liveGigIds(getIds()), e.target.value]);
+      patch({ gigs: [...liveGigIds(getIds()), e.target.value] });
       refresh();
     });
     line.addEventListener('click', (e) => {
+      const rate = e.target.closest('[data-rate]');
+      if (rate) {
+        const gid = rate.dataset.rate;
+        const rates = { ...(getItem()?.gigRates || {}) };
+        const cur = REC_RATES.includes(rates[gid]) ? rates[gid] : '';
+        rates[gid] = REC_RATES[(REC_RATES.indexOf(cur) + 1) % REC_RATES.length];
+        patch({ gigRates: cleanRates(rates, liveGigIds(getIds())) });
+        refresh();
+        line.querySelector(`[data-rate="${gid}"]`)?.focus();
+        return;
+      }
       const rm = e.target.closest('[data-rm]');
       if (!rm) return;
       const left = liveGigIds(getIds()).filter(id => id !== rm.dataset.rm);
-      if (left.length) setIds(left);
-      else setIds(undefined);
+      patch({ gigs: left.length ? left : undefined, gigRates: cleanRates(getItem()?.gigRates, left) });
       refresh();
     });
   }
@@ -4702,6 +4929,7 @@
     bindGenerator();
     bindJokes();
     bindGigs();
+    bindPubStats();
     initConfirm();
     initBoldTools();
     let startProfile = null;
