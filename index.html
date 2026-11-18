@@ -257,6 +257,7 @@
       margin: 20px 0 8px;
     }
     .gig-head[hidden], .gig-section[hidden] { display: none; }
+    .todo-sub-head { margin-top: 32px; }
     #gigsEmpty { color: rgba(255,255,255,.8); padding: 12px 0; }
     #gigsEmpty[hidden] { display: none; }
     .gig-date-input {
@@ -1746,6 +1747,14 @@
       </form>
       <p class="trial-summary" id="todoSummary"></p>
       <div class="vlist" id="todoList"></div>
+
+      <h3 class="gig-head todo-sub-head"><span data-i18n="pendingTitle">Pending things</span> <span class="subtab-count" id="cntPending">0</span></h3>
+      <form class="vadd" id="pendingAddForm">
+        <input id="pendingAddInput" class="vadd-input" data-i18n-placeholder="pendingAddPlaceholder" placeholder="Add something pending… (paste a list to add several at once)" autocomplete="off">
+        <button class="vadd-btn" type="submit" data-i18n="add">Add</button>
+      </form>
+      <p class="trial-summary" id="pendingSummary"></p>
+      <div class="vlist" id="pendingList"></div>
     </div>
   </div>
 
@@ -2056,6 +2065,7 @@
       emptyDevelop: 'No videos to develop yet.', emptyTodo: 'Nothing to do yet.', videosToEditCount: 'Videos to edit: {n}', videosToDevelopCount: 'Videos to develop: {n}',
       checkedSummary: '{n} of {total} checked', moveToBacklogTip: 'Edited — move to Backlog', moveToBacklog: '→ Backlog',
       vidTip: 'Videos edited — click +1, right-click −1', unitVids: 'vids', unitHrs: 'hrs',
+      pendingTitle: 'Pending things', pendingAddPlaceholder: 'Add something pending… (paste a list to add several at once)', emptyPending: 'Nothing pending.',
       recRateTip: '{label} — click to change', recRateNone: 'Not rated', recRateGreen: 'Went well', recRateOrange: 'So-so',
       statsSince: 'Since', statsPublished: '{n} videos published', statsPublished_one: '{n} video published', statsWorked: 'worked', statsSoSo: 'so-so', statsFlopped: 'flopped', statsResetTip: 'Count from the first published video',
     },
@@ -2131,6 +2141,7 @@
       emptyDevelop: 'Aún no hay vídeos por desarrollar.', emptyTodo: 'Aún no hay nada por hacer.', videosToEditCount: 'Vídeos por editar: {n}', videosToDevelopCount: 'Vídeos por desarrollar: {n}',
       checkedSummary: '{n} de {total} marcados', moveToBacklogTip: 'Editado: mover al backlog', moveToBacklog: '→ Backlog',
       vidTip: 'Vídeos editados: clic +1, clic derecho −1', unitVids: 'vídeos', unitHrs: 'hrs',
+      pendingTitle: 'Cosas pendientes', pendingAddPlaceholder: 'Añade algo pendiente… (pega una lista para añadir varias a la vez)', emptyPending: 'No hay nada pendiente.',
       recRateTip: '{label}. Haz clic para cambiar', recRateNone: 'Sin valorar', recRateGreen: 'Fue bien', recRateOrange: 'Regular',
       statsSince: 'Desde', statsPublished: '{n} vídeos publicados', statsPublished_one: '{n} vídeo publicado', statsWorked: 'funcionaron', statsSoSo: 'regular', statsFlopped: 'no funcionaron', statsResetTip: 'Contar desde el primer vídeo publicado',
     },
@@ -2206,6 +2217,7 @@
       emptyDevelop: 'Ainda não há vídeos para desenvolver.', emptyTodo: 'Ainda não há nada a fazer.', videosToEditCount: 'Vídeos para editar: {n}', videosToDevelopCount: 'Vídeos para desenvolver: {n}',
       checkedSummary: '{n} de {total} marcados', moveToBacklogTip: 'Editado: mover para o backlog', moveToBacklog: '→ Backlog',
       vidTip: 'Vídeos editados: clique +1, clique direito −1', unitVids: 'vídeos', unitHrs: 'hrs',
+      pendingTitle: 'Coisas pendentes', pendingAddPlaceholder: 'Adicione algo pendente… (cole uma lista para adicionar várias de uma vez)', emptyPending: 'Nada pendente.',
       recRateTip: '{label}. Clique para mudar', recRateNone: 'Sem avaliação', recRateGreen: 'Foi bem', recRateOrange: 'Mais ou menos',
       statsSince: 'Desde', statsPublished: '{n} vídeos publicados', statsPublished_one: '{n} vídeo publicado', statsWorked: 'funcionaram', statsSoSo: 'mais ou menos', statsFlopped: 'não funcionaram', statsResetTip: 'Contar desde o primeiro vídeo publicado',
     },
@@ -2281,6 +2293,7 @@
       emptyDevelop: 'Aucune vidéo à développer pour l’instant.', emptyTodo: 'Rien à faire pour l’instant.', videosToEditCount: 'Vidéos à monter : {n}', videosToDevelopCount: 'Vidéos à développer : {n}',
       checkedSummary: '{n} sur {total} cochées', moveToBacklogTip: 'Montée : déplacer vers le backlog', moveToBacklog: '→ Backlog',
       vidTip: 'Vidéos montées : clic +1, clic droit −1', unitVids: 'vidéos', unitHrs: 'h',
+      pendingTitle: 'Choses en attente', pendingAddPlaceholder: 'Ajoute quelque chose en attente… (colle une liste pour en ajouter plusieurs)', emptyPending: 'Rien en attente.',
       recRateTip: '{label}. Clique pour changer', recRateNone: 'Pas évalué', recRateGreen: 'A bien marché', recRateOrange: 'Moyen',
       statsSince: 'Depuis le', statsPublished: '{n} vidéos publiées', statsPublished_one: '{n} vidéo publiée', statsWorked: 'ont marché', statsSoSo: 'moyennes', statsFlopped: 'ratées', statsResetTip: 'Compter depuis la première vidéo publiée',
     },
@@ -3983,6 +3996,9 @@
                     summary: list => t('videosToDevelopCount', { n: list.length }) };
   const TODO  = { key: 'todos', listId: 'todoList',  countId: 'cntTodo',  summaryId: 'todoSummary',
                   placeholderKey: 'todoPlaceholder', emptyKey: 'emptyTodo' };
+  // Second list under the main to-do: things pending (waiting on someone, someday…).
+  const PENDING = { key: 'pending', listId: 'pendingList', countId: 'cntPending', summaryId: 'pendingSummary',
+                    placeholderKey: 'todoPlaceholder', emptyKey: 'emptyPending' };
 
   function checkItems(cfg) {
     return Array.isArray(data[cfg.key]) ? data[cfg.key] : [];
@@ -4007,6 +4023,7 @@
   const renderEdit    = () => renderChecklist(EDIT);
   const renderDevelop = () => renderChecklist(DEVELOP);
   const renderTodo  = () => renderChecklist(TODO);
+  const renderPending = () => renderChecklist(PENDING);
 
   function renderChecklist(cfg) {
     const list = checkItems(cfg);
@@ -4841,6 +4858,7 @@
     renderEdit();
     renderDevelop();
     renderTodo();
+    renderPending();
     renderGigs();
 
     // Don't clobber the notes while they're being typed in.
@@ -4968,6 +4986,7 @@
     bindAddForm('editAddForm', 'editAddInput', t => addCheckItem(EDIT, t), renderEdit);
     bindAddForm('developAddForm', 'developAddInput', t => addCheckItem(DEVELOP, t), renderDevelop);
     bindAddForm('todoAddForm', 'todoAddInput', t => addCheckItem(TODO, t), renderTodo);
+    bindAddForm('pendingAddForm', 'pendingAddInput', t => addCheckItem(PENDING, t), renderPending);
 
     document.getElementById('planBody').addEventListener('click', (e) => {
       const add = e.target.closest('.plan-add');
