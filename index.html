@@ -1490,7 +1490,8 @@
     }
     .pstats[hidden] { display: none; }
     .plan-pstats { margin-top: -10px; }
-    .pstats-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; }
+    .pstats-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+    .pstats-range { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
     .pstats-from { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,.75); }
     .pstats-from input {
       font: inherit; font-size: 12px; color: #fff; color-scheme: dark;
@@ -1502,6 +1503,7 @@
     .pstats-total { font-weight: 600; }
     .pstats-bar { display: flex; height: 6px; gap: 2px; margin: 10px 0 8px; border-radius: 3px; overflow: hidden; }
     .pstats-bar i { display: block; min-width: 4px; }
+    .pstats-bar.empty { background: rgba(255,255,255,.15); }
     .pstats-bar i.green  { background: var(--st-green); }
     .pstats-bar i.purple { background: var(--st-purple); }
     .pstats-bar i.red    { background: var(--st-red); }
@@ -2067,7 +2069,7 @@
       vidTip: 'Videos edited — click +1, right-click −1', unitVids: 'vids', unitHrs: 'hrs',
       pendingTitle: 'Pending things', pendingAddPlaceholder: 'Add something pending… (paste a list to add several at once)', emptyPending: 'Nothing pending.',
       recRateTip: '{label} — click to change', recRateNone: 'Not rated', recRateGreen: 'Went well', recRateOrange: 'So-so',
-      statsSince: 'Since', statsPublished: '{n} videos published', statsPublished_one: '{n} video published', statsWorked: 'worked', statsSoSo: 'so-so', statsFlopped: 'flopped', statsResetTip: 'Count from the first published video',
+      statsFrom: 'From', statsTo: 'to', statsPublished: '{n} videos published', statsPublished_one: '{n} video published', statsWorked: 'worked', statsSoSo: 'so-so', statsFlopped: 'flopped', statsResetTip: 'Back to the calendar’s month',
     },
     es: {
       language: 'Idioma',
@@ -2143,7 +2145,7 @@
       vidTip: 'Vídeos editados: clic +1, clic derecho −1', unitVids: 'vídeos', unitHrs: 'hrs',
       pendingTitle: 'Cosas pendientes', pendingAddPlaceholder: 'Añade algo pendiente… (pega una lista para añadir varias a la vez)', emptyPending: 'No hay nada pendiente.',
       recRateTip: '{label}. Haz clic para cambiar', recRateNone: 'Sin valorar', recRateGreen: 'Fue bien', recRateOrange: 'Regular',
-      statsSince: 'Desde', statsPublished: '{n} vídeos publicados', statsPublished_one: '{n} vídeo publicado', statsWorked: 'funcionaron', statsSoSo: 'regular', statsFlopped: 'no funcionaron', statsResetTip: 'Contar desde el primer vídeo publicado',
+      statsFrom: 'Del', statsTo: 'al', statsPublished: '{n} vídeos publicados', statsPublished_one: '{n} vídeo publicado', statsWorked: 'funcionaron', statsSoSo: 'regular', statsFlopped: 'no funcionaron', statsResetTip: 'Volver al mes del calendario',
     },
     pt: {
       language: 'Idioma',
@@ -2219,13 +2221,13 @@
       vidTip: 'Vídeos editados: clique +1, clique direito −1', unitVids: 'vídeos', unitHrs: 'hrs',
       pendingTitle: 'Coisas pendentes', pendingAddPlaceholder: 'Adicione algo pendente… (cole uma lista para adicionar várias de uma vez)', emptyPending: 'Nada pendente.',
       recRateTip: '{label}. Clique para mudar', recRateNone: 'Sem avaliação', recRateGreen: 'Foi bem', recRateOrange: 'Mais ou menos',
-      statsSince: 'Desde', statsPublished: '{n} vídeos publicados', statsPublished_one: '{n} vídeo publicado', statsWorked: 'funcionaram', statsSoSo: 'mais ou menos', statsFlopped: 'não funcionaram', statsResetTip: 'Contar desde o primeiro vídeo publicado',
+      statsFrom: 'De', statsTo: 'a', statsPublished: '{n} vídeos publicados', statsPublished_one: '{n} vídeo publicado', statsWorked: 'funcionaram', statsSoSo: 'mais ou menos', statsFlopped: 'não funcionaram', statsResetTip: 'Voltar ao mês do calendário',
     },
     fr: {
       language: 'Langue',
       siteTitle: 'Comedy Hours  - Ne brise pas la chaîne',
       byline: 'Note les heures que tu passes à écrire de la comédie : une ✕ par heure.',
-      addNote: '+ note', profile: 'Profil', guideDownload: '📄 Guide (PDF, en anglais)', guideTip: 'Télécharger le guide d’utilisation en PDF (en anglais)',
+      addNote: '+ note', profile: 'Profil', guideDownload: '📄 Guide (PDF)', guideTip: 'Télécharger le guide d’utilisation en PDF',
       modalTitle: 'Qui utilise le tracker ?', modalSub: 'Choisis ton profil. Ce navigateur s’en souviendra.',
       passwordTitle: 'Mot de passe de {name}', passwordSub: 'Il ne te sera demandé qu’une fois par navigateur, ou en changeant de profil.',
       passwordPlaceholder: 'Mot de passe', passwordWrong: 'Mot de passe incorrect. Réessaie.', cancel: 'Annuler', enter: 'Entrer',
@@ -2295,7 +2297,7 @@
       vidTip: 'Vidéos montées : clic +1, clic droit −1', unitVids: 'vidéos', unitHrs: 'h',
       pendingTitle: 'Choses en attente', pendingAddPlaceholder: 'Ajoute quelque chose en attente… (colle une liste pour en ajouter plusieurs)', emptyPending: 'Rien en attente.',
       recRateTip: '{label}. Clique pour changer', recRateNone: 'Pas évalué', recRateGreen: 'A bien marché', recRateOrange: 'Moyen',
-      statsSince: 'Depuis le', statsPublished: '{n} vidéos publiées', statsPublished_one: '{n} vidéo publiée', statsWorked: 'ont marché', statsSoSo: 'moyennes', statsFlopped: 'ratées', statsResetTip: 'Compter depuis la première vidéo publiée',
+      statsFrom: 'Du', statsTo: 'au', statsPublished: '{n} vidéos publiées', statsPublished_one: '{n} vidéo publiée', statsWorked: 'ont marché', statsSoSo: 'moyennes', statsFlopped: 'ratées', statsResetTip: 'Revenir au mois du calendrier',
     },
   };
   const LOCALES  = { en: 'en', es: 'es', pt: 'pt', fr: 'fr' };
@@ -2369,7 +2371,7 @@
     en: 'guide/comedy-hours-guide-en.pdf',
     es: 'guide/comedy-hours-guia-es.pdf',
     pt: 'guide/comedy-hours-guia-pt.pdf',
-    fr: 'guide/comedy-hours-guide-en.pdf',   // no French guide yet
+    fr: 'guide/comedy-hours-guide-fr.pdf',
   };
 
   let data            = {};
@@ -3358,7 +3360,10 @@
     el.querySelector('.combo-input').focus();
   }
 
-  /* ── Published tally: since a date, how many worked / so-so / flopped ── */
+  /* ── Published tally: between two dates (default: the calendar's month), how many worked / so-so / flopped ── */
+
+  // A custom range only applies to the month it was picked on; moving month goes back to that month's dates.
+  let statsRange = null;   // { ym, from, to }
 
   function slotDate(s) {
     return new Date(s.y, s.m, Math.max(1, s.w * 7 - monthOffset(s.y, s.m) + 1));
@@ -3368,13 +3373,18 @@
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
+  function currentStatsRange() {
+    const ym = `${yr}-${mo}`;
+    if (statsRange && statsRange.ym !== ym) statsRange = null;
+    if (statsRange) return { ...statsRange, custom: true };
+    return { ym, from: isoDay(new Date(yr, mo, 1)), to: isoDay(new Date(yr, mo + 1, 0)), custom: false };
+  }
+
   function pubStatsHtml() {
     const sched = schedule();
-    const pub = videos().filter(v => isPublished(v, sched));
-    if (!pub.length) return '';
-    const firstDay = pub.map(v => isoDay(slotDate(sched[v.id]))).sort()[0];
-    const from = /^\d{4}-\d{2}-\d{2}$/.test(data.statsFrom || '') ? data.statsFrom : firstDay;
-    const inRange = pub.filter(v => isoDay(slotDate(sched[v.id])) >= from);
+    const { from, to, custom } = currentStatsRange();
+    const inRange = videos().filter(v => isPublished(v, sched))
+      .filter(v => { const d = isoDay(slotDate(sched[v.id])); return d >= from && d <= to; });
     const total = inRange.length;
     const count = st => inRange.filter(v => v.status === st).length;
     const parts = [['green', 'statsWorked'], ['purple', 'statsSoSo'], ['red', 'statsFlopped']]
@@ -3382,14 +3392,19 @@
     const pct = n => total ? Math.round(n / total * 100) : 0;
     const bar = total
       ? `<div class="pstats-bar" aria-hidden="true">${parts.filter(p => p.n).map(p => `<i class="${p.st}" style="flex:${p.n}"></i>`).join('')}</div>`
-      : '';
-    const reset = data.statsFrom
-      ? ` <button type="button" class="pstats-reset" data-act="stats-reset" title="${t('statsResetTip')}" aria-label="${t('statsResetTip')}">↺</button>`
+      : '<div class="pstats-bar empty" aria-hidden="true"></div>';
+    const reset = custom
+      ? `<button type="button" class="pstats-reset" data-act="stats-reset" title="${t('statsResetTip')}" aria-label="${t('statsResetTip')}">↺</button>`
       : '';
     return `
       <div class="pstats-head">
-        <label class="pstats-from"><span>${t('statsSince')}</span>
-          <input type="date" class="stats-from" value="${from}" aria-label="${t('statsSince')}">${reset}</label>
+        <div class="pstats-range">
+          <label class="pstats-from"><span>${t('statsFrom')}</span>
+            <input type="date" class="stats-date" data-end="from" value="${from}" aria-label="${t('statsFrom')}"></label>
+          <label class="pstats-from"><span>${t('statsTo')}</span>
+            <input type="date" class="stats-date" data-end="to" value="${to}" aria-label="${t('statsTo')}"></label>
+          ${reset}
+        </div>
         <span class="pstats-total">${tn('statsPublished', total)}</span>
       </div>
       ${bar}
@@ -3404,9 +3419,9 @@
       const el = document.getElementById(id);
       if (!el) continue;
       // Don't redraw under a date picker that is being used.
-      if (el.contains(document.activeElement) && document.activeElement.matches('.stats-from')) continue;
+      if (el.contains(document.activeElement) && document.activeElement.matches('.stats-date')) continue;
       el.innerHTML = html;
-      el.hidden = !html;
+      el.hidden = false;
     }
   }
 
@@ -3414,17 +3429,20 @@
     for (const id of ['pubStats', 'planStats']) {
       const el = document.getElementById(id);
       el.addEventListener('change', (e) => {
-        if (!e.target.matches('.stats-from')) return;
-        if (e.target.value) data.statsFrom = e.target.value;
-        else delete data.statsFrom;
-        save();
+        if (!e.target.matches('.stats-date')) return;
+        const cur = currentStatsRange();
+        let { from, to } = cur;
+        const v = e.target.value;
+        if (e.target.dataset.end === 'from') from = v || cur.from;
+        else to = v || cur.to;
+        if (from > to) [from, to] = [to, from];
+        statsRange = { ym: cur.ym, from, to };
         e.target.blur();
         renderPubStats();
       });
       el.addEventListener('click', (e) => {
         if (!e.target.closest('[data-act="stats-reset"]')) return;
-        delete data.statsFrom;
-        save();
+        statsRange = null;
         renderPubStats();
       });
     }
