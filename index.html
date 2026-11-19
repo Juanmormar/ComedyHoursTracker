@@ -70,7 +70,8 @@
 
     .plan-legend {
       display: flex;
-      gap: 10px;
+      flex-wrap: wrap;
+      gap: 4px 10px;
       font-size: 10px;
       color: var(--text-2);
     }
@@ -272,6 +273,17 @@
     .gig-date-input:hover, .gig-date-input:focus { border-color: var(--border); outline: none; }
     .gig-today { flex: 0 0 auto; font-size: 11px; font-weight: 600; color: #fff; background: #f57c00; border-radius: 6px; padding: 2px 7px; }
     .gig-item.past .gig-date-input { color: var(--text-3); }
+    .gig-item.flash { box-shadow: 0 0 0 2px #f57c00; }
+    .gig-mark {
+      height: 22px; min-width: 22px; padding: 0 4px;
+      font-family: inherit; font-size: 11px; font-weight: 600; line-height: 20px;
+      color: #7a3b00;
+      background: rgba(255, 179, 0, .25);
+      border: 1px solid transparent;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .day-cell.has-gig { box-shadow: inset 0 0 0 2px rgba(255, 160, 0, .85); }
     .gig-code {
       flex: 0 0 auto;
       font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -592,11 +604,19 @@
     .subtabs {
       display: flex;
       gap: 4px;
+      position: relative;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
       border-bottom: 1px solid var(--border);
       margin-bottom: 16px;
     }
 
+    .subtabs::-webkit-scrollbar { display: none; }
     .subtab-btn {
+      flex-shrink: 0;
+      white-space: nowrap;
       border-radius: 0;
       padding: 10px 14px;
       border-bottom: 2px solid transparent;
@@ -1189,6 +1209,15 @@
       .monthly-badge { text-align: center; }
       .cell-btns { top: 4px; right: auto; left: 3px; flex-direction: column; align-items: flex-start; gap: 2px; }
       .joke-btn { height: 16px; min-width: 16px; padding: 0 3px; font-size: 9px; line-height: 14px; opacity: 1; }
+      .gig-mark { height: 16px; min-width: 16px; padding: 0 2px; font-size: 9px; line-height: 14px; }
+      .subtab-btn { padding: 10px 10px; }
+      .vlist { padding: 6px 4px; }
+      .vlist .plan-row { gap: 4px; padding: 6px 2px; }
+      .plan-icon-btn { padding: 2px 3px; }
+      .plan-icon-btn.to-backlog { font-size: 11px; }
+      .rec-line { margin-left: 8px; }
+      .gig-item .plan-row { flex-wrap: wrap; }
+      .gig-item .plan-input { flex: 1 1 100%; order: 5; padding-left: 6px; }
       .monthly-badge { padding: 12px 8px; }
       .vid-btn { top: 4px; right: auto; left: 3px; height: 16px; min-width: 16px; padding: 0 3px; font-size: 9px; line-height: 14px; opacity: 1; }
       .monthly-badge .big-num { font-size: 28px; }
@@ -1671,6 +1700,7 @@
   <div class="subtabs">
     <button class="subtab-btn active" data-csub="calendar" data-i18n="subCalendar">Calendar</button>
     <button class="subtab-btn" data-csub="jokes"><span data-i18n="subJokes">Written jokes</span> <span class="subtab-count" id="cntJokes">0</span></button>
+    <button class="subtab-btn" data-csub="gigs"><span data-i18n="subGigs">Gigs</span> <span class="subtab-count" id="cntGigs">0</span></button>
   </div>
   <div class="layout vpanel" id="csub-calendar">
   <div class="cal-col">
@@ -1724,17 +1754,8 @@
     <p class="trial-summary" id="jokeSummary"></p>
     <div class="vlist" id="jokeList"></div>
   </div>
-  </div>
 
-  <!-- ─── NOTES TAB ─── -->
-  <div id="tab-notes" role="tabpanel" hidden>
-    <div class="subtabs">
-      <button class="subtab-btn notes-sub-btn active" data-nsub="todo"><span data-i18n="todo">To-do</span> <span class="subtab-count" id="cntTodo">0</span></button>
-      <button class="subtab-btn notes-sub-btn" data-nsub="text" data-i18n="notes">Notebook</button>
-      <button class="subtab-btn notes-sub-btn" data-nsub="gigs"><span data-i18n="subGigs">Gigs</span> <span class="subtab-count" id="cntGigs">0</span></button>
-    </div>
-
-    <div id="nsub-gigs" class="vpanel" hidden>
+    <div id="csub-gigs" class="vpanel" hidden>
       <form class="vadd gig-add" id="gigAddForm">
         <input id="gigAddDate" class="vadd-input gig-date" type="date" required data-i18n-aria="gigDate" aria-label="Date">
         <input id="gigAddInput" class="vadd-input" data-i18n-placeholder="gigPlacePlaceholder" placeholder="Where are you performing?" autocomplete="off">
@@ -1746,6 +1767,15 @@
       <h3 class="gig-head" id="gigPastHead"><span data-i18n="gigsPast">Past</span> <span class="subtab-count" id="cntGigPast"></span></h3>
       <div class="vlist gig-section" id="gigPast"></div>
     </div>
+  </div>
+
+  <!-- ─── NOTES TAB ─── -->
+  <div id="tab-notes" role="tabpanel" hidden>
+    <div class="subtabs">
+      <button class="subtab-btn notes-sub-btn active" data-nsub="todo"><span data-i18n="todo">To-do</span> <span class="subtab-count" id="cntTodo">0</span></button>
+      <button class="subtab-btn notes-sub-btn" data-nsub="text" data-i18n="notes">Notebook</button>
+    </div>
+
 
     <div id="nsub-text" class="vpanel">
       <textarea id="notesText" class="notes-text" data-i18n-placeholder="notesPlaceholder" placeholder="Write anything down — ideas, bits, premises, reminders…" spellcheck="true"></textarea>
@@ -2034,7 +2064,7 @@
       genCountry: 'Country', genCountryBtn: 'Random country', genFamous: 'Famous person', genFamousBtn: 'Random famous person',
       subGigs: 'Gigs', gigDate: 'Date', gigPlacePlaceholder: 'Where are you performing? (venue, open mic…)', gigLearnPlaceholder: 'What did you learn? What worked and what didn’t?', gigsUpcoming: 'Upcoming', gigsPast: 'Past', gigsEmpty: 'No gigs yet. Add your next one above.', gigToday: 'Today', gigUntitled: 'this gig',
       confirmTitle: 'Are you sure?', confirmDeleteItem: 'Delete "{title}"? This can’t be undone.', thisItem: 'this item', confirmRemoveWeek: 'Remove "{title}" from this week? The video stays in your backlog.', boldTip: 'Bold (Cmd+B)',
-      gigCodeCopy: 'Copy code', copied: '✓ Copied', recordings: 'Recordings (gigs where it was recorded)', recAdd: '+ Add recording…', recNone: 'No gigs yet (Notes › Gigs)', recRemove: 'Remove', gigVideosTip: 'Videos recorded here: {list}',
+      gigCodeCopy: 'Copy code', copied: '✓ Copied', recordings: 'Recordings (gigs where it was recorded)', recAdd: '+ Add recording…', recNone: 'No gigs yet (Calendar › Gigs)', recNonePast: 'No past gigs yet', recRemove: 'Remove', gigVideosTip: 'Videos recorded here: {list}',
       gigJokes: 'Jokes performed at this gig', jokeAdd: '+ Add joke…', jokeNone: 'No jokes yet (Calendar › Written jokes)',
       jokeFrom: 'Pick from list', jokeNoneInList: 'Nothing left in this list',
       dayMon: 'Mon', dayTue: 'Tue', dayWed: 'Wed', dayThu: 'Thu', dayFri: 'Fri', daySat: 'Sat', daySun: 'Sun', colWeek: '// wk',
@@ -2110,7 +2140,7 @@
       genCountry: 'País', genCountryBtn: 'País aleatorio', genFamous: 'Famoso', genFamousBtn: 'Famoso aleatorio',
       subGigs: 'Actuaciones', gigDate: 'Fecha', gigPlacePlaceholder: '¿Dónde actúas? (sala, micro abierto…)', gigLearnPlaceholder: '¿Qué has aprendido? ¿Qué funcionó y qué no?', gigsUpcoming: 'Próximas', gigsPast: 'Pasadas', gigsEmpty: 'Aún no hay actuaciones. Añade la próxima arriba.', gigToday: 'Hoy', gigUntitled: 'esta actuación',
       confirmTitle: '¿Seguro?', confirmDeleteItem: '¿Eliminar "{title}"? No se puede deshacer.', thisItem: 'este elemento', confirmRemoveWeek: '¿Quitar "{title}" de esta semana? El vídeo seguirá en el backlog.', boldTip: 'Negrita (Cmd+B)',
-      gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Grabaciones (actuaciones donde se grabó)', recAdd: '+ Añadir grabación…', recNone: 'Aún no hay actuaciones (Notas › Actuaciones)', recRemove: 'Quitar', gigVideosTip: 'Vídeos grabados aquí: {list}',
+      gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Grabaciones (actuaciones donde se grabó)', recAdd: '+ Añadir grabación…', recNone: 'Aún no hay actuaciones (Calendario › Actuaciones)', recNonePast: 'Aún no hay actuaciones pasadas', recRemove: 'Quitar', gigVideosTip: 'Vídeos grabados aquí: {list}',
       gigJokes: 'Chistes de esta actuación', jokeAdd: '+ Añadir chiste…', jokeNone: 'Aún no hay chistes (Calendario › Chistes escritos)',
       jokeFrom: 'Elegir de la lista', jokeNoneInList: 'No queda nada en esta lista',
       dayMon: 'Lun', dayTue: 'Mar', dayWed: 'Mié', dayThu: 'Jue', dayFri: 'Vie', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
@@ -2186,7 +2216,7 @@
       genCountry: 'País', genCountryBtn: 'País aleatório', genFamous: 'Famoso', genFamousBtn: 'Famoso aleatório',
       subGigs: 'Apresentações', gigDate: 'Data', gigPlacePlaceholder: 'Onde você vai se apresentar? (casa, open mic…)', gigLearnPlaceholder: 'O que você aprendeu? O que funcionou e o que não?', gigsUpcoming: 'Próximas', gigsPast: 'Passadas', gigsEmpty: 'Ainda não há apresentações. Adicione a próxima acima.', gigToday: 'Hoje', gigUntitled: 'esta apresentação',
       confirmTitle: 'Tem certeza?', confirmDeleteItem: 'Excluir "{title}"? Não dá para desfazer.', thisItem: 'este item', confirmRemoveWeek: 'Tirar "{title}" desta semana? O vídeo continua no backlog.', boldTip: 'Negrito (Cmd+B)',
-      gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Gravações (apresentações onde foi gravado)', recAdd: '+ Adicionar gravação…', recNone: 'Ainda não há apresentações (Notas › Apresentações)', recRemove: 'Remover', gigVideosTip: 'Vídeos gravados aqui: {list}',
+      gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Gravações (apresentações onde foi gravado)', recAdd: '+ Adicionar gravação…', recNone: 'Ainda não há apresentações (Calendário › Apresentações)', recNonePast: 'Ainda não há apresentações passadas', recRemove: 'Remover', gigVideosTip: 'Vídeos gravados aqui: {list}',
       gigJokes: 'Piadas desta apresentação', jokeAdd: '+ Adicionar piada…', jokeNone: 'Ainda não há piadas (Calendário › Piadas escritas)',
       jokeFrom: 'Escolher da lista', jokeNoneInList: 'Não sobrou nada nesta lista',
       dayMon: 'Seg', dayTue: 'Ter', dayWed: 'Qua', dayThu: 'Qui', dayFri: 'Sex', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
@@ -4161,8 +4191,16 @@
     });
   }
 
+  function revealActiveSubtab(selector) {
+    const btn = document.querySelector(`${selector}.active`);
+    const bar = btn?.parentElement;
+    if (!bar || bar.scrollWidth <= bar.clientWidth) return;
+    bar.scrollLeft = btn.offsetLeft - (bar.clientWidth - btn.offsetWidth) / 2;
+  }
+
   function showSubTab(name) {
     document.querySelectorAll('.subtab-btn[data-sub]').forEach(b => b.classList.toggle('active', b.dataset.sub === name));
+    revealActiveSubtab('.subtab-btn[data-sub]');
     document.getElementById('sub-backlog').hidden   = name !== 'backlog';
     document.getElementById('sub-published').hidden = name !== 'published';
     document.getElementById('sub-trial').hidden     = name !== 'trial';
@@ -4174,10 +4212,10 @@
   }
 
   function showNotesSubTab(name) {
+    if (name !== 'text') name = 'todo';
     document.querySelectorAll('.subtab-btn[data-nsub]').forEach(b => b.classList.toggle('active', b.dataset.nsub === name));
     document.getElementById('nsub-text').hidden = name !== 'text';
-    document.getElementById('nsub-gigs').hidden = name !== 'gigs';
-    if (name === 'gigs') renderGigs();
+
     document.getElementById('nsub-todo').hidden = name !== 'todo';
     try { localStorage.setItem(NOTES_SUBTAB_KEY, name); } catch {}
   }
@@ -4276,6 +4314,15 @@
     cell.addEventListener('touchend',  function() { clearTimeout(longPressTimer); });
     cell.addEventListener('touchmove', function() { clearTimeout(longPressTimer); });
 
+    const gigBtn = cell.querySelector('.gig-mark');
+    if (gigBtn) {
+      const openGigs = (e) => { e.stopPropagation(); e.preventDefault(); showCalSubTab('gigs'); focusGigRow(gigsOn(cell.dataset.dk)[0]?.id); };
+      gigBtn.addEventListener('click', openGigs);
+      gigBtn.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); });
+      gigBtn.addEventListener('touchstart', (e) => { e.stopPropagation(); clearTimeout(longPressTimer); }, { passive: true });
+      gigBtn.addEventListener('touchend', openGigs);
+    }
+
     const jokeBtn = cell.querySelector('.joke-btn');
     jokeBtn.addEventListener('click', (e) => { e.stopPropagation(); openJokePanel(cell, cell.dataset.dk); });
     jokeBtn.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); });
@@ -4356,6 +4403,26 @@
     save();
   }
 
+  function gigsOn(dk) {
+    return gigs().filter(g => g.date === dk);
+  }
+
+  function gigMarkHtml(dk) {
+    const list = gigsOn(dk);
+    if (!list.length) return '';
+    const tip = esc(list.map(g => (g.title || '').trim() || t('gigUntitled')).join(' · ')).replace(/"/g, '&quot;');
+    return `<button type="button" class="gig-mark" title="${tip}" aria-label="${tip}">🎤${list.length > 1 ? list.length : ''}</button>`;
+  }
+
+  function focusGigRow(id) {
+    if (!id) return;
+    const row = document.querySelector(`.gig-item[data-gid="${id}"]`);
+    if (!row) return;
+    row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    row.classList.add('flash');
+    setTimeout(() => row.classList.remove('flash'), 1600);
+  }
+
   function localTodayKey() {
     const d = new Date();
     return dateKey(d.getFullYear(), d.getMonth(), d.getDate());
@@ -4404,7 +4471,7 @@
       row.querySelector('.gig-date-input').addEventListener('change', function() {
         if (!this.value) { this.value = gigs().find(g => g.id === id)?.date || ''; return; }
         updateGig(id, { date: this.value });
-        renderGigs();   // re-sorts it into place
+        render();   // re-sorts it into place and moves the calendar mark
       });
       row.querySelector('.plan-input').addEventListener('input', function() {
         updateGig(id, { title: this.value });
@@ -4426,7 +4493,7 @@
         if (!(await confirmDelete(gig?.title || t('gigUntitled'), true))) return;
         setGigs(gigs().filter(g => g.id !== id));
         save();
-        renderGigs();
+        render();
       });
     });
   }
@@ -4498,12 +4565,13 @@
       const tip = esc(t('recRateTip', { label: t(REC_RATE_KEY[r]) })).replace(/"/g, '&quot;');
       return `<span class="rec-chip${r ? ` rate-${r}` : ''}"><button type="button" class="rec-rate" data-rate="${id}" title="${tip}" aria-label="${esc(codes[id])}: ${tip}">${esc(codes[id])}</button><button type="button" data-rm="${id}" title="${t('recRemove')}" aria-label="${t('recRemove')}">×</button></span>`;
     }).join('');
-    const options = gigs().filter(g => !live.includes(g.id))
+    const today = localTodayKey();
+    const options = gigs().filter(g => !live.includes(g.id) && g.date && g.date <= today)
       .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
       .map(g => `<option value="${g.id}">${esc(codes[g.id])}</option>`).join('');
-    const select = gigs().length
+    const select = options
       ? `<select class="rec-select" aria-label="${t('recAdd')}"><option value="">${t('recAdd')}</option>${options}</select>`
-      : `<select class="rec-select" disabled><option>${t('recNone')}</option></select>`;
+      : `<select class="rec-select" disabled><option>${t(gigs().length ? 'recNonePast' : 'recNone')}</option></select>`;
     return chips + select;
   }
 
@@ -4658,7 +4726,7 @@
       setGigs([...gigs(), gig]);
       save();
       input.value = '';
-      renderGigs();
+      render();
       // Past gig: jump straight to writing what you learned.
       if (date < localTodayKey()) document.querySelector(`.gig-item[data-gid="${gig.id}"] .plan-comment`)?.focus();
     });
@@ -4806,11 +4874,14 @@
   }
 
   function showCalSubTab(name) {
-    if (name !== 'jokes') name = 'calendar';
+    if (name !== 'jokes' && name !== 'gigs') name = 'calendar';
     calSubTab = name;
     document.querySelectorAll('.subtab-btn[data-csub]').forEach(b => b.classList.toggle('active', b.dataset.csub === name));
+    revealActiveSubtab('.subtab-btn[data-csub]');
     document.getElementById('csub-calendar').hidden = name !== 'calendar';
     document.getElementById('csub-jokes').hidden = name !== 'jokes';
+    document.getElementById('csub-gigs').hidden = name !== 'gigs';
+    if (name === 'gigs') renderGigs();
     closeJokePanel();
     jokeYm = { y: yr, m: mo };   // always opens on the calendar's month
     renderJokes();
@@ -4983,9 +5054,10 @@
           monthTotal += hrs(dk);
 
           cells += `
-            <div class="day-cell${isToday ? ' today' : ''}" data-dk="${dk}">
+            <div class="day-cell${isToday ? ' today' : ''}${gigsOn(dk).length ? ' has-gig' : ''}" data-dk="${dk}">
               <span class="day-num">${day}</span>
               <div class="cell-btns">
+                ${gigMarkHtml(dk)}
                 <button class="joke-btn${jokesOn(dk).length ? ' on' : ''}" data-dk="${dk}" title="${t('jokeTip')}">${jokeLabel(dk)}</button>
                 <button class="vid-btn${vids(dk) > 0 ? ' on' : ''}" data-dk="${dk}" title="${esc(vidTitle(dk)).replace(/"/g, '&quot;')}">${vidLabel(dk)}</button>
               </div>
