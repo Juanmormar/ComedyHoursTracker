@@ -249,7 +249,7 @@
     @media (max-width: 600px) {
       .gig-add { flex-wrap: wrap; }
       .gig-add #gigAddInput { flex: 1 1 100%; order: 3; }
-      .gig-add .gig-date { flex: 1; }
+      .gig-add .gig-date { flex: 1; min-width: 0; }
     }
     .gig-head {
       display: flex; align-items: baseline; gap: 8px;
@@ -1217,7 +1217,9 @@
       .plan-icon-btn.to-backlog { font-size: 11px; }
       .rec-line { margin-left: 8px; }
       .gig-item .plan-row { flex-wrap: wrap; }
-      .gig-item .plan-input { flex: 1 1 100%; order: 5; padding-left: 6px; }
+      .gig-item .plan-input { flex: 1 1 55%; order: 5; padding-left: 6px; }
+      .gig-item .gig-code { order: 6; }
+      .gig-item .gig-date-input { padding: 3px 2px; }
       .monthly-badge { padding: 12px 8px; }
       .vid-btn { top: 4px; right: auto; left: 3px; height: 16px; min-width: 16px; padding: 0 3px; font-size: 9px; line-height: 14px; opacity: 1; }
       .monthly-badge .big-num { font-size: 28px; }
@@ -1392,6 +1394,8 @@
     .vid-pick-row .rec-select { width: 100%; font-size: 13px; padding: 6px 8px; }
     .joke-sent { flex-shrink: 0; font-size: 11px; color: var(--text-3); white-space: nowrap; }
     .gig-card { padding: 10px 8px; border-bottom: 1px solid var(--border); }
+    .gig-card-time { flex: 0 0 auto; font-size: 13px; font-weight: 600; color: var(--text-2); font-variant-numeric: tabular-nums; }
+    .joke-panel-add .gig-time { flex: 0 0 auto; width: auto; }
     .gig-card:last-child { border-bottom: none; }
     .gig-card-head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
     .gig-card-title { flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
@@ -1767,6 +1771,7 @@
     <div id="csub-gigs" class="vpanel" hidden>
       <form class="vadd gig-add" id="gigAddForm">
         <input id="gigAddDate" class="vadd-input gig-date" type="date" required data-i18n-aria="gigDate" aria-label="Date">
+        <input id="gigAddTime" class="vadd-input gig-date gig-time" type="time" data-i18n-aria="gigTime" data-i18n-title="gigTime" aria-label="Time">
         <input id="gigAddInput" class="vadd-input" data-i18n-placeholder="gigPlacePlaceholder" placeholder="Where are you performing?" autocomplete="off">
         <button class="vadd-btn" type="submit" data-i18n="add">Add</button>
       </form>
@@ -2006,6 +2011,7 @@
   </div>
   <div id="gigPanelList"></div>
   <form class="joke-panel-add" id="gigPanelAddForm">
+    <input id="gigPanelAddTime" class="vadd-input gig-time" type="time" data-i18n-aria="gigTime" data-i18n-title="gigTime" aria-label="Time">
     <input id="gigPanelAddInput" class="vadd-input" data-i18n-placeholder="gigPanelAddPlaceholder" autocomplete="off">
     <button class="vadd-btn" type="submit" data-i18n="add">Add</button>
   </form>
@@ -2084,7 +2090,7 @@
       genWord: 'Word', genWordBtn: 'Random word', genNumber: 'Number', genNumberBtn: 'Random number',
       genProfession: 'Profession', genProfessionBtn: 'Random profession', genCity: 'City', genCityBtn: 'Random city',
       genCountry: 'Country', genCountryBtn: 'Random country', genFamous: 'Famous person', genFamousBtn: 'Random famous person',
-      subGigs: 'Gigs', gigDate: 'Date', gigPlacePlaceholder: 'Where are you performing? (venue, open mic…)', gigLearnPlaceholder: 'What did you learn? What worked and what didn’t?', gigsUpcoming: 'Upcoming', gigsPast: 'Past', gigsEmpty: 'No gigs yet. Add your next one above.', gigToday: 'Today', gigUntitled: 'this gig',
+      subGigs: 'Gigs', gigDate: 'Date', gigTime: 'Time (optional)', gigPlacePlaceholder: 'Where are you performing? (venue, open mic…)', gigLearnPlaceholder: 'What did you learn? What worked and what didn’t?', gigsUpcoming: 'Upcoming', gigsPast: 'Past', gigsEmpty: 'No gigs yet. Add your next one above.', gigToday: 'Today', gigUntitled: 'this gig',
       confirmTitle: 'Are you sure?', confirmDeleteItem: 'Delete "{title}"? This can’t be undone.', thisItem: 'this item', confirmRemoveWeek: 'Remove "{title}" from this week? The video stays in your backlog.', boldTip: 'Bold (Cmd+B)',
       gigCodeCopy: 'Copy code', copied: '✓ Copied', recordings: 'Recordings (gigs where it was recorded)', recAdd: '+ Add recording…', recNone: 'No gigs yet (Calendar › Gigs)', recNonePast: 'No past gigs yet', gigPanelTitle: '🎤 {date} · Gigs', gigPanelAddPlaceholder: 'Another gig this day… (venue)', gigOpen: 'Open in Gigs ›', gigNoNotes: 'Nothing written yet.', gigLearned: 'What you learned', gigJokesLabel: 'Jokes', recRemove: 'Remove', gigVideosTip: 'Videos recorded here: {list}',
       gigJokes: 'Jokes performed at this gig', jokeAdd: '+ Add joke…', jokeNone: 'No jokes yet (Calendar › Written jokes)',
@@ -2160,7 +2166,7 @@
       genWord: 'Palabra', genWordBtn: 'Palabra aleatoria', genNumber: 'Número', genNumberBtn: 'Número aleatorio',
       genProfession: 'Profesión', genProfessionBtn: 'Profesión aleatoria', genCity: 'Ciudad', genCityBtn: 'Ciudad aleatoria',
       genCountry: 'País', genCountryBtn: 'País aleatorio', genFamous: 'Famoso', genFamousBtn: 'Famoso aleatorio',
-      subGigs: 'Actuaciones', gigDate: 'Fecha', gigPlacePlaceholder: '¿Dónde actúas? (sala, micro abierto…)', gigLearnPlaceholder: '¿Qué has aprendido? ¿Qué funcionó y qué no?', gigsUpcoming: 'Próximas', gigsPast: 'Pasadas', gigsEmpty: 'Aún no hay actuaciones. Añade la próxima arriba.', gigToday: 'Hoy', gigUntitled: 'esta actuación',
+      subGigs: 'Actuaciones', gigDate: 'Fecha', gigTime: 'Hora (opcional)', gigPlacePlaceholder: '¿Dónde actúas? (sala, micro abierto…)', gigLearnPlaceholder: '¿Qué has aprendido? ¿Qué funcionó y qué no?', gigsUpcoming: 'Próximas', gigsPast: 'Pasadas', gigsEmpty: 'Aún no hay actuaciones. Añade la próxima arriba.', gigToday: 'Hoy', gigUntitled: 'esta actuación',
       confirmTitle: '¿Seguro?', confirmDeleteItem: '¿Eliminar "{title}"? No se puede deshacer.', thisItem: 'este elemento', confirmRemoveWeek: '¿Quitar "{title}" de esta semana? El vídeo seguirá en el backlog.', boldTip: 'Negrita (Cmd+B)',
       gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Grabaciones (actuaciones donde se grabó)', recAdd: '+ Añadir grabación…', recNone: 'Aún no hay actuaciones (Calendario › Actuaciones)', recNonePast: 'Aún no hay actuaciones pasadas', gigPanelTitle: '🎤 {date} · Actuaciones', gigPanelAddPlaceholder: 'Otra actuación este día… (sala)', gigOpen: 'Abrir en Actuaciones ›', gigNoNotes: 'Aún no has escrito nada.', gigLearned: 'Lo aprendido', gigJokesLabel: 'Chistes', recRemove: 'Quitar', gigVideosTip: 'Vídeos grabados aquí: {list}',
       gigJokes: 'Chistes de esta actuación', jokeAdd: '+ Añadir chiste…', jokeNone: 'Aún no hay chistes (Calendario › Chistes escritos)',
@@ -2236,7 +2242,7 @@
       genWord: 'Palavra', genWordBtn: 'Palavra aleatória', genNumber: 'Número', genNumberBtn: 'Número aleatório',
       genProfession: 'Profissão', genProfessionBtn: 'Profissão aleatória', genCity: 'Cidade', genCityBtn: 'Cidade aleatória',
       genCountry: 'País', genCountryBtn: 'País aleatório', genFamous: 'Famoso', genFamousBtn: 'Famoso aleatório',
-      subGigs: 'Apresentações', gigDate: 'Data', gigPlacePlaceholder: 'Onde você vai se apresentar? (casa, open mic…)', gigLearnPlaceholder: 'O que você aprendeu? O que funcionou e o que não?', gigsUpcoming: 'Próximas', gigsPast: 'Passadas', gigsEmpty: 'Ainda não há apresentações. Adicione a próxima acima.', gigToday: 'Hoje', gigUntitled: 'esta apresentação',
+      subGigs: 'Apresentações', gigDate: 'Data', gigTime: 'Hora (opcional)', gigPlacePlaceholder: 'Onde você vai se apresentar? (casa, open mic…)', gigLearnPlaceholder: 'O que você aprendeu? O que funcionou e o que não?', gigsUpcoming: 'Próximas', gigsPast: 'Passadas', gigsEmpty: 'Ainda não há apresentações. Adicione a próxima acima.', gigToday: 'Hoje', gigUntitled: 'esta apresentação',
       confirmTitle: 'Tem certeza?', confirmDeleteItem: 'Excluir "{title}"? Não dá para desfazer.', thisItem: 'este item', confirmRemoveWeek: 'Tirar "{title}" desta semana? O vídeo continua no backlog.', boldTip: 'Negrito (Cmd+B)',
       gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Gravações (apresentações onde foi gravado)', recAdd: '+ Adicionar gravação…', recNone: 'Ainda não há apresentações (Calendário › Apresentações)', recNonePast: 'Ainda não há apresentações passadas', gigPanelTitle: '🎤 {date} · Apresentações', gigPanelAddPlaceholder: 'Outra apresentação neste dia… (casa)', gigOpen: 'Abrir em Apresentações ›', gigNoNotes: 'Ainda não escreveu nada.', gigLearned: 'O que aprendeu', gigJokesLabel: 'Piadas', recRemove: 'Remover', gigVideosTip: 'Vídeos gravados aqui: {list}',
       gigJokes: 'Piadas desta apresentação', jokeAdd: '+ Adicionar piada…', jokeNone: 'Ainda não há piadas (Calendário › Piadas escritas)',
@@ -2312,7 +2318,7 @@
       genWord: 'Mot', genWordBtn: 'Mot au hasard', genNumber: 'Nombre', genNumberBtn: 'Nombre au hasard',
       genProfession: 'Métier', genProfessionBtn: 'Métier au hasard', genCity: 'Ville', genCityBtn: 'Ville au hasard',
       genCountry: 'Pays', genCountryBtn: 'Pays au hasard', genFamous: 'Célébrité', genFamousBtn: 'Célébrité au hasard',
-      subGigs: 'Scènes', gigDate: 'Date', gigPlacePlaceholder: 'Où joues-tu ? (salle, open mic…)', gigLearnPlaceholder: 'Qu’as-tu appris ? Qu’est-ce qui a marché, ou pas ?', gigsUpcoming: 'À venir', gigsPast: 'Passées', gigsEmpty: 'Aucune scène pour l’instant. Ajoute la prochaine ci-dessus.', gigToday: 'Aujourd’hui', gigUntitled: 'cette scène',
+      subGigs: 'Scènes', gigDate: 'Date', gigTime: 'Heure (facultatif)', gigPlacePlaceholder: 'Où joues-tu ? (salle, open mic…)', gigLearnPlaceholder: 'Qu’as-tu appris ? Qu’est-ce qui a marché, ou pas ?', gigsUpcoming: 'À venir', gigsPast: 'Passées', gigsEmpty: 'Aucune scène pour l’instant. Ajoute la prochaine ci-dessus.', gigToday: 'Aujourd’hui', gigUntitled: 'cette scène',
       confirmTitle: 'Tu es sûr ?', confirmDeleteItem: 'Supprimer « {title} » ? C’est irréversible.', thisItem: 'cet élément', confirmRemoveWeek: 'Retirer « {title} » de cette semaine ? La vidéo reste dans le backlog.', boldTip: 'Gras (Cmd+B)',
       gigCodeCopy: 'Copier le code', copied: '✓ Copié', recordings: 'Enregistrements (scènes où elle a été filmée)', recAdd: '+ Ajouter un enregistrement…', recNone: 'Aucune scène pour l’instant (Notes › Scènes)', recRemove: 'Retirer', gigVideosTip: 'Vidéos filmées ici : {list}',
       gigJokes: 'Blagues jouées sur cette scène', jokeAdd: '+ Ajouter une blague…', jokeNone: 'Aucune blague pour l’instant (Calendrier › Blagues écrites)',
@@ -4426,13 +4432,20 @@
   }
 
   function gigsOn(dk) {
-    return gigs().filter(g => g.date === dk);
+    return gigs().filter(g => g.date === dk)
+      .sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
+  }
+
+  function gigTimeLabel(g) {
+    if (!g.time) return '';
+    const [h, m] = g.time.split(':').map(Number);
+    return new Date(2000, 0, 1, h, m).toLocaleTimeString(LOCALES[lang], { hour: '2-digit', minute: '2-digit' });
   }
 
   function gigMarkHtml(dk) {
     const list = gigsOn(dk);
     if (!list.length) return '';
-    const tip = esc(list.map(g => (g.title || '').trim() || t('gigUntitled')).join(' · ')).replace(/"/g, '&quot;');
+    const tip = esc(list.map(g => [gigTimeLabel(g), (g.title || '').trim() || t('gigUntitled')].filter(Boolean).join(' ')).join(' · ')).replace(/"/g, '&quot;');
     return `<button type="button" class="gig-mark" title="${tip}" aria-label="${tip}">🎤${list.length > 1 ? list.length : ''}</button>`;
   }
 
@@ -4456,6 +4469,7 @@
       <div class="plan-item gig-item${past ? ' past' : ''}" data-gid="${gig.id}">
         <div class="plan-row">
           <input type="date" class="gig-date-input" value="${esc(gig.date || '')}" aria-label="${t('gigDate')}">
+          <input type="time" class="gig-date-input gig-time-input" value="${esc(gig.time || '')}" aria-label="${t('gigTime')}" title="${t('gigTime')}">
           ${gig.date === today ? `<span class="gig-today">${t('gigToday')}</span>` : ''}
           <input class="plan-input" value="${esc(gig.title || '').replace(/"/g, '&quot;')}" placeholder="${t('gigPlacePlaceholder')}">
           ${gigVideosHtml(gig.id)}
@@ -4472,8 +4486,9 @@
   function renderGigs() {
     const today = localTodayKey();
     const all = gigs();
-    const upcoming = all.filter(g => g.date >= today).sort((a, b) => a.date.localeCompare(b.date));
-    const past = all.filter(g => !(g.date >= today)).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    const when = g => `${g.date || ''} ${g.time || '99:99'}`;
+    const upcoming = all.filter(g => g.date >= today).sort((a, b) => when(a).localeCompare(when(b)));
+    const past = all.filter(g => !(g.date >= today)).sort((a, b) => when(b).localeCompare(when(a)));
     document.getElementById('cntGigs').textContent = all.length;
     document.getElementById('gigsEmpty').hidden = all.length > 0;
     [['gigUpcoming', 'gigUpcomingHead', 'cntGigUpcoming', upcoming], ['gigPast', 'gigPastHead', 'cntGigPast', past]]
@@ -4494,6 +4509,10 @@
         if (!this.value) { this.value = gigs().find(g => g.id === id)?.date || ''; return; }
         updateGig(id, { date: this.value });
         render();   // re-sorts it into place and moves the calendar mark
+      });
+      row.querySelector('.gig-time-input').addEventListener('change', function() {
+        updateGig(id, { time: this.value || undefined });
+        render();   // re-sorts within the day
       });
       row.querySelector('.plan-input').addEventListener('input', function() {
         updateGig(id, { title: this.value });
@@ -4756,6 +4775,7 @@
         <div class="gig-card" data-gid="${g.id}">
           <div class="gig-card-head">
             ${g.date === today ? `<span class="gig-today">${t('gigToday')}</span>` : ''}
+            ${g.time ? `<span class="gig-card-time">${esc(gigTimeLabel(g))}</span>` : ''}
             <span class="gig-card-title">${esc((g.title || '').trim() || t('gigUntitled'))}</span>
             <button type="button" class="gig-code" data-act="code" title="${t('gigCodeCopy')}">${esc(codes[g.id] || '')}</button>
           </div>
@@ -4817,9 +4837,11 @@
       e.preventDefault();
       const input = document.getElementById('gigPanelAddInput');
       if (!activeGigDk) return;
-      setGigs([...gigs(), { id: uid(), date: activeGigDk, title: input.value.trim(), notes: '' }]);
+      const timeEl = document.getElementById('gigPanelAddTime');
+      setGigs([...gigs(), { id: uid(), date: activeGigDk, ...(timeEl.value ? { time: timeEl.value } : {}), title: input.value.trim(), notes: '' }]);
       save();
       input.value = '';
+      timeEl.value = '';
       const dk = activeGigDk;
       render();
       activeGigDk = dk;
@@ -4840,7 +4862,9 @@
       e.preventDefault();
       const input = document.getElementById('gigAddInput');
       const date = dateEl.value || localTodayKey();
-      const gig = { id: uid(), date, title: input.value.trim(), notes: '' };
+      const timeEl = document.getElementById('gigAddTime');
+      const gig = { id: uid(), date, ...(timeEl.value ? { time: timeEl.value } : {}), title: input.value.trim(), notes: '' };
+      timeEl.value = '';
       setGigs([...gigs(), gig]);
       save();
       input.value = '';
