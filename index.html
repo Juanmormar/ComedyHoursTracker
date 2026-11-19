@@ -933,6 +933,10 @@
 
     /* ─── WEEK ANNOTATION ─── */
 
+    .hours-off .x-wrap,
+    .hours-off .week-annot .annot-line:not(.vid),
+    .hours-off #hoursBadge { display: none; }
+    .hours-off .day-cell { cursor: default; }
     .week-annot {
       display: flex;
       flex-direction: column;
@@ -972,8 +976,11 @@
     .cell-btns {
       position: absolute;
       top: 11px;
+      left: 8px;
       right: 38px;
       display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
       gap: 4px;
     }
     .cell-btns .vid-btn, .cell-btns .joke-btn { position: static; }
@@ -1711,10 +1718,10 @@
   <div class="masthead">
     <div class="title-block">
       <h1 data-i18n="siteTitle">Comedy Hours  - Don't break the chain</h1>
-      <p class="byline" data-i18n="byline">Track the hours you spend writing comedy — one ✕ per hour.</p>
+      <p class="byline" id="bylineText" data-i18n="byline">Track the hours you spend writing comedy — one ✕ per hour.</p>
     </div>
     <div class="badges">
-      <div class="monthly-badge">
+      <div class="monthly-badge" id="hoursBadge">
         <span data-i18n="thisMonth">This month</span><br>
         <span class="big-num" id="totalNum">0</span>
         <span data-i18n="hrsWritten">hrs written</span>
@@ -1768,7 +1775,7 @@
     <div id="calBody"></div>
   </div>
 
-  <p class="footer" data-i18n-html="footer"></p>
+  <p class="footer" id="footerText" data-i18n-html="footer"></p>
 
   </div>
 
@@ -2109,7 +2116,7 @@
     en: {
       language: 'Language',
       siteTitle: "Comedy Hours  - Don't break the chain",
-      byline: 'Track the hours you spend writing comedy — one ✕ per hour.',
+      byline: 'Track the hours you spend writing comedy — one ✕ per hour.', bylineNoHours: 'Track your jokes, edited videos and gigs.', footerNoHours: '🤣 jokes written &nbsp;&middot;&nbsp; 🎬 videos edited &nbsp;&middot;&nbsp; 🎤 gigs &nbsp;&middot;&nbsp; Data saved automatically',
       addNote: '+ note', profile: 'Profile', guideDownload: '📄 Guide (PDF)', guideTip: 'Download the user guide as a PDF',
       modalTitle: 'Who is using the tracker?', modalSub: 'Choose your profile. This browser will remember it.',
       passwordTitle: 'Password for {name}', passwordSub: 'You only need it once on each browser, or when changing profile.',
@@ -2185,7 +2192,7 @@
     es: {
       language: 'Idioma',
       siteTitle: 'Comedy Hours  - No rompas la cadena',
-      byline: 'Registra las horas que dedicas a escribir comedia: una ✕ por hora.',
+      byline: 'Registra las horas que dedicas a escribir comedia: una ✕ por hora.', bylineNoHours: 'Lleva el control de tus chistes, vídeos editados y actuaciones.', footerNoHours: '🤣 chistes escritos &nbsp;&middot;&nbsp; 🎬 vídeos editados &nbsp;&middot;&nbsp; 🎤 actuaciones &nbsp;&middot;&nbsp; Los datos se guardan automáticamente',
       addNote: '+ nota', profile: 'Perfil', guideDownload: '📄 Guía (PDF)', guideTip: 'Descargar la guía de uso en PDF',
       modalTitle: '¿Quién usa el tracker?', modalSub: 'Elige tu perfil. Este navegador lo recordará.',
       passwordTitle: 'Contraseña de {name}', passwordSub: 'Solo la necesitas una vez en cada navegador, o al cambiar de perfil.',
@@ -2261,7 +2268,7 @@
     pt: {
       language: 'Idioma',
       siteTitle: 'Comedy Hours  - Não quebre a corrente',
-      byline: 'Registre as horas que você dedica a escrever comédia: um ✕ por hora.',
+      byline: 'Registre as horas que você dedica a escrever comédia: um ✕ por hora.', bylineNoHours: 'Acompanhe suas piadas, vídeos editados e apresentações.', footerNoHours: '🤣 piadas escritas &nbsp;&middot;&nbsp; 🎬 vídeos editados &nbsp;&middot;&nbsp; 🎤 apresentações &nbsp;&middot;&nbsp; Os dados são salvos automaticamente',
       addNote: '+ nota', profile: 'Perfil', guideDownload: '📄 Guia (PDF)', guideTip: 'Baixar o guia de uso em PDF',
       modalTitle: 'Quem está usando o tracker?', modalSub: 'Escolha o seu perfil. Este navegador vai lembrar dele.',
       passwordTitle: 'Senha de {name}', passwordSub: 'Você só precisa dela uma vez em cada navegador, ou ao trocar de perfil.',
@@ -2337,7 +2344,7 @@
     fr: {
       language: 'Langue',
       siteTitle: 'Comedy Hours  - Ne brise pas la chaîne',
-      byline: 'Note les heures que tu passes à écrire de la comédie : une ✕ par heure.',
+      byline: 'Note les heures que tu passes à écrire de la comédie : une ✕ par heure.', bylineNoHours: 'Suis tes blagues, tes vidéos montées et tes scènes.', footerNoHours: '🤣 blagues écrites &nbsp;&middot;&nbsp; 🎬 vidéos montées &nbsp;&middot;&nbsp; 🎤 scènes &nbsp;&middot;&nbsp; Données enregistrées automatiquement',
       addNote: '+ note', profile: 'Profil', guideDownload: '📄 Guide (PDF)', guideTip: 'Télécharger le guide d’utilisation en PDF',
       modalTitle: 'Qui utilise le tracker ?', modalSub: 'Choisis ton profil. Ce navigateur s’en souviendra.',
       passwordTitle: 'Mot de passe de {name}', passwordSub: 'Il ne te sera demandé qu’une fois par navigateur, ou en changeant de profil.',
@@ -2411,6 +2418,15 @@
       statsFrom: 'Du', statsTo: 'au', statsPublished: '{n} vidéos publiées', statsPublished_one: '{n} vidéo publiée', statsWorked: 'ont marché', statsSoSo: 'moyennes', statsFlopped: 'ratées', statsResetTip: 'Revenir au mois du calendrier',
     },
   };
+  // Hour ✕ marks are switched off for now: hidden and not editable, but saved hours are kept.
+  // Set to true to bring them back.
+  const HOURS_ENABLED = false;
+  document.documentElement.classList.toggle('hours-off', !HOURS_ENABLED);
+  if (!HOURS_ENABLED) {
+    document.getElementById('bylineText').dataset.i18n = 'bylineNoHours';
+    document.getElementById('footerText').dataset.i18nHtml = 'footerNoHours';
+  }
+
   const LOCALES  = { en: 'en', es: 'es', pt: 'pt', fr: 'fr' };
   const LANG_KEY = 'comedy-tracker-lang';
   let lang = 'en';
@@ -5332,6 +5348,7 @@
   /* ── Interactions ── */
 
   function onAdd() {
+    if (!HOURS_ENABLED) return;
     const dk = this.dataset.dk;
     setDay(dk, hrs(dk) + 1, note(dk), vids(dk));
     save();
@@ -5341,6 +5358,7 @@
 
   function onRemove(e) {
     e.preventDefault();
+    if (!HOURS_ENABLED) return;
     const dk = this.dataset.dk;
     const h  = hrs(dk);
     if (h > 0) {
