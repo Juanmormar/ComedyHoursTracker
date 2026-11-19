@@ -937,6 +937,7 @@
     .hours-off .week-annot .annot-line:not(.vid),
     .hours-off #hoursBadge { display: none; }
     .hours-off .day-cell { cursor: default; }
+    .day-notes-off .note-trigger, .day-notes-off #notePanel { display: none !important; }
     .week-annot {
       display: flex;
       flex-direction: column;
@@ -2422,6 +2423,9 @@
   // Set to true to bring them back.
   const HOURS_ENABLED = false;
   document.documentElement.classList.toggle('hours-off', !HOURS_ENABLED);
+  // Day notes (the text inside each calendar day) are hidden for now; what was written is kept.
+  const DAY_NOTES_ENABLED = false;
+  document.documentElement.classList.toggle('day-notes-off', !DAY_NOTES_ENABLED);
   if (!HOURS_ENABLED) {
     document.getElementById('bylineText').dataset.i18n = 'bylineNoHours';
     document.getElementById('footerText').dataset.i18nHtml = 'footerNoHours';
