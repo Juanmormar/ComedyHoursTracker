@@ -1391,6 +1391,15 @@
     .vid-pick-row { padding: 6px 6px 2px; }
     .vid-pick-row .rec-select { width: 100%; font-size: 13px; padding: 6px 8px; }
     .joke-sent { flex-shrink: 0; font-size: 11px; color: var(--text-3); white-space: nowrap; }
+    .gig-card { padding: 10px 8px; border-bottom: 1px solid var(--border); }
+    .gig-card:last-child { border-bottom: none; }
+    .gig-card-head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .gig-card-title { flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: 600; color: var(--text); overflow-wrap: anywhere; }
+    .gig-card-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .gig-card-label { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--text-3); margin-top: 10px; }
+    .gig-card-notes { font-size: 13px; line-height: 1.45; color: var(--text-2); margin-top: 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .gig-card-notes b { color: var(--text); }
+    .gig-card-open { display: inline-block; margin-top: 10px; font: inherit; font-size: 12px; color: var(--accent); background: none; border: none; padding: 0; cursor: pointer; }
 
     .note-panel-textarea {
       display: block;
@@ -1989,6 +1998,19 @@
   <div id="vidPanelList"></div>
 </div>
 
+<!-- ─── GIGS OF A DAY ─── -->
+<div id="gigPanel" class="note-panel joke-panel gig-panel" hidden>
+  <div class="joke-panel-head">
+    <span id="gigPanelTitle"></span>
+    <button type="button" class="plan-icon-btn" id="gigPanelClose" data-i18n-title="close">✕</button>
+  </div>
+  <div id="gigPanelList"></div>
+  <form class="joke-panel-add" id="gigPanelAddForm">
+    <input id="gigPanelAddInput" class="vadd-input" data-i18n-placeholder="gigPanelAddPlaceholder" autocomplete="off">
+    <button class="vadd-btn" type="submit" data-i18n="add">Add</button>
+  </form>
+</div>
+
 <!-- ─── JOKES OF A DAY ─── -->
 <div id="jokePanel" class="note-panel joke-panel" hidden>
   <div class="joke-panel-head">
@@ -2064,7 +2086,7 @@
       genCountry: 'Country', genCountryBtn: 'Random country', genFamous: 'Famous person', genFamousBtn: 'Random famous person',
       subGigs: 'Gigs', gigDate: 'Date', gigPlacePlaceholder: 'Where are you performing? (venue, open mic…)', gigLearnPlaceholder: 'What did you learn? What worked and what didn’t?', gigsUpcoming: 'Upcoming', gigsPast: 'Past', gigsEmpty: 'No gigs yet. Add your next one above.', gigToday: 'Today', gigUntitled: 'this gig',
       confirmTitle: 'Are you sure?', confirmDeleteItem: 'Delete "{title}"? This can’t be undone.', thisItem: 'this item', confirmRemoveWeek: 'Remove "{title}" from this week? The video stays in your backlog.', boldTip: 'Bold (Cmd+B)',
-      gigCodeCopy: 'Copy code', copied: '✓ Copied', recordings: 'Recordings (gigs where it was recorded)', recAdd: '+ Add recording…', recNone: 'No gigs yet (Calendar › Gigs)', recNonePast: 'No past gigs yet', recRemove: 'Remove', gigVideosTip: 'Videos recorded here: {list}',
+      gigCodeCopy: 'Copy code', copied: '✓ Copied', recordings: 'Recordings (gigs where it was recorded)', recAdd: '+ Add recording…', recNone: 'No gigs yet (Calendar › Gigs)', recNonePast: 'No past gigs yet', gigPanelTitle: '🎤 {date} · Gigs', gigPanelAddPlaceholder: 'Another gig this day… (venue)', gigOpen: 'Open in Gigs ›', gigNoNotes: 'Nothing written yet.', gigLearned: 'What you learned', gigJokesLabel: 'Jokes', recRemove: 'Remove', gigVideosTip: 'Videos recorded here: {list}',
       gigJokes: 'Jokes performed at this gig', jokeAdd: '+ Add joke…', jokeNone: 'No jokes yet (Calendar › Written jokes)',
       jokeFrom: 'Pick from list', jokeNoneInList: 'Nothing left in this list',
       dayMon: 'Mon', dayTue: 'Tue', dayWed: 'Wed', dayThu: 'Thu', dayFri: 'Fri', daySat: 'Sat', daySun: 'Sun', colWeek: '// wk',
@@ -2140,7 +2162,7 @@
       genCountry: 'País', genCountryBtn: 'País aleatorio', genFamous: 'Famoso', genFamousBtn: 'Famoso aleatorio',
       subGigs: 'Actuaciones', gigDate: 'Fecha', gigPlacePlaceholder: '¿Dónde actúas? (sala, micro abierto…)', gigLearnPlaceholder: '¿Qué has aprendido? ¿Qué funcionó y qué no?', gigsUpcoming: 'Próximas', gigsPast: 'Pasadas', gigsEmpty: 'Aún no hay actuaciones. Añade la próxima arriba.', gigToday: 'Hoy', gigUntitled: 'esta actuación',
       confirmTitle: '¿Seguro?', confirmDeleteItem: '¿Eliminar "{title}"? No se puede deshacer.', thisItem: 'este elemento', confirmRemoveWeek: '¿Quitar "{title}" de esta semana? El vídeo seguirá en el backlog.', boldTip: 'Negrita (Cmd+B)',
-      gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Grabaciones (actuaciones donde se grabó)', recAdd: '+ Añadir grabación…', recNone: 'Aún no hay actuaciones (Calendario › Actuaciones)', recNonePast: 'Aún no hay actuaciones pasadas', recRemove: 'Quitar', gigVideosTip: 'Vídeos grabados aquí: {list}',
+      gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Grabaciones (actuaciones donde se grabó)', recAdd: '+ Añadir grabación…', recNone: 'Aún no hay actuaciones (Calendario › Actuaciones)', recNonePast: 'Aún no hay actuaciones pasadas', gigPanelTitle: '🎤 {date} · Actuaciones', gigPanelAddPlaceholder: 'Otra actuación este día… (sala)', gigOpen: 'Abrir en Actuaciones ›', gigNoNotes: 'Aún no has escrito nada.', gigLearned: 'Lo aprendido', gigJokesLabel: 'Chistes', recRemove: 'Quitar', gigVideosTip: 'Vídeos grabados aquí: {list}',
       gigJokes: 'Chistes de esta actuación', jokeAdd: '+ Añadir chiste…', jokeNone: 'Aún no hay chistes (Calendario › Chistes escritos)',
       jokeFrom: 'Elegir de la lista', jokeNoneInList: 'No queda nada en esta lista',
       dayMon: 'Lun', dayTue: 'Mar', dayWed: 'Mié', dayThu: 'Jue', dayFri: 'Vie', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
@@ -2216,7 +2238,7 @@
       genCountry: 'País', genCountryBtn: 'País aleatório', genFamous: 'Famoso', genFamousBtn: 'Famoso aleatório',
       subGigs: 'Apresentações', gigDate: 'Data', gigPlacePlaceholder: 'Onde você vai se apresentar? (casa, open mic…)', gigLearnPlaceholder: 'O que você aprendeu? O que funcionou e o que não?', gigsUpcoming: 'Próximas', gigsPast: 'Passadas', gigsEmpty: 'Ainda não há apresentações. Adicione a próxima acima.', gigToday: 'Hoje', gigUntitled: 'esta apresentação',
       confirmTitle: 'Tem certeza?', confirmDeleteItem: 'Excluir "{title}"? Não dá para desfazer.', thisItem: 'este item', confirmRemoveWeek: 'Tirar "{title}" desta semana? O vídeo continua no backlog.', boldTip: 'Negrito (Cmd+B)',
-      gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Gravações (apresentações onde foi gravado)', recAdd: '+ Adicionar gravação…', recNone: 'Ainda não há apresentações (Calendário › Apresentações)', recNonePast: 'Ainda não há apresentações passadas', recRemove: 'Remover', gigVideosTip: 'Vídeos gravados aqui: {list}',
+      gigCodeCopy: 'Copiar código', copied: '✓ Copiado', recordings: 'Gravações (apresentações onde foi gravado)', recAdd: '+ Adicionar gravação…', recNone: 'Ainda não há apresentações (Calendário › Apresentações)', recNonePast: 'Ainda não há apresentações passadas', gigPanelTitle: '🎤 {date} · Apresentações', gigPanelAddPlaceholder: 'Outra apresentação neste dia… (casa)', gigOpen: 'Abrir em Apresentações ›', gigNoNotes: 'Ainda não escreveu nada.', gigLearned: 'O que aprendeu', gigJokesLabel: 'Piadas', recRemove: 'Remover', gigVideosTip: 'Vídeos gravados aqui: {list}',
       gigJokes: 'Piadas desta apresentação', jokeAdd: '+ Adicionar piada…', jokeNone: 'Ainda não há piadas (Calendário › Piadas escritas)',
       jokeFrom: 'Escolher da lista', jokeNoneInList: 'Não sobrou nada nesta lista',
       dayMon: 'Seg', dayTue: 'Ter', dayWed: 'Qua', dayThu: 'Qui', dayFri: 'Sex', daySat: 'Sáb', daySun: 'Dom', colWeek: '// sem',
@@ -4316,7 +4338,7 @@
 
     const gigBtn = cell.querySelector('.gig-mark');
     if (gigBtn) {
-      const openGigs = (e) => { e.stopPropagation(); e.preventDefault(); showCalSubTab('gigs'); focusGigRow(gigsOn(cell.dataset.dk)[0]?.id); };
+      const openGigs = (e) => { e.stopPropagation(); e.preventDefault(); openGigPanel(cell, cell.dataset.dk); };
       gigBtn.addEventListener('click', openGigs);
       gigBtn.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); });
       gigBtn.addEventListener('touchstart', (e) => { e.stopPropagation(); clearTimeout(longPressTimer); }, { passive: true });
@@ -4715,6 +4737,102 @@
     });
   }
 
+  /* ── Popup with the gigs of one calendar day ── */
+  let activeGigDk = null;
+
+  function renderGigPanel() {
+    const dk = activeGigDk;
+    if (!dk) return;
+    const today = localTodayKey();
+    const codes = gigCodes();
+    const idx = jokeIndex();
+    document.getElementById('gigPanelTitle').textContent = t('gigPanelTitle', { date: jokeDateLabel(dk) });
+    document.getElementById('gigPanelList').innerHTML = gigsOn(dk).map(g => {
+      const jokeChips = liveJokeIds(g.jokes, idx)
+        .map(id => `<span class="rec-chip joke-chip">${esc(idx[id].title || t('jokeTitlePlaceholder'))}</span>`).join('');
+      const vids = videosRecordedAt(g.id);
+      const notes = cleanComment(g.notes);
+      return `
+        <div class="gig-card" data-gid="${g.id}">
+          <div class="gig-card-head">
+            ${g.date === today ? `<span class="gig-today">${t('gigToday')}</span>` : ''}
+            <span class="gig-card-title">${esc((g.title || '').trim() || t('gigUntitled'))}</span>
+            <button type="button" class="gig-code" data-act="code" title="${t('gigCodeCopy')}">${esc(codes[g.id] || '')}</button>
+          </div>
+          ${jokeChips ? `<div class="gig-card-label">${t('gigJokesLabel')}</div><div class="gig-card-meta">${jokeChips}</div>` : ''}
+          ${vids.length ? `<div class="gig-card-meta"><span class="gig-videos">🎬 ${esc(t('gigVideosTip', { list: vids.join(', ') }))}</span></div>` : ''}
+          <div class="gig-card-label">${t('gigLearned')}</div>
+          <div class="gig-card-notes">${notes || `<span style="color:var(--text-3)">${t('gigNoNotes')}</span>`}</div>
+          <button type="button" class="gig-card-open" data-act="open">${t('gigOpen')}</button>
+        </div>`;
+    }).join('');
+  }
+
+  function openGigPanel(cellEl, dk) {
+    closeNotePanel();
+    closeJokePanel();
+    closeVidPanel();
+    activeGigDk = dk;
+    const panel = document.getElementById('gigPanel');
+    renderGigPanel();
+    if (window.innerWidth > 767) {
+      const rect = cellEl.getBoundingClientRect();
+      const panelW = 360;
+      let left = rect.right + 8;
+      if (left + panelW > window.innerWidth - 8) left = rect.left - panelW - 8;
+      panel.style.left = Math.max(8, left) + 'px';
+      panel.style.top  = Math.max(8, Math.min(rect.top, window.innerHeight - 360)) + 'px';
+    }
+    panel.hidden = false;
+  }
+
+  function closeGigPanel() {
+    const panel = document.getElementById('gigPanel');
+    if (!panel || panel.hidden) return;
+    panel.hidden = true;
+    activeGigDk = null;
+  }
+
+  function bindGigPanel() {
+    const panel = document.getElementById('gigPanel');
+    document.getElementById('gigPanelClose').addEventListener('click', closeGigPanel);
+    document.getElementById('gigPanelList').addEventListener('click', async (e) => {
+      const card = e.target.closest('.gig-card');
+      if (!card) return;
+      const id = card.dataset.gid;
+      const act = e.target.closest('[data-act]')?.dataset.act;
+      if (act === 'open') {
+        closeGigPanel();
+        showCalSubTab('gigs');
+        focusGigRow(id);
+      } else if (act === 'code') {
+        const btn = e.target.closest('[data-act]');
+        try { await navigator.clipboard.writeText(gigCodes()[id]); } catch { return; }
+        btn.textContent = t('copied');
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = gigCodes()[id] || ''; btn.classList.remove('copied'); }, 1200);
+      }
+    });
+    document.getElementById('gigPanelAddForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('gigPanelAddInput');
+      if (!activeGigDk) return;
+      setGigs([...gigs(), { id: uid(), date: activeGigDk, title: input.value.trim(), notes: '' }]);
+      save();
+      input.value = '';
+      const dk = activeGigDk;
+      render();
+      activeGigDk = dk;
+      renderGigPanel();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !panel.hidden && !confirmResolve) closeGigPanel();
+    });
+    document.addEventListener('mousedown', (e) => {
+      if (!e.target.closest('#gigPanel, .gig-mark, #confirmModal')) closeGigPanel();
+    });
+  }
+
   function bindGigs() {
     const dateEl = document.getElementById('gigAddDate');
     dateEl.value = localTodayKey();
@@ -4848,6 +4966,7 @@
   function openJokePanel(cellEl, dk) {
     closeNotePanel();
     closeVidPanel();
+    closeGigPanel();
     activeJokeDk = dk;
     const panel = document.getElementById('jokePanel');
     document.getElementById('jokePanelTitle').textContent = `🤣 ${jokeDateLabel(dk)}`;
@@ -4961,6 +5080,7 @@
   function openVidPanel(cellEl, dk) {
     closeNotePanel();
     closeJokePanel();
+    closeGigPanel();
     activeVidDk = dk;
     const panel = document.getElementById('vidPanel');
     document.getElementById('vidPanelTitle').textContent = `🎬 ${jokeDateLabel(dk)} · ${t('videosEdited')}`;
@@ -5186,6 +5306,7 @@
     bindJokes();
     bindVidPanel();
     bindGigs();
+    bindGigPanel();
     bindPubStats();
     initConfirm();
     initBoldTools();
